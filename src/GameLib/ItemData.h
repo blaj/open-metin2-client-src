@@ -103,6 +103,7 @@ class CItemData
 		{
 			COSTUME_BODY,				//0	갑옷(main look)
 			COSTUME_HAIR,				//1	헤어(탈착가능)
+			COSTUME_MOUNT,
 			COSTUME_NUM_TYPES,
 		};
 
@@ -248,6 +249,7 @@ class CItemData
 			WEAR_ABILITY8,		//18
 			WEAR_COSTUME_BODY,	//19
 			WEAR_COSTUME_HAIR,	//20
+			WEAR_COSTUME_MOUNT,
 
 			WEAR_RING1,			//21
 			WEAR_RING2,			//22
@@ -273,6 +275,7 @@ class CItemData
 			WEARABLE_COSTUME_BODY			= (1 << 12),
 			WEARABLE_COSTUME_HAIR			= (1 << 13),
 			WEARABLE_BELT					= (1 << 14),
+			WEARABLE_COSTUME_MOUNT			= (1 << 15),
 		};
 
 		enum EApplyTypes
