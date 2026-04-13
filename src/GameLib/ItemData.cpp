@@ -166,6 +166,51 @@ const CItemData::TItemTable* CItemData::GetTable() const
 	return &m_ItemTable;
 }
 
+void CItemData::SetItemScale(const std::string strJob, const std::string strSex, const std::string strScaleX, const std::string strScaleY, const std::string strScaleZ, const std::string strPositionX, const std::string strPositionY, const std::string strPositionZ)
+{
+	DWORD dwPos;
+	if (strJob == "JOB_WARRIOR")
+	{
+		dwPos = NRaceData::JOB_WARRIOR;
+	}
+	else if (strJob == "JOB_ASSASSIN")
+	{
+		dwPos = NRaceData::JOB_ASSASSIN;
+	}
+	else if (strJob == "JOB_SURA")
+	{
+		dwPos = NRaceData::JOB_SURA;
+	}
+	else
+	{
+		dwPos = NRaceData::JOB_SHAMAN;
+	}
+
+	dwPos += 1;
+	if (strSex == "F")
+	{
+		dwPos += 5;
+	}
+
+	m_ScaleTable.tInfo[dwPos].fScaleX = float(atof(strScaleX.c_str()) / 100.0f);
+	m_ScaleTable.tInfo[dwPos].fScaleY = float(atof(strScaleY.c_str()) / 100.0f);
+	m_ScaleTable.tInfo[dwPos].fScaleZ = float(atof(strScaleZ.c_str()) / 100.0f);
+	m_ScaleTable.tInfo[dwPos].fPositionX = float(atof(strPositionX.c_str()) * 100.0f);
+	m_ScaleTable.tInfo[dwPos].fPositionY = float(atof(strPositionY.c_str()) * 100.0f);
+	m_ScaleTable.tInfo[dwPos].fPositionZ = float(atof(strPositionZ.c_str()) * 100.0f);
+}
+
+bool CItemData::GetItemScale(DWORD dwPos, float& fScaleX, float& fScaleY, float& fScaleZ, float& fPositionX, float& fPositionY, float& fPositionZ)
+{
+	fScaleX = m_ScaleTable.tInfo[dwPos].fScaleX;
+	fScaleY = m_ScaleTable.tInfo[dwPos].fScaleY;
+	fScaleZ = m_ScaleTable.tInfo[dwPos].fScaleZ;
+	fPositionX = m_ScaleTable.tInfo[dwPos].fPositionX;
+	fPositionY = m_ScaleTable.tInfo[dwPos].fPositionY;
+	fPositionZ = m_ScaleTable.tInfo[dwPos].fPositionZ;
+	return true;
+}
+
 DWORD CItemData::GetIndex() const
 {
 	return m_ItemTable.dwVnum;
@@ -398,6 +443,7 @@ void CItemData::Clear()
 	m_pLODModelThingVector.clear();
 
 	memset(&m_ItemTable, 0, sizeof(m_ItemTable));
+	memset(&m_ScaleTable, 0, sizeof(m_ScaleTable));
 }
 
 CItemData::CItemData()

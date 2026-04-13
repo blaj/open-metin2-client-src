@@ -41,6 +41,7 @@
 #include "ServerStateChecker.h"
 #include "AbstractApplication.h"
 #include "MovieMan.h"
+#include "PythonShoulderSash.h"
 
 #include <qedit.h>
 
@@ -341,6 +342,7 @@ class CPythonApplication : public CMSApplication, public CInputKeyboard, public 
 		CPythonResource				m_pyRes;
 		CPythonQuest				m_pyQuest;
 		CPythonMessenger			m_pyManager;
+		CPythonShoulderSash			m_pyShoulderSash;
 		CPythonSafeBox				m_pySafeBox;
 		CPythonGuild				m_pyGuild;
 

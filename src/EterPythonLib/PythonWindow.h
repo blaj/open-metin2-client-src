@@ -422,7 +422,7 @@ namespace UI
 			virtual ~CAniImageBox();
 
 			void SetDelay(int iDelay);
-			void AppendImage(const char * c_szFileName);
+			void AppendImage(const char * c_szFileName, float r = 1.0, float g = 1.0, float b = 1.0, float a = 1.0);
 			void SetRenderingRect(float fLeft, float fTop, float fRight, float fBottom);
 			void SetRenderingMode(int iMode);
 

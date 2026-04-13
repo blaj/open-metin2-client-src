@@ -86,6 +86,7 @@ namespace CG
     constexpr uint16_t QUICKSLOT_SWAP     = 0x050B;
     constexpr uint16_t REFINE             = 0x050C;
     constexpr uint16_t DRAGON_SOUL_REFINE = 0x050D;
+    constexpr uint16_t SHOULDER_SASH      = 0x050E;
 
     // Chat
     constexpr uint16_t CHAT               = 0x0601;
@@ -211,6 +212,7 @@ namespace GC
     constexpr uint16_t REFINE_INFORMATION = 0x051D;
     constexpr uint16_t REFINE_INFORMATION_NEW = 0x051E;
     constexpr uint16_t DRAGON_SOUL_REFINE = 0x051F;
+    constexpr uint16_t SHOULDER_SASH      = 0x0520;
 
     // Chat
     constexpr uint16_t CHAT               = 0x0603;
@@ -435,6 +437,27 @@ namespace DragonSoulSub { enum : uint8_t {
     REFINE_FAIL_TOO_MUCH_MATERIAL,
     REFINE_SUCCEED,
 }; }
+
+namespace ShoulderSashSub {
+    namespace CG {
+        enum : uint8_t {
+            CLOSE = 0,
+            ADD,
+            REMOVE,
+            REFINE,
+        };
+    }
+
+    namespace GC {
+        enum : uint8_t {
+            OPEN = 0,
+            CLOSE,
+            ADDED,
+            REMOVED,
+            REFINED,
+        };
+    }
+}
 
 enum
 {
@@ -1170,6 +1193,7 @@ typedef struct SSimplePlayerInformation
     uint16_t                wMainPart;
     uint8_t                bChangeName;
 	uint16_t				wHairPart;
+    uint16_t            	wShoulderSashPart;
     uint8_t                bDummy[4];
 	int32_t				x, y;
 	uint32_t				lAddr;
@@ -1278,6 +1302,7 @@ enum ECharacterEquipmentPart
 	CHR_EQUIPPART_WEAPON,
 	CHR_EQUIPPART_HEAD,
 	CHR_EQUIPPART_HAIR,
+    CHR_EQUIPPART_SHOULDER_SASH,
 
 	CHR_EQUIPPART_NUM,		
 };
@@ -2334,6 +2359,8 @@ enum SPECIAL_EFFECT
 	SE_EQUIP_HALLOWEEN_CANDY,		// 할로윈 사탕을 착용(-_-;)한 순간에 발동하는 이펙트
 	SE_EQUIP_HAPPINESS_RING,		// 크리스마스 행복의 반지를 착용하는 순간에 발동하는 이펙트
 	SE_EQUIP_LOVE_PENDANT,		// 발렌타인 사랑의 팬던트(71145) 착용할 때 이펙트 (발동이펙트임, 지속이펙트 아님),
+    SE_EFFECT_SHOULDER_SASH_SUCCEDED,
+    SE_EFFECT_SHOULDER_SASH_EQUIP,
 	SE_AGGREGATE_MONSTER,
 };
 
@@ -2625,5 +2652,40 @@ typedef struct SChannelStatus
 	int16_t nPort;
 	uint8_t bStatus;
 } TChannelStatus;
+
+enum EAcceInfo
+{
+    SHOULDER_SASH_ABSORPTION_SOCKET = 0,
+    SHOULDER_SASH_ABSORBED_SOCKET = 1,
+    SHOULDER_SASH_CLEAN_ATTR_VALUE0 = 7,
+    SHOULDER_SASH_WINDOW_MAX_MATERIALS = 2,
+};
+
+typedef struct SPacketShoulderSash
+{
+    uint16_t	header;
+    uint16_t	length;
+    uint8_t		subheader;
+    bool        bWindow;
+    uint32_t    dwPrice;
+    uint8_t     bPos;
+    TItemPos    tPos;
+    uint32_t    dwItemVnum;
+    uint32_t    dwMinAbs;
+    uint32_t    dwMaxAbs;
+} TPacketShoulderSash;
+
+typedef struct SShoulderSashMaterial
+{
+    uint8_t     bHere;
+    uint16_t    wCell;
+} TShoulderSashMaterial;
+
+typedef struct SShoulderSashResult
+{
+    uint32_t    dwItemVnum;
+    uint32_t    dwMinAbs;
+    uint32_t    dwMaxAbs;
+} TShoulderSashResult;
 
 #pragma pack(pop)

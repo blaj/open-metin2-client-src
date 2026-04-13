@@ -228,6 +228,11 @@ void CSlotWindow::AppendSlot(DWORD dwIndex, int ixPosition, int iyPosition, int 
 	Slot.pSignImage = NULL;
 	Slot.pFinishCoolTimeEffect = NULL;
 
+	for (int i = 0; i < 3; ++i)
+	{
+		Slot.pActiveSlotEffect[i] = NULL;
+	}
+
 	ClearSlot(&Slot);
 	Slot.dwSlotNumber = dwIndex;
 	Slot.dwCenterSlotNumber = dwIndex;
@@ -679,6 +684,14 @@ void CSlotWindow::ClearSlot(TSlot * pSlot)
 	{
 		pSlot->pFinishCoolTimeEffect->Hide();
 	}
+
+	for (int i = 0; i < 3; ++i)
+	{
+		if (pSlot->pActiveSlotEffect[i])
+		{
+			pSlot->pActiveSlotEffect[i]->Hide();
+		}
+	}
 }
 
 void CSlotWindow::ClearAllSlot()
@@ -1064,12 +1077,19 @@ void CSlotWindow::OnUpdate()
 	for (std::deque<DWORD>::iterator itor = m_ReserveDestroyEffectDeque.begin(); itor != m_ReserveDestroyEffectDeque.end(); ++itor)
 	{
 		DWORD dwSlotIndex = *itor;
-
-		TSlot * pSlot;
+		TSlot* pSlot;
 		if (!GetSlotPointer(dwSlotIndex, &pSlot))
 			continue;
 
 		__DestroyFinishCoolTimeEffect(pSlot);
+		for (int i = 0; i < 3; ++i)
+		{
+			if (pSlot->pActiveSlotEffect[i])
+			{
+				delete pSlot->pActiveSlotEffect[i];
+				pSlot->pActiveSlotEffect[i] = NULL;
+			}
+		}
 	}
 	m_ReserveDestroyEffectDeque.clear();
 
@@ -1190,6 +1210,20 @@ void CSlotWindow::OnRender()
 			rSlot.pFinishCoolTimeEffect->SetPosition(rSlot.ixPosition, rSlot.iyPosition);
 			rSlot.pFinishCoolTimeEffect->Update();
 			rSlot.pFinishCoolTimeEffect->Render();
+		}
+
+		{
+			int iX = m_rect.left + rSlot.ixPosition, iY = m_rect.top + rSlot.iyPosition, iItemYSize = rSlot.byyPlacedItemSize;
+			for (int i = 0; i < 3; ++i)
+			{
+				if ((rSlot.pActiveSlotEffect[i]) && (iItemYSize == i + 1))
+				{
+					rSlot.pActiveSlotEffect[i]->Show();
+					rSlot.pActiveSlotEffect[i]->SetPosition(iX, iY);
+					rSlot.pActiveSlotEffect[i]->Update();
+					rSlot.pActiveSlotEffect[i]->Render();
+				}
+			}
 		}
 
 		if (rSlot.bActive)
@@ -1376,6 +1410,49 @@ void CSlotWindow::ClearStoredSlotCoolTime(DWORD dwKey, DWORD dwSlotIndex)
 		store.erase(it);
 }
 
+void CSlotWindow::ActivateEffect(DWORD dwSlotIndex, float r, float g, float b, float a)
+{
+	TSlot* pSlot;
+	if (!GetSlotPointer(dwSlotIndex, &pSlot))
+		return;
+
+	for (int i = 0; i < 3; ++i)
+	{
+		if (pSlot->pActiveSlotEffect[i])
+		{
+			delete pSlot->pActiveSlotEffect[i];
+			pSlot->pActiveSlotEffect[i] = NULL;
+		}
+
+		CAniImageBox* pEff = new CAniImageBox(NULL);
+		for (int j = 0; j <= 12; ++j)
+		{
+			char cBuf[72];
+			sprintf_s(cBuf, "d:/ymir work/ui/public/slotactiveeffect/slot%d/%02d.sub", (i + 1), j);
+			pEff->AppendImage(cBuf, r, g, b, a);
+		}
+
+		pEff->SetRenderingMode(CGraphicExpandedImageInstance::RENDERING_MODE_SCREEN);
+		pSlot->pActiveSlotEffect[i] = pEff;
+	}
+}
+
+void CSlotWindow::DeactivateEffect(DWORD dwSlotIndex)
+{
+	TSlot* pSlot;
+	if (!GetSlotPointer(dwSlotIndex, &pSlot))
+		return;
+
+	for (int i = 0; i < 3; ++i)
+	{
+		if (pSlot->pActiveSlotEffect[i])
+		{
+			delete pSlot->pActiveSlotEffect[i];
+			pSlot->pActiveSlotEffect[i] = NULL;
+		}
+	}
+}
+
 DWORD CSlotWindow::Type()
 {
 	static int s_Type = GetCRC32("CSlotWindow", strlen("CSlotWindow"));
@@ -1536,6 +1613,14 @@ void CSlotWindow::Destroy()
 		if (rSlot.pFinishCoolTimeEffect)
 		{
 			CWindowManager::Instance().DestroyWindow(rSlot.pFinishCoolTimeEffect);
+		}
+
+		for (int i = 0; i < 3; ++i)
+		{
+			if (rSlot.pActiveSlotEffect[i])
+			{
+				CWindowManager::Instance().DestroyWindow(rSlot.pActiveSlotEffect[i]);
+			}
 		}
 	}
 

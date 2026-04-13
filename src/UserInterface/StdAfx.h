@@ -65,3 +65,4 @@ void initquest();
 void initsafebox();
 void initguild();
 void initMessenger();
+void initShoulderSash();

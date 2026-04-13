@@ -2,6 +2,7 @@
 
 #include "GameLib/RaceData.h"
 #include "GameLib/ActorInstance.h"
+#include "EterLib/GrpObjectInstance.h"
 
 #include "StdAfx.h"
 #include "AffectFlagContainer.h"
@@ -26,6 +27,7 @@ class CInstanceBase
 			DWORD	m_dwArmor;
 			DWORD	m_dwWeapon;
 			DWORD	m_dwHair;
+			DWORD	m_dwShoulderSash;
 			DWORD	m_dwMountVnum;
 			
 			short	m_sAlignment;
@@ -295,6 +297,8 @@ class CInstanceBase
 			EFFECT_BODYARMOR_SPECIAL,	// 갑옷 4-2-1
 			EFFECT_BODYARMOR_SPECIAL2,	// 갑옷 4-2-2
 
+			EFFECT_SHOULDER_SASH,
+
 			EFFECT_REFINED_NUM,
 		};
 		
@@ -372,6 +376,8 @@ class CInstanceBase
 			EFFECT_HAPPINESS_RING_EQUIP,				// 행복의 반지 착용 순간에 발동하는 이펙트
 			EFFECT_LOVE_PENDANT_EQUIP,				// 행복의 반지 착용 순간에 발동하는 이펙트
 			EFFECT_TEMP,
+			EFFECT_SHOULDER_SASH_SUCCEDED,
+			EFFECT_SHOULDER_SASH_EQUIP,
 			EFFECT_AGGREGATE_MONSTER,
 			EFFECT_NUM,
 		};
@@ -496,6 +502,8 @@ class CInstanceBase
 		void					SetArmor(DWORD dwArmor);
 		void					SetShape(DWORD eShape, float fSpecular=0.0f);
 		void					SetHair(DWORD eHair);
+		void					SetShoulderSash(DWORD dwShoulderSash);
+		void					ChangeShoulderSash(DWORD dwShoulderSash);
 		bool					SetWeapon(DWORD eWeapon);
 		bool					ChangeArmor(DWORD dwArmor);
 		void					ChangeWeapon(DWORD eWeapon);
@@ -914,6 +922,7 @@ class CInstanceBase
 		UINT	__GetRefinedEffect(CItemData* pItem);		
 		void	__ClearWeaponRefineEffect();
 		void	__ClearArmorRefineEffect();
+		void	__ClearShoulderSashEffect();
 
 	protected:
 		void __AttachSelectEffect();
@@ -985,6 +994,7 @@ class CInstanceBase
 		DWORD					m_swordRefineEffectRight;
 		DWORD					m_swordRefineEffectLeft;
 		DWORD					m_armorRefineEffect;
+		DWORD					m_dwShoulderSashEffect;
 
 		struct SMoveAfterFunc
 		{

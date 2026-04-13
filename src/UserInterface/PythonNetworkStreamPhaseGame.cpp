@@ -2246,6 +2246,196 @@ bool CPythonNetworkStream::RecvMountPacket()
 	return true;
 }
 
+bool CPythonNetworkStream::RecvShoulderSashPacket()
+{
+	TPacketShoulderSash sPacket;
+	if (!Recv(sizeof(TPacketShoulderSash), &sPacket))
+	{
+		Tracen("Recv Shoulder Sash Packet Error");
+		return false;
+	}
+
+	switch (sPacket.subheader)
+	{
+	case ShoulderSashSub::GC::OPEN:
+	{
+		CPythonShoulderSash::Instance().Clear();
+		PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "ActShoulderSash", Py_BuildValue("(ib)", 1, sPacket.bWindow));
+	}
+	break;
+	case ShoulderSashSub::GC::CLOSE:
+	{
+		CPythonShoulderSash::Instance().Clear();
+		PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "ActShoulderSash", Py_BuildValue("(ib)", 2, sPacket.bWindow));
+	}
+	break;
+	case ShoulderSashSub::GC::ADDED:
+	{
+		CPythonShoulderSash::Instance().AddMaterial(sPacket.dwPrice, sPacket.bPos, sPacket.tPos);
+		if (sPacket.bPos == 1)
+		{
+			CPythonShoulderSash::Instance().AddResult(sPacket.dwItemVnum, sPacket.dwMinAbs, sPacket.dwMaxAbs);
+			PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "AlertShoulderSash", Py_BuildValue("(b)", sPacket.bWindow));
+		}
+
+		PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "ActShoulderSash", Py_BuildValue("(ib)", 3, sPacket.bWindow));
+	}
+	break;
+	case ShoulderSashSub::GC::REMOVED:
+	{
+		CPythonShoulderSash::Instance().RemoveMaterial(sPacket.dwPrice, sPacket.bPos);
+		if (sPacket.bPos == 0)
+		{
+			CPythonShoulderSash::Instance().RemoveMaterial(sPacket.dwPrice, 1);
+		}
+
+		PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "ActShoulderSash", Py_BuildValue("(ib)", 4, sPacket.bWindow));
+	}
+	break;
+	case ShoulderSashSub::GC::REFINED:
+	{
+		if (sPacket.dwMaxAbs == 0)
+		{
+			CPythonShoulderSash::Instance().RemoveMaterial(sPacket.dwPrice, 1);
+		}
+		else
+		{
+			CPythonShoulderSash::Instance().RemoveMaterial(sPacket.dwPrice, 0);
+			CPythonShoulderSash::Instance().RemoveMaterial(sPacket.dwPrice, 1);
+		}
+
+		PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "ActShoulderSash", Py_BuildValue("(ib)", 4, sPacket.bWindow));
+	}
+	break;
+	default:
+		TraceError("CPythonNetworkStream::RecvShoulderSashPacket: unknown subheader %d\n.", sPacket.subheader);
+		return false;
+		break;
+	}
+
+	return true;
+}
+
+bool CPythonNetworkStream::SendShoulderSashClosePacket()
+{
+	if (!__CanActMainInstance())
+	{
+		return true;
+	}
+
+	TItemPos tPos;
+	tPos.window_type = INVENTORY;
+	tPos.cell = 0;
+
+	TPacketShoulderSash packet;
+	packet.header = CG::SHOULDER_SASH;
+	packet.length = sizeof(TPacketShoulderSash);
+	packet.subheader = ShoulderSashSub::CG::CLOSE;
+	packet.dwPrice = 0;
+	packet.bPos = 0;
+	packet.tPos = tPos;
+	packet.dwItemVnum = 0;
+	packet.dwMinAbs = 0;
+	packet.dwMaxAbs = 0;
+
+	if (!Send(sizeof(packet), &packet))
+	{
+		Tracen("Send ShoulderSashClose Packet Error");
+		return false;
+	}
+
+	return true;
+}
+
+bool CPythonNetworkStream::SendShoulderSashAddPacket(TItemPos tPos, BYTE bPos)
+{
+	if (!__CanActMainInstance())
+	{
+		return true;
+	}
+
+	TPacketShoulderSash packet;
+	packet.header = CG::SHOULDER_SASH;
+	packet.length = sizeof(TPacketShoulderSash);
+	packet.subheader = ShoulderSashSub::CG::ADD;
+	packet.dwPrice = 0;
+	packet.bPos = bPos;
+	packet.tPos = tPos;
+	packet.dwItemVnum = 0;
+	packet.dwMinAbs = 0;
+	packet.dwMaxAbs = 0;
+
+	if (!Send(sizeof(packet), &packet))
+	{
+		Tracen("Send ShoulderSashAdd Packet Error");
+		return false;
+	}
+
+	return true;
+}
+
+bool CPythonNetworkStream::SendShoulderSashRemovePacket(BYTE bPos)
+{
+	if (!__CanActMainInstance())
+	{
+		return true;
+	}
+
+	TItemPos tPos;
+	tPos.window_type = INVENTORY;
+	tPos.cell = 0;
+
+	TPacketShoulderSash packet;
+	packet.header = CG::SHOULDER_SASH;
+	packet.length = sizeof(TPacketShoulderSash);
+	packet.subheader = ShoulderSashSub::CG::REMOVE;
+	packet.dwPrice = 0;
+	packet.bPos = bPos;
+	packet.tPos = tPos;
+	packet.dwItemVnum = 0;
+	packet.dwMinAbs = 0;
+	packet.dwMaxAbs = 0;
+
+	if (!Send(sizeof(packet), &packet))
+	{
+		Tracen("Send ShoulderSashAdd Packet Error");
+		return false;
+	}
+
+	return true;
+}
+
+bool CPythonNetworkStream::SendShoulderSashRefinePacket()
+{
+	if (!__CanActMainInstance())
+	{
+		return true;
+	}
+
+	TItemPos tPos;
+	tPos.window_type = INVENTORY;
+	tPos.cell = 0;
+
+	TPacketShoulderSash packet;
+	packet.header = CG::SHOULDER_SASH;
+	packet.length = sizeof(TPacketShoulderSash);
+	packet.subheader = ShoulderSashSub::CG::REFINE;
+	packet.dwPrice = 0;
+	packet.bPos = 0;
+	packet.tPos = tPos;
+	packet.dwItemVnum = 0;
+	packet.dwMinAbs = 0;
+	packet.dwMaxAbs = 0;
+
+	if (!Send(sizeof(packet), &packet))
+	{
+		Tracen("Send ShoulderSashAdd Packet Error");
+		return false;
+	}
+
+	return true;
+}
+
 bool CPythonNetworkStream::RecvChangeSpeedPacket()
 {
 	TPacketGCChangeSpeed SpeedPacket;

@@ -84,6 +84,7 @@ PyObject * chrCreateInstance(PyObject* poSelf, PyObject* poArgs)
 		kCreateData.m_dwArmor=8;
 		kCreateData.m_dwWeapon=0;
 		kCreateData.m_dwHair=0;
+		kCreateData.m_dwShoulderSash=0;
 		kCreateData.m_isMain=false;
 
 		PyObject* poHorse=PyDict_GetItemString(poDict, "horse");
@@ -1211,6 +1212,7 @@ PyObject * chrtestSetRideMan(PyObject* poSelf, PyObject* poArgs)
 	kCreateData.m_dwRace = 0;
 	kCreateData.m_dwArmor = 0;
 	kCreateData.m_dwHair = 100;
+	kCreateData.m_dwShoulderSash = 0;
 	kCreateData.m_dwMovSpd = 100;
 	kCreateData.m_dwAtkSpd = 100;
 	kCreateData.m_dwMountVnum = imount;
@@ -1218,6 +1220,24 @@ PyObject * chrtestSetRideMan(PyObject* poSelf, PyObject* poArgs)
 	kCreateData.m_lPosY = iy;
 	pCharacterInstance->Create(kCreateData);
 
+	return Py_BuildNone();
+}
+
+PyObject* chrSetShoulderSash(PyObject* poSelf, PyObject* poArgs)
+{
+	int dwShoulderSash;
+	if (!PyTuple_GetInteger(poArgs, 0, &dwShoulderSash))
+	{
+		return Py_BuildException();
+	}
+
+	CInstanceBase* pkInst = CPythonCharacterManager::Instance().GetSelectedInstancePtr();
+	if (!pkInst)
+	{
+		return Py_BuildNone();
+	}
+
+	pkInst->SetShoulderSash(dwShoulderSash);
 	return Py_BuildNone();
 }
 
@@ -1318,6 +1338,7 @@ void initchr()
 		{ "testSetSpecularRenderMode2",		chrtestSetSpecularRenderMode2,		METH_VARARGS },
 		{ "testRestoreRenderMode",			chrtestRestoreRenderMode,			METH_VARARGS },
 		{ "testSetRideMan",					chrtestSetRideMan,					METH_VARARGS },
+		{ "SetShoulderSash",				chrSetShoulderSash,					METH_VARARGS},
 
 		{ NULL,								NULL,								NULL		 },
 	};
@@ -1438,6 +1459,7 @@ void initchr()
 	PyModule_AddIntConstant(poModule, "PART_WEAPON",						CRaceData::PART_WEAPON);
 	PyModule_AddIntConstant(poModule, "PART_HEAD",							CRaceData::PART_HEAD);
 	PyModule_AddIntConstant(poModule, "PART_WEAPON_LEFT",					CRaceData::PART_WEAPON_LEFT);
+	PyModule_AddIntConstant(poModule, "PART_SHOULDER_SASH",					CRaceData::PART_SHOULDER_SASH);
 
 	/////
 

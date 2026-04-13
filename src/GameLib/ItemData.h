@@ -104,6 +104,7 @@ class CItemData
 			COSTUME_BODY,				//0	갑옷(main look)
 			COSTUME_HAIR,				//1	헤어(탈착가능)
 			COSTUME_MOUNT,
+			COSTUME_SHOULDER_SASH,
 			COSTUME_NUM_TYPES,
 		};
 
@@ -250,6 +251,7 @@ class CItemData
 			WEAR_COSTUME_BODY,	//19
 			WEAR_COSTUME_HAIR,	//20
 			WEAR_COSTUME_MOUNT,
+			WEAR_COSTUME_SHOULDER_SASH,
 
 			WEAR_RING1,			//21
 			WEAR_RING2,			//22
@@ -434,6 +436,17 @@ class CItemData
 			BYTE        bGainSocketPct;
 		} TItemTable;
 
+		struct SScaleInfo
+		{
+			float	fScaleX, fScaleY, fScaleZ;
+			float	fPositionX, fPositionY, fPositionZ;
+		};
+
+		typedef struct SScaleTable
+		{
+			SScaleInfo	tInfo[10];
+		} TScaleTable;
+
 //		typedef struct SItemTable
 //		{
 //			DWORD       dwVnum;
@@ -516,6 +529,9 @@ class CItemData
 		void SetDefaultItemData(const char * c_szIconFileName, const char * c_szModelFileName  = NULL);
 		void SetItemTableData(TItemTable * pItemTable);
 
+		void SetItemScale(const std::string strJob, const std::string strSex, const std::string strScaleX, const std::string strScaleY, const std::string strScaleZ, const std::string strPositionX, const std::string strPositionY, const std::string strPositionZ);
+		bool GetItemScale(DWORD dwPos, float& fScaleX, float& fScaleY, float& fScaleZ, float& fPositionX, float& fPositionY, float& fPositionZ);
+
 	protected:
 		void __LoadFiles();
 		void __SetIconImage(const char * c_szFileName);
@@ -538,6 +554,7 @@ class CItemData
 		NRaceData::TAttachingDataVector m_AttachingDataVector;
 		DWORD		m_dwVnum;
 		TItemTable m_ItemTable;
+		TScaleTable	m_ScaleTable;
 		
 	public:
 		static void DestroySystem();

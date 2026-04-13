@@ -120,7 +120,8 @@ bool CPythonNetworkStream::RecvCharacterAppendPacket()
 	kNetActorData.m_dwEmpireID=0;/*chrAddPacket.bEmpire*/;
 	kNetActorData.m_dwArmor=0;/*chrAddPacket.awPart[CHR_EQUIPPART_ARMOR]*/;
 	kNetActorData.m_dwWeapon=0;/*chrAddPacket.awPart[CHR_EQUIPPART_WEAPON]*/;
-	kNetActorData.m_dwHair=0;/*chrAddPacket.awPart[CHR_EQUIPPART_HAIR]*/;	
+	kNetActorData.m_dwHair=0;/*chrAddPacket.awPart[CHR_EQUIPPART_HAIR]*/;
+	kNetActorData.m_dwShoulderSash=0;
 	kNetActorData.m_dwMountVnum=0;/*chrAddPacket.dwMountVnum*/;	
 
 	kNetActorData.m_dwLevel = 0; // 몬스터 레벨 표시 안함
@@ -178,7 +179,8 @@ bool CPythonNetworkStream::RecvCharacterAdditionalInfo()
 		kNetActorData.m_dwEmpireID=chrInfoPacket.bEmpire;
 		kNetActorData.m_dwArmor=chrInfoPacket.awPart[CHR_EQUIPPART_ARMOR];
 		kNetActorData.m_dwWeapon=chrInfoPacket.awPart[CHR_EQUIPPART_WEAPON];
-		kNetActorData.m_dwHair=chrInfoPacket.awPart[CHR_EQUIPPART_HAIR];	
+		kNetActorData.m_dwHair=chrInfoPacket.awPart[CHR_EQUIPPART_HAIR];
+		kNetActorData.m_dwShoulderSash=chrInfoPacket.awPart[CHR_EQUIPPART_SHOULDER_SASH];
 		kNetActorData.m_dwMountVnum=chrInfoPacket.dwMountVnum;
 
 		__RecvCharacterAppendPacket(&kNetActorData);
@@ -212,6 +214,7 @@ bool CPythonNetworkStream::RecvCharacterAppendPacketNew()
 	kNetActorData.m_dwArmor=chrAddPacket.awPart[CHR_EQUIPPART_ARMOR];
 	kNetActorData.m_dwWeapon=chrAddPacket.awPart[CHR_EQUIPPART_WEAPON];
 	kNetActorData.m_dwHair=chrAddPacket.awPart[CHR_EQUIPPART_HAIR];
+	kNetActorData.m_dwShoulderSash=chrAddPacket.awPart[CHR_EQUIPPART_SHOULDER_SASH];
 	kNetActorData.m_dwStateFlags=chrAddPacket.bStateFlag;
 	kNetActorData.m_dwVID=chrAddPacket.dwVID;
 	kNetActorData.m_dwMountVnum=chrAddPacket.dwMountVnum;
@@ -240,6 +243,7 @@ bool CPythonNetworkStream::RecvCharacterUpdatePacket()
 	kNetUpdateActorData.m_dwArmor=chrUpdatePacket.awPart[CHR_EQUIPPART_ARMOR];
 	kNetUpdateActorData.m_dwWeapon=chrUpdatePacket.awPart[CHR_EQUIPPART_WEAPON];
 	kNetUpdateActorData.m_dwHair=chrUpdatePacket.awPart[CHR_EQUIPPART_HAIR];
+	kNetUpdateActorData.m_dwShoulderSash=chrUpdatePacket.awPart[CHR_EQUIPPART_SHOULDER_SASH];
 	kNetUpdateActorData.m_dwVID=chrUpdatePacket.dwVID;	
 	kNetUpdateActorData.m_kAffectFlags.CopyData(0, sizeof(chrUpdatePacket.dwAffectFlag[0]), &chrUpdatePacket.dwAffectFlag[0]);
 	kNetUpdateActorData.m_kAffectFlags.CopyData(32, sizeof(chrUpdatePacket.dwAffectFlag[1]), &chrUpdatePacket.dwAffectFlag[1]);
@@ -265,6 +269,7 @@ bool CPythonNetworkStream::RecvCharacterUpdatePacketNew()
 	kNetUpdateActorData.m_dwArmor=chrUpdatePacket.awPart[CHR_EQUIPPART_ARMOR];
 	kNetUpdateActorData.m_dwWeapon=chrUpdatePacket.awPart[CHR_EQUIPPART_WEAPON];
 	kNetUpdateActorData.m_dwHair=chrUpdatePacket.awPart[CHR_EQUIPPART_HAIR];
+	kNetUpdateActorData.m_dwShoulderSash=chrUpdatePacket.awPart[CHR_EQUIPPART_SHOULDER_SASH];
 	kNetUpdateActorData.m_dwVID=chrUpdatePacket.dwVID;
 	kNetUpdateActorData.m_kAffectFlags.CopyData(0, sizeof(chrUpdatePacket.dwAffectFlag[0]), &chrUpdatePacket.dwAffectFlag[0]);
 	kNetUpdateActorData.m_kAffectFlags.CopyData(32, sizeof(chrUpdatePacket.dwAffectFlag[1]), &chrUpdatePacket.dwAffectFlag[1]);

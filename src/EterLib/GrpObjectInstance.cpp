@@ -25,6 +25,11 @@ void CGraphicObjectInstance::Clear()
 	m_fYaw = m_fPitch = m_fRoll = 0.0f;
 	D3DXMatrixIdentity(&m_worldMatrix);
 
+	m_v3ScalePosition.x = m_v3ScalePosition.y = m_v3ScalePosition.z = 0.0f;
+	D3DXMatrixIdentity(&m_ScaleMatrix);
+	D3DXMatrixIdentity(&m_PositionMatrix);
+	D3DXMatrixIdentity(&m_TransformMatrix);
+
 	ZeroMemory(m_abyPortalID, sizeof(m_abyPortalID));
 
 	OnClear();
@@ -101,11 +106,22 @@ void CGraphicObjectInstance::Deform()
 
 void CGraphicObjectInstance::Transform()
 {
-	m_worldMatrix = m_mRotation;
+	D3DXMATRIX tmp1;
+	D3DXMatrixMultiply(&tmp1, &m_PositionMatrix, &m_mRotation);
 
-	m_worldMatrix._41	+= m_v3Position.x;
-	m_worldMatrix._42	+= m_v3Position.y;
-	m_worldMatrix._43	+= m_v3Position.z;	
+	m_worldMatrix = tmp1;
+	m_worldMatrix._41 += m_v3Position.x;
+	m_worldMatrix._42 += m_v3Position.y;
+	m_worldMatrix._43 += m_v3Position.z;
+	D3DXMatrixMultiply(&tmp1, &m_PositionMatrix, &m_ScaleMatrix);
+
+	D3DXMATRIX tmp2;
+	D3DXMatrixMultiply(&tmp2, &tmp1, &m_mRotation);
+
+	m_TransformMatrix = tmp2;
+	m_TransformMatrix._41 = m_v3ScalePosition.x + m_v3Position.x + m_TransformMatrix._41;
+	m_TransformMatrix._42 = m_v3ScalePosition.y + m_v3Position.y + m_TransformMatrix._42;
+	m_TransformMatrix._43 = m_v3ScalePosition.z + m_v3Position.z + m_TransformMatrix._43;
 }
 
 const D3DXVECTOR3 & CGraphicObjectInstance::GetPosition() const
@@ -184,11 +200,23 @@ void CGraphicObjectInstance::SetPosition(const D3DXVECTOR3 & newposition)
 	m_v3Position = newposition;
 }
 
-void CGraphicObjectInstance::SetScale(float x, float y, float z)
+void CGraphicObjectInstance::SetScale(float x, float y, float z, bool bScale)
 {
 	m_v3Scale.x = x;
 	m_v3Scale.y = y;
 	m_v3Scale.z = z;
+
+	if (bScale)
+	{
+		D3DXMatrixScaling(&m_ScaleMatrix, m_v3Scale.x, m_v3Scale.y, m_v3Scale.z);
+	}
+}
+
+void CGraphicObjectInstance::SetScalePosition(float x, float y, float z)
+{
+	m_v3ScalePosition.x = x;
+	m_v3ScalePosition.y = y;
+	m_v3ScalePosition.z = z;
 }
 
 void CGraphicObjectInstance::Show()
@@ -288,11 +316,17 @@ void CGraphicObjectInstance::Initialize()
 	m_isAlwaysHidden = false;
 	
 	m_v3Position.x = m_v3Position.y = m_v3Position.z = 0.0f;
-	m_v3Scale.x = m_v3Scale.y = m_v3Scale.z = 1.0f;
+	m_v3Scale.x = m_v3Scale.y = m_v3Scale.z = 0.0f;
 	m_fYaw = m_fPitch = m_fRoll = 0.0f;
 
 	D3DXMatrixIdentity(&m_worldMatrix);
 	D3DXMatrixIdentity(&m_mRotation);
+
+	m_v3ScalePosition.x = m_v3ScalePosition.y = m_v3ScalePosition.z = 0.0f;
+
+	D3DXMatrixIdentity(&m_ScaleMatrix);
+	D3DXMatrixIdentity(&m_PositionMatrix);
+	D3DXMatrixIdentity(&m_TransformMatrix);
 
 	m_v3TBBoxMin = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	m_v3TBBoxMax = D3DXVECTOR3(0.0f, 0.0f, 0.0f);

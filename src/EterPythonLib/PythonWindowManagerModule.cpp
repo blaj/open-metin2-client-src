@@ -2455,6 +2455,69 @@ PyObject* wndMgrIsScissorRectEnabled(PyObject* poSelf, PyObject* poArgs)
 	return Py_BuildValue("b", pWindow->IsScissorRectEnabled());
 }
 
+PyObject* wndMgrActivateEffect(PyObject* poSelf, PyObject* poArgs)
+{
+	UI::CWindow* pWin;
+	if (!PyTuple_GetWindow(poArgs, 0, &pWin))
+	{
+		return Py_BuildException();
+	}
+
+	int iSlotIndex;
+	if (!PyTuple_GetInteger(poArgs, 1, &iSlotIndex))
+	{
+		return Py_BuildException();
+	}
+
+	if (!pWin->IsType(UI::CSlotWindow::Type()))
+	{
+		return Py_BuildException();
+	}
+
+	float r, g, b, a;
+	if (!PyTuple_GetFloat(poArgs, 2, &r))
+	{
+		return Py_BuildException();
+	}
+
+	if (!PyTuple_GetFloat(poArgs, 3, &g))
+	{
+		return Py_BuildException();
+	}
+
+	if (!PyTuple_GetFloat(poArgs, 4, &b))
+	{
+		return Py_BuildException();
+	}
+
+	if (!PyTuple_GetFloat(poArgs, 5, &a))
+	{
+		return Py_BuildException();
+	}
+
+	UI::CSlotWindow* pSlotWin = (UI::CSlotWindow*)pWin;
+	pSlotWin->ActivateEffect(iSlotIndex, r, g, b, a);
+	return Py_BuildNone();
+}
+
+PyObject* wndMgrDeactivateEffect(PyObject* poSelf, PyObject* poArgs)
+{
+	UI::CWindow* pWin;
+	if (!PyTuple_GetWindow(poArgs, 0, &pWin))
+		return Py_BuildException();
+
+	int iSlotIndex;
+	if (!PyTuple_GetInteger(poArgs, 1, &iSlotIndex))
+		return Py_BuildException();
+
+	if (!pWin->IsType(UI::CSlotWindow::Type()))
+		return Py_BuildException();
+
+	UI::CSlotWindow* pSlotWin = (UI::CSlotWindow*)pWin;
+	pSlotWin->DeactivateEffect(iSlotIndex);
+	return Py_BuildNone();
+}
+
 void initwndMgr()
 {
 	static PyMethodDef s_methods[] =
@@ -2661,6 +2724,9 @@ void initwndMgr()
 		{ "EnableScissorRect",			wndMgrEnableScissorRect,			METH_VARARGS },
 		{ "DisableScissorRect",			wndMgrDisableScissorRect,			METH_VARARGS },
 		{ "IsScissorRectEnabled",		wndMgrIsScissorRectEnabled,			METH_VARARGS },
+
+		{ "ActivateEffect",				wndMgrActivateEffect,				METH_VARARGS },
+		{ "DeactivateEffect",			wndMgrDeactivateEffect,				METH_VARARGS },
 
 		{ NULL,							NULL,								NULL },
 	};

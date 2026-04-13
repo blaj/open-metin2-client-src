@@ -104,6 +104,7 @@ enum EDragonSoulStepTypes
 	const DWORD	c_Costume_Slot_Body = c_Costume_Slot_Start + CItemData::COSTUME_BODY;
 	const DWORD	c_Costume_Slot_Hair = c_Costume_Slot_Start + CItemData::COSTUME_HAIR;
 	const DWORD	c_Costume_Slot_Mount = c_Costume_Slot_Start + CItemData::COSTUME_MOUNT;
+	const DWORD	c_Costume_Slot_ShoulderSash = c_Costume_Slot_Start + CItemData::COSTUME_SHOULDER_SASH;
 
 	const DWORD c_Costume_Slot_Count = CItemData::COSTUME_NUM_TYPES;
 	const DWORD c_Costume_Slot_End = c_Costume_Slot_Start + c_Costume_Slot_Count;

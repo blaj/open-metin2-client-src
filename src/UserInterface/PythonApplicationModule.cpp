@@ -1467,6 +1467,8 @@ void initapp()
 	PyModule_AddIntConstant(poModule, "ENABLE_COSTUME_SYSTEM",	0);
 #endif
 
+	PyModule_AddIntConstant(poModule, "ENABLE_SHOULDER_SASH_SYSTEM", 1);
+
 #ifdef ENABLE_ENERGY_SYSTEM
 	PyModule_AddIntConstant(poModule, "ENABLE_ENERGY_SYSTEM",	1);
 #else

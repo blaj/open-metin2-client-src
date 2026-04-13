@@ -23,6 +23,7 @@ class CRaceData
 			PART_HEAD,
 			PART_WEAPON_LEFT,
 			PART_HAIR,
+			PART_SHOULDER_SASH,
 			
 			PART_MAX_NUM,
 		};

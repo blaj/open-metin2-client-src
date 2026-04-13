@@ -693,12 +693,17 @@ void CGraphicThingInstance::DeformAll()
 void CGraphicThingInstance::DeformNoSkin()
 {
 	m_bUpdated = true;
-
-	std::vector<CGrannyLODController*>::iterator i;
-	for (i=m_LODControllerVector.begin(); i!=m_LODControllerVector.end(); ++i)
+	for (std::vector<CGrannyLODController*>::size_type iMod = 0; iMod != m_LODControllerVector.size(); iMod++)
 	{
-		CGrannyLODController* pkLOD=*i;
-		if (pkLOD->isModelInstance())
+		CGrannyLODController* pkLOD = m_LODControllerVector[iMod];
+		if (!pkLOD->isModelInstance())
+			continue;
+
+		if (m_modelThingSetVector.size() == 1)
+			pkLOD->DeformNoSkin(&m_TransformMatrix);
+		else if (iMod == 5) /* CRaceData::PART_ACCE  */
+			pkLOD->DeformNoSkin(&m_TransformMatrix);
+		else
 			pkLOD->DeformNoSkin(&m_worldMatrix);
 	}
 }
@@ -706,10 +711,19 @@ void CGraphicThingInstance::DeformNoSkin()
 void CGraphicThingInstance::OnDeform()
 {
 	m_bUpdated = true;
+	for (std::vector<CGrannyLODController*>::size_type iMod = 0; iMod != m_LODControllerVector.size(); iMod++)
+	{
+		CGrannyLODController* pkLOD = m_LODControllerVector[iMod];
+		if (!pkLOD->isModelInstance())
+			continue;
 
-	CGrannyLODController::FDeform deform;
-	deform.mc_pWorldMatrix = &m_worldMatrix;
-	std::for_each(m_LODControllerVector.begin(), m_LODControllerVector.end(), deform);
+		if (m_modelThingSetVector.size() == 1)
+			pkLOD->Deform(&m_TransformMatrix);
+		else if (iMod == 5) /* CRaceData::PART_ACCE  */
+			pkLOD->Deform(&m_TransformMatrix);
+		else
+			pkLOD->Deform(&m_worldMatrix);
+	}
 }
 
 void CGraphicThingInstance::__SetLocalTime(float fLocalTime)

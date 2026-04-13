@@ -1654,15 +1654,16 @@ namespace UI
 	{
 		m_byDelay = iDelay;
 	}
-	void CAniImageBox::AppendImage(const char * c_szFileName)
+	void CAniImageBox::AppendImage(const char* c_szFileName, float r, float g, float b, float a)
 	{
 		CResource * pResource = CResourceManager::Instance().GetResourcePointer(c_szFileName);
 		if (!pResource->IsType(CGraphicImage::Type()))
 			return;
 
 		CGraphicExpandedImageInstance * pImageInstance = CGraphicExpandedImageInstance::New();
-
 		pImageInstance->SetImagePointer(static_cast<CGraphicImage*>(pResource));
+		pImageInstance->SetDiffuseColor(r, g, b, a);
+
 		if (pImageInstance->IsEmpty())
 		{
 			CGraphicExpandedImageInstance::Delete(pImageInstance);
@@ -1670,10 +1671,7 @@ namespace UI
 		}
 
 		m_ImageVector.push_back(pImageInstance);
-
 		m_bycurIndex = static_cast<BYTE>(rand() % m_ImageVector.size());
-//		SetSize(pImageInstance->GetWidth(), pImageInstance->GetHeight());
-//		UpdateRect();
 	}
 
 	struct FSetRenderingRect

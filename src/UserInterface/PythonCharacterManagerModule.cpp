@@ -847,6 +847,8 @@ void initchrmgr()
 	PyModule_AddIntConstant(poModule, "EFFECT_HALLOWEEN_CANDY_EQUIP",		CInstanceBase::EFFECT_HALLOWEEN_CANDY_EQUIP);
 	PyModule_AddIntConstant(poModule, "EFFECT_HAPPINESS_RING_EQUIP",		CInstanceBase::EFFECT_HAPPINESS_RING_EQUIP);
 	PyModule_AddIntConstant(poModule, "EFFECT_LOVE_PENDANT_EQUIP",		CInstanceBase::EFFECT_LOVE_PENDANT_EQUIP);
+	PyModule_AddIntConstant(poModule, "EFFECT_SHOULDER_SASH_SUCCEDED",	CInstanceBase::EFFECT_SHOULDER_SASH_SUCCEDED);
+	PyModule_AddIntConstant(poModule, "EFFECT_SHOULDER_SASH_EQUIP",		CInstanceBase::EFFECT_SHOULDER_SASH_EQUIP);
 	
 	PyModule_AddIntConstant(poModule, "EFFECT_AGGREGATE_MONSTER",			CInstanceBase::EFFECT_AGGREGATE_MONSTER);
 }

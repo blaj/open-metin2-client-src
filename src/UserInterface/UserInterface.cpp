@@ -199,6 +199,7 @@ bool RunMainScript(CPythonLauncher& pyLauncher, const char* lpCmdLine)
 	initquest();
 	initBackground();
 	initMessenger();
+	initShoulderSash();
 	initsafebox();
 	initguild();
 	initServerStateChecker();

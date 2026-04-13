@@ -752,6 +752,7 @@ bool CInstanceBase::Create(const SCreateData& c_rkCreateData)
 	if (IsPC())
 	{
 		SetHair(c_rkCreateData.m_dwHair);
+		SetShoulderSash(c_rkCreateData.m_dwShoulderSash);
 		SetWeapon(c_rkCreateData.m_dwWeapon);
 	}
 
@@ -2678,6 +2679,82 @@ void CInstanceBase::SetArmor(DWORD dwArmor)
 	SetShape(dwArmor);
 }
 
+void CInstanceBase::SetShoulderSash(DWORD dwShoulderSash)
+{
+	if (!IsPC())
+	{
+		return;
+	}
+
+	if (IsPoly())
+	{
+		return;
+	}
+
+	dwShoulderSash += 85000;
+	__ClearShoulderSashEffect();
+
+	float fSpecular = 65.0f;
+	if (dwShoulderSash > 86000)
+	{
+		dwShoulderSash -= 1000;
+		fSpecular += 35;
+
+		m_dwShoulderSashEffect = EFFECT_REFINED + EFFECT_SHOULDER_SASH;
+		__EffectContainer_AttachEffect(dwShoulderSash);
+	}
+
+	fSpecular /= 100.0f;
+	m_awPart[CRaceData::PART_SHOULDER_SASH] = dwShoulderSash;
+
+	CItemData* pItemData;
+	if (!CItemManager::Instance().GetItemDataPointer(dwShoulderSash, &pItemData))
+	{
+		return;
+	}
+
+	m_GraphicThingInstance.AttachShoulderSash(pItemData, fSpecular);
+	DWORD dwRace = GetRace(), dwPos = RaceToJob(dwRace), dwSex = RaceToSex(dwRace);
+	dwPos += 1;
+	if (dwSex == 0)
+	{
+		dwPos += 5;
+	}
+
+	float fScaleX, fScaleY, fScaleZ, fPositionX, fPositionY, fPositionZ;
+	if (pItemData->GetItemScale(dwPos, fScaleX, fScaleY, fScaleZ, fPositionX, fPositionY, fPositionZ))
+	{
+		m_GraphicThingInstance.SetScale(fScaleX, fScaleY, fScaleZ, true);
+		if (m_kHorse.IsMounting())
+		{
+			fPositionZ += 10.0f;
+		}
+
+		m_GraphicThingInstance.SetScalePosition(fPositionX, fPositionY, fPositionZ);
+	}
+}
+
+void CInstanceBase::ChangeShoulderSash(DWORD dwShoulderSash)
+{
+	if (!IsPC())
+	{
+		return;
+	}
+
+	SetShoulderSash(dwShoulderSash);
+}
+
+void CInstanceBase::__ClearShoulderSashEffect()
+{
+	if (!m_dwShoulderSashEffect)
+	{
+		return;
+	}
+
+	__EffectContainer_DetachEffect(m_dwShoulderSashEffect);
+	m_dwShoulderSashEffect = 0;
+}
+
 void CInstanceBase::SetShape(DWORD eShape, float fSpecular)
 {
 	if (IsPoly())
@@ -2836,6 +2913,7 @@ bool CInstanceBase::ChangeArmor(DWORD dwArmor)
 	DWORD dwVID = GetVirtualID();
 	DWORD dwRace = GetRace();
 	DWORD eHair = GetPart(CRaceData::PART_HAIR);
+	DWORD dwShoulderSash = GetPart(CRaceData::PART_SHOULDER_SASH);
 	DWORD eWeapon = GetPart(CRaceData::PART_WEAPON);
 	float fRot = GetRotation();
 	float fAdvRot = GetAdvancingRotation();
@@ -2856,6 +2934,7 @@ bool CInstanceBase::ChangeArmor(DWORD dwArmor)
 
 	SetArmor(dwArmor);
 	SetHair(eHair);
+	SetShoulderSash(dwShoulderSash);
 	SetWeapon(eWeapon);
 
 	SetRotation(fRot);
@@ -3125,6 +3204,7 @@ void CInstanceBase::__Initialize()
 	m_swordRefineEffectRight = 0;
 	m_swordRefineEffectLeft = 0;
 	m_armorRefineEffect = 0;
+	m_dwShoulderSashEffect = 0;
 
 	m_sAlignment = 0;
 	m_byPKMode = 0;

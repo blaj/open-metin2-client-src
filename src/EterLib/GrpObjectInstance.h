@@ -37,7 +37,8 @@ class CGraphicObjectInstance : public CGraphicCollisionObject
 
 		void					SetPosition(float x, float y, float z);
 		void					SetPosition(const D3DXVECTOR3 & newposition);
-		void					SetScale(float x, float y, float z);
+		void					SetScalePosition(float x, float y, float z);
+		void					SetScale(float x, float y, float z, bool bScale = false);
 		void					SetRotation(float fRotation);
 		void					SetRotation(float fYaw, float fPitch, float fRoll);
 		void					SetRotationQuaternion(const D3DXQUATERNION &q);
@@ -129,6 +130,9 @@ class CGraphicObjectInstance : public CGraphicCollisionObject
 
 		// Culling
 		CCullingManager::CullingHandle	m_CullingHandle;
+
+		D3DXVECTOR3				m_v3ScalePosition;
+		D3DXMATRIX				m_ScaleMatrix, m_PositionMatrix, m_TransformMatrix;
 
 	// Static Collision Data
 	public:

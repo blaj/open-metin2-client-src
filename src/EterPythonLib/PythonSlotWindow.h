@@ -72,6 +72,7 @@ namespace UI
 				CSlotButton * pSlotButton;
 				CImageBox * pSignImage;
 				CAniImageBox * pFinishCoolTimeEffect;
+				CAniImageBox * pActiveSlotEffect[3];
 			} TSlot;
 
 			typedef std::list<TSlot> TSlotList;
@@ -157,6 +158,9 @@ namespace UI
 
 			// CallBack
 			void ReserveDestroyCoolTimeFinishEffect(DWORD dwSlotIndex);
+
+			void ActivateEffect(DWORD dwSlotIndex, float r, float g, float b, float a);
+			void DeactivateEffect(DWORD dwSlotIndex);
 
 			void ClearStoredSlotCoolTime(DWORD dwKey, DWORD dwSlotIndex);
 

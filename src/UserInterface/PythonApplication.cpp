@@ -718,6 +718,7 @@ bool LoadLocaleData(const char* localePath)
 	char szSkillDescFileName[256];
 	char szSkillTableFileName[256];
 	char szInsultList[256];
+	char szItemScale[256];
 
 	snprintf (szItemList,	sizeof (szItemList),	"%s/item_list.txt", GetLocalePathCommon());
 	snprintf (szItemProto,	sizeof (szItemProto),	"%s/item_proto",	localePath);
@@ -726,6 +727,7 @@ bool LoadLocaleData(const char* localePath)
 	snprintf (szSkillDescFileName, sizeof (szSkillDescFileName),	"%s/SkillDesc.txt", localePath);
 	snprintf (szSkillTableFileName, sizeof (szSkillTableFileName),	"%s/SkillTable.txt", GetLocalePathCommon());
 	snprintf (szInsultList,	sizeof (szInsultList),	"%s/insult.txt", localePath);
+	snprintf (szItemScale, sizeof(szItemScale), "%s/item_scale.txt", GetLocalePathCommon());
 
 	rkNPCMgr.Destroy();
 	rkItemMgr.Destroy();
@@ -768,6 +770,11 @@ bool LoadLocaleData(const char* localePath)
 	if (!rkNetStream.LoadInsultList(szInsultList))
 	{
 		Tracenf("CPythonApplication - CPythonNetworkStream::LoadInsultList(%s)", szInsultList);
+	}
+
+	if (!rkItemMgr.LoadItemScale(szItemScale))
+	{
+		Tracenf("LoadLocaleData: error while loading %s.", szItemScale);
 	}
 
 	return true;

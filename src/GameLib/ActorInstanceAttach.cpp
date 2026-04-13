@@ -660,3 +660,28 @@ void CActorInstance::__ClearAttachingEffect()
 
 	m_AttachingEffectList.clear();
 }
+
+void CActorInstance::AttachShoulderSash(CItemData* pItemData, float fSpecular)
+{
+	if (!pItemData)
+	{
+		RegisterModelThing(CRaceData::PART_SHOULDER_SASH, NULL);
+		SetModelInstance(CRaceData::PART_SHOULDER_SASH, CRaceData::PART_SHOULDER_SASH, 0);
+		RefreshActorInstance();
+		return;
+	}
+
+	RegisterModelThing(CRaceData::PART_SHOULDER_SASH, pItemData->GetModelThing());
+	SetModelInstance(CRaceData::PART_SHOULDER_SASH, CRaceData::PART_SHOULDER_SASH, 0);
+	AttachModelInstance(CRaceData::PART_MAIN, "Bip01 Spine2", CRaceData::PART_SHOULDER_SASH);
+
+	if (fSpecular > 0.0f)
+	{
+		SMaterialData kMaterialData;
+		kMaterialData.pImage = NULL;
+		kMaterialData.isSpecularEnable = TRUE;
+		kMaterialData.fSpecularPower = fSpecular;
+		kMaterialData.bSphereMapIndex = 1;
+		SetMaterialData(CRaceData::PART_SHOULDER_SASH, NULL, kMaterialData);
+	}
+}

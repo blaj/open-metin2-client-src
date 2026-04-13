@@ -370,6 +370,51 @@ bool CItemManager::LoadItemTable(const char* c_szFileName)
 	return true;
 }
 
+bool CItemManager::LoadItemScale(const char* c_szFileName)
+{
+	TPackFile kFile;
+	if (!CPackManager::Instance().GetFile(c_szFileName, kFile))
+	{
+		Tracenf("CItemManager::LoadItemScale(c_szFileName=%s) - Load Error", c_szFileName);
+		return false;
+	}
+
+	CMemoryTextFileLoader kTextFileLoader;
+	kTextFileLoader.Bind(kFile.size(), kFile.data());
+
+	CTokenVector kTokenVector;
+	for (DWORD i = 0; i < kTextFileLoader.GetLineCount(); ++i)
+	{
+		if (!kTextFileLoader.SplitLineByTab(i, &kTokenVector))
+		{
+			continue;
+		}
+
+		if (kTokenVector.size() < ITEMSCALE_NUM)
+		{
+			TraceError("LoadItemScale: invalid line %d (%s).", i, c_szFileName);
+			continue;
+		}
+
+		const std::string& strJob = kTokenVector[ITEMSCALE_JOB];
+		const std::string& strSex = kTokenVector[ITEMSCALE_SEX];
+		const std::string& strScaleX = kTokenVector[ITEMSCALE_SCALE_X];
+		const std::string& strScaleY = kTokenVector[ITEMSCALE_SCALE_Y];
+		const std::string& strScaleZ = kTokenVector[ITEMSCALE_SCALE_Z];
+		const std::string& strPositionX = kTokenVector[ITEMSCALE_POSITION_X];
+		const std::string& strPositionY = kTokenVector[ITEMSCALE_POSITION_Y];
+		const std::string& strPositionZ = kTokenVector[ITEMSCALE_POSITION_Z];
+
+		for (int j = 0; j < 5; ++j)
+		{
+			CItemData* pItemData = MakeItemData(atoi(kTokenVector[ITEMSCALE_VNUM].c_str()) + j);
+			pItemData->SetItemScale(strJob, strSex, strScaleX, strScaleY, strScaleZ, strPositionX, strPositionY, strPositionZ);
+		}
+	}
+
+	return true;
+}
+
 void CItemManager::Destroy()
 {
 	TItemMap::iterator i;

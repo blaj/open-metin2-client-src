@@ -377,6 +377,8 @@ static const char* GetHeaderName(uint16_t header)
 		{ GC::EXCHANGE,           "GC_EXCHANGE" },
 		{ GC::REFINE_INFORMATION, "GC_REFINE_INFORMATION" },
 		{ GC::DRAGON_SOUL_REFINE, "GC_DRAGON_SOUL_REFINE" },
+		{ GC::SHOULDER_SASH,	  "GC_SHOULDER_SASH" },
+		{ CG::SHOULDER_SASH,	  "CG_SHOULDER_SASH"},
 		// Chat
 		{ CG::CHAT,               "CG_CHAT" },
 		{ CG::WHISPER,            "CG_WHISPER" },

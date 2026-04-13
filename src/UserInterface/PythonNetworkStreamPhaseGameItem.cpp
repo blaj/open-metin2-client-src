@@ -900,6 +900,12 @@ bool CPythonNetworkStream::RecvSpecialEffect()
 		case SE_EQUIP_LOVE_PENDANT:
 			effect = CInstanceBase::EFFECT_LOVE_PENDANT_EQUIP;
 			break;
+		case SE_EFFECT_SHOULDER_SASH_SUCCEDED:
+			effect = CInstanceBase::EFFECT_SHOULDER_SASH_SUCCEDED;
+			break;
+		case SE_EFFECT_SHOULDER_SASH_EQUIP:
+			effect = CInstanceBase::EFFECT_SHOULDER_SASH_EQUIP;
+			break;
 		case SE_AGGREGATE_MONSTER:
 			effect = CInstanceBase::EFFECT_AGGREGATE_MONSTER;
 			break;

@@ -237,6 +237,8 @@ UINT CPythonNetworkStream::GetAccountCharacterSlotDatau(UINT iSlot, UINT eType)
 			break;
 		case ACCOUNT_CHARACTER_SLOT_HAIR:
 			return rkSimplePlayerInfo.wHairPart;
+		case ACCOUNT_CHARACTER_SLOT_SHOULDER_SASH:
+			return rkSimplePlayerInfo.wShoulderSashPart;
 			break;
 	}
 	return 0;
@@ -907,6 +909,8 @@ void CPythonNetworkStream::RegisterGameHandlers()
 	// Misc
 	h[GC::DIG_MOTION]             = { &CPythonNetworkStream::RecvDigMotionPacket,          sizeof(TPacketGCDigMotion),                  false };
 	h[GC::DRAGON_SOUL_REFINE]     = { &CPythonNetworkStream::RecvDragonSoulRefine,         sizeof(TPacketGCDragonSoulRefine),           false };
+
+	h[GC::SHOULDER_SASH]		  = { &CPythonNetworkStream::RecvShoulderSashPacket,	   sizeof(TPacketShoulderSash),							false };
 }
 
 void CPythonNetworkStream::RegisterLoadingHandlers()

@@ -118,7 +118,7 @@ int get_Item_SubType_Value(int type_value, string inputString)
 						"RESOURCE_STONE", "RESOURCE_METIN", "RESOURCE_ORE" };
 	string arSub16[] = { "UNIQUE_NONE", "UNIQUE_BOOK", "UNIQUE_SPECIAL_RIDE", "UNIQUE_3", "UNIQUE_4", "UNIQUE_5",
 					"UNIQUE_6", "UNIQUE_7", "UNIQUE_8", "UNIQUE_9", "USE_SPECIAL"};
-	string arSub28[] = { "COSTUME_BODY", "COSTUME_HAIR" };
+	string arSub28[] = { "COSTUME_BODY", "COSTUME_HAIR", "COSTUME_MOUNT", "COSTUME_SHOULDER_SASH"};
 	string arSub29[] = { "DS_SLOT1", "DS_SLOT2", "DS_SLOT3", "DS_SLOT4", "DS_SLOT5", "DS_SLOT6" };
 	string arSub31[] = { "EXTRACT_DRAGON_SOUL", "EXTRACT_DRAGON_HEART" };
 
@@ -286,7 +286,7 @@ int get_Item_WearFlag_Value(string inputString)
 {
 
 	string arWearrFlag[] = {"WEAR_BODY", "WEAR_HEAD", "WEAR_FOOTS", "WEAR_WRIST", "WEAR_WEAPON", "WEAR_NECK", "WEAR_EAR", "WEAR_SHIELD", "WEAR_UNIQUE",
-					"WEAR_ARROW", "WEAR_HAIR", "WEAR_ABILITY"};
+					"WEAR_ARROW", "WEAR_HAIR", "WEAR_ABILITY", "WEAR_COSTUME_BODY", "WEAR_COSTUME_HAIR", "WEAR_COSTUME_SHOULDER_SASH"};
 
 
 	int retValue = 0;

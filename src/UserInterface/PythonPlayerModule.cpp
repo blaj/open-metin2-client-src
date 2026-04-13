@@ -1605,11 +1605,11 @@ enum
 	DETACH_METIN_OK,
 };
 
-PyObject * playerCanDetach(PyObject * poSelf, PyObject * poArgs)
+PyObject* playerCanDetach(PyObject* poSelf, PyObject* poArgs)
 {
 	int iScrollItemIndex;
 	TItemPos TargetSlotIndex;
-	switch (PyTuple_Size (poArgs))
+	switch (PyTuple_Size(poArgs))
 	{
 	case 2:
 		if (!PyTuple_GetInteger(poArgs, 0, &iScrollItemIndex))
@@ -1629,9 +1629,8 @@ PyObject * playerCanDetach(PyObject * poSelf, PyObject * poArgs)
 		return Py_BadArgument();
 	}
 
-	// Scroll
 	CItemManager::Instance().SelectItemData(iScrollItemIndex);
-	CItemData * pScrollItemData = CItemManager::Instance().GetSelectedItemDataPointer();
+	CItemData* pScrollItemData = CItemManager::Instance().GetSelectedItemDataPointer();
 	if (!pScrollItemData)
 		return Py_BuildException("Can't find item data");
 	int iScrollType = pScrollItemData->GetType();
@@ -1641,14 +1640,36 @@ PyObject * playerCanDetach(PyObject * poSelf, PyObject * poArgs)
 	if (iScrollSubType != CItemData::USE_DETACHMENT)
 		return Py_BuildValue("i", DETACH_METIN_CANT);
 
-	// Target Item
 	int iTargetItemIndex = CPythonPlayer::Instance().GetItemIndex(TargetSlotIndex);
 	CItemManager::Instance().SelectItemData(iTargetItemIndex);
-	CItemData * pTargetItemData = CItemManager::Instance().GetSelectedItemDataPointer();
+	CItemData* pTargetItemData = CItemManager::Instance().GetSelectedItemDataPointer();
 	if (!pTargetItemData)
 		return Py_BuildException("Can't find item data");
-	//int iTargetType = pTargetItemData->GetType();
-	//int iTargetSubType = pTargetItemData->GetSubType();
+
+	if (pScrollItemData->GetValue(0) == SHOULDER_SASH_CLEAN_ATTR_VALUE0)
+	{
+		if ((pTargetItemData->GetType() != CItemData::ITEM_TYPE_COSTUME) || (pTargetItemData->GetSubType() != CItemData::COSTUME_SHOULDER_SASH))
+		{
+			return Py_BuildValue("i", DETACH_METIN_CANT);
+		}
+
+		const TItemData* pPlayerItem = CPythonPlayer::Instance().GetItemData(TargetSlotIndex);
+		if (pPlayerItem)
+		{
+			if (pPlayerItem->alSockets[SHOULDER_SASH_ABSORBED_SOCKET] > 0)
+			{
+				return Py_BuildValue("i", DETACH_METIN_OK);
+			}
+			else
+			{
+				return Py_BuildValue("i", DETACH_METIN_CANT);
+			}
+		}
+		else
+		{
+			return Py_BuildValue("i", DETACH_METIN_CANT);
+		}
+	}
 
 	if (pTargetItemData->IsFlag(CItemData::ITEM_FLAG_REFINEABLE))
 	{
