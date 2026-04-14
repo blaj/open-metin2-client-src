@@ -2474,29 +2474,8 @@ PyObject* wndMgrActivateEffect(PyObject* poSelf, PyObject* poArgs)
 		return Py_BuildException();
 	}
 
-	float r, g, b, a;
-	if (!PyTuple_GetFloat(poArgs, 2, &r))
-	{
-		return Py_BuildException();
-	}
-
-	if (!PyTuple_GetFloat(poArgs, 3, &g))
-	{
-		return Py_BuildException();
-	}
-
-	if (!PyTuple_GetFloat(poArgs, 4, &b))
-	{
-		return Py_BuildException();
-	}
-
-	if (!PyTuple_GetFloat(poArgs, 5, &a))
-	{
-		return Py_BuildException();
-	}
-
 	UI::CSlotWindow* pSlotWin = (UI::CSlotWindow*)pWin;
-	pSlotWin->ActivateEffect(iSlotIndex, r, g, b, a);
+	pSlotWin->ActivateEffect(iSlotIndex);
 	return Py_BuildNone();
 }
 
@@ -2515,6 +2494,114 @@ PyObject* wndMgrDeactivateEffect(PyObject* poSelf, PyObject* poArgs)
 
 	UI::CSlotWindow* pSlotWin = (UI::CSlotWindow*)pWin;
 	pSlotWin->DeactivateEffect(iSlotIndex);
+	return Py_BuildNone();
+}
+
+PyObject* wndMgrSetSlotCoolTimeInverse(PyObject* poSelf, PyObject* poArgs)
+{
+	UI::CWindow* pWin;
+	if (!PyTuple_GetWindow(poArgs, 0, &pWin))
+		return Py_BuildException();
+
+	int iSlotIndex;
+	if (!PyTuple_GetInteger(poArgs, 1, &iSlotIndex))
+		return Py_BuildException();
+
+	float fCoolTime;
+	if (!PyTuple_GetFloat(poArgs, 2, &fCoolTime))
+		return Py_BuildException();
+
+	float fElapsedTime = 0.0f;
+	if (!PyTuple_GetFloat(poArgs, 3, &fElapsedTime))
+		return Py_BuildException();
+
+	if (!pWin->IsType(UI::CSlotWindow::Type()))
+		return Py_BuildException();
+
+	((UI::CSlotWindow*)pWin)->SetSlotCoolTimeInverse(iSlotIndex, fCoolTime, fElapsedTime);
+	return Py_BuildNone();
+}
+
+PyObject* wndMgrSetSlotCoolTimeColor(PyObject* poSelf, PyObject* poArgs)
+{
+	UI::CWindow* pWindow;
+	if (!PyTuple_GetWindow(poArgs, 0, &pWindow))
+		return Py_BuildException();
+	int iIndex;
+	if (!PyTuple_GetInteger(poArgs, 1, &iIndex))
+		return Py_BuildException();
+	float fr;
+	if (!PyTuple_GetFloat(poArgs, 2, &fr))
+		return Py_BuildException();
+	float fg;
+	if (!PyTuple_GetFloat(poArgs, 3, &fg))
+		return Py_BuildException();
+	float fb;
+	if (!PyTuple_GetFloat(poArgs, 4, &fb))
+		return Py_BuildException();
+	float fa;
+	if (!PyTuple_GetFloat(poArgs, 5, &fa))
+		return Py_BuildException();
+
+	if (!pWindow->IsType(UI::CSlotWindow::Type()))
+		return Py_BuildException();
+
+	((UI::CSlotWindow*)pWindow)->SetSlotCoolTimeColor(iIndex, fr, fg, fb, fa);
+	return Py_BuildNone();
+}
+
+PyObject* wndMgrEnableSlotTimeInfoText(PyObject* poSelf, PyObject* poArgs)
+{
+	UI::CWindow* pWin;
+	if (!PyTuple_GetWindow(poArgs, 0, &pWin))
+		return Py_BuildException();
+
+	int iSlotIndex;
+	if (!PyTuple_GetInteger(poArgs, 1, &iSlotIndex))
+		return Py_BuildException();
+
+	if (!pWin->IsType(UI::CSlotWindow::Type()))
+		return Py_BuildException();
+
+	UI::CSlotWindow* pSlotWin = (UI::CSlotWindow*)pWin;
+	pSlotWin->EnableSlotTimeInfoText(iSlotIndex);
+	return Py_BuildNone();
+}
+
+PyObject* wndMgrDeactivateSlotTimeInfoText(PyObject* poSelf, PyObject* poArgs)
+{
+	UI::CWindow* pWin;
+	if (!PyTuple_GetWindow(poArgs, 0, &pWin))
+		return Py_BuildException();
+
+	int iSlotIndex;
+	if (!PyTuple_GetInteger(poArgs, 1, &iSlotIndex))
+		return Py_BuildException();
+
+	if (!pWin->IsType(UI::CSlotWindow::Type()))
+		return Py_BuildException();
+
+	UI::CSlotWindow* pSlotWin = (UI::CSlotWindow*)pWin;
+	pSlotWin->DeactivateSlotTimeInfoText(iSlotIndex);
+	return Py_BuildNone();
+}
+
+PyObject* wndMgrSetSlotDiffuseColor(PyObject* poSelf, PyObject* poArgs)
+{
+	UI::CWindow* pWindow;
+	if (!PyTuple_GetWindow(poArgs, 0, &pWindow))
+		return Py_BuildException();
+	int iIndex;
+	if (!PyTuple_GetInteger(poArgs, 1, &iIndex))
+		return Py_BuildException();
+	int iColorType;
+	if (!PyTuple_GetInteger(poArgs, 2, &iColorType))
+		return Py_BuildException();
+
+	if (!pWindow->IsType(UI::CSlotWindow::Type()))
+		return Py_BuildException();
+
+	((UI::CSlotWindow*)pWindow)->SetSlotDiffuseColor(iIndex, iColorType);
 	return Py_BuildNone();
 }
 
@@ -2728,6 +2815,14 @@ void initwndMgr()
 		{ "ActivateEffect",				wndMgrActivateEffect,				METH_VARARGS },
 		{ "DeactivateEffect",			wndMgrDeactivateEffect,				METH_VARARGS },
 
+		{ "SetSlotCoolTimeInverse",		wndMgrSetSlotCoolTimeInverse,		METH_VARARGS },
+		{ "SetSlotCoolTimeColor",		wndMgrSetSlotCoolTimeColor,			METH_VARARGS },
+
+		{ "EnableSlotTimeInfoText",		wndMgrEnableSlotTimeInfoText,		METH_VARARGS },
+		{ "DeactivateSlotTimeInfoText",	wndMgrDeactivateSlotTimeInfoText,	METH_VARARGS },
+
+		{ "SetSlotDiffuseColor",		wndMgrSetSlotDiffuseColor,			METH_VARARGS },
+
 		{ NULL,							NULL,								NULL },
 	};
 
@@ -2759,6 +2854,14 @@ void initwndMgr()
 	PyModule_AddIntConstant(poModule, "VERTICAL_ALIGN_TOP",				UI::CWindow::VERTICAL_ALIGN_TOP);
 	PyModule_AddIntConstant(poModule, "VERTICAL_ALIGN_CENTER",			UI::CWindow::VERTICAL_ALIGN_CENTER);
 	PyModule_AddIntConstant(poModule, "VERTICAL_ALIGN_BOTTOM",			UI::CWindow::VERTICAL_ALIGN_BOTTOM);
+
+	PyModule_AddIntConstant(poModule, "COLOR_TYPE_ORANGE",				UI::COLOR_TYPE_ORANGE);
+	PyModule_AddIntConstant(poModule, "COLOR_TYPE_WHITE",				UI::COLOR_TYPE_WHITE);
+	PyModule_AddIntConstant(poModule, "COLOR_TYPE_RED",					UI::COLOR_TYPE_RED);
+	PyModule_AddIntConstant(poModule, "COLOR_TYPE_GREEN",				UI::COLOR_TYPE_GREEN);
+	PyModule_AddIntConstant(poModule, "COLOR_TYPE_YELLOW",				UI::COLOR_TYPE_YELLOW);
+	PyModule_AddIntConstant(poModule, "COLOR_TYPE_SKY",					UI::COLOR_TYPE_SKY);
+	PyModule_AddIntConstant(poModule, "COLOR_TYPE_PINK",				UI::COLOR_TYPE_PINK);
 
 	PyModule_AddIntConstant(poModule, "RENDERING_MODE_MODULATE",		CGraphicExpandedImageInstance::RENDERING_MODE_MODULATE);
 }

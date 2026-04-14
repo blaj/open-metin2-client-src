@@ -790,6 +790,42 @@ void CGraphicTextInstance::Render(RECT * pClipRect)
 
 			fCurX += fFontAdvance;
 		}
+
+		if (pFontTexture->HasUnderLine() || pFontTexture->HasStrikeOut())
+		{
+			float lineStartX = fStanX;
+			float lineEndX = fCurX;
+			int   ascender = pFontTexture->GetAscender();
+
+			auto DrawDecoLine = [&](float yOffset, int thickness)
+				{
+					float y0 = fStanY + ascender + yOffset;
+					float y1 = y0 + (float)thickness;
+
+					TPDTVertex vertices[4];
+					vertices[0].diffuse = vertices[1].diffuse =
+						vertices[2].diffuse = vertices[3].diffuse = m_dwTextColor;
+					vertices[0].position = TPosition(lineStartX, y0, m_v3Position.z);
+					vertices[1].position = TPosition(lineEndX, y0, m_v3Position.z);
+					vertices[2].position = TPosition(lineStartX, y1, m_v3Position.z);
+					vertices[3].position = TPosition(lineEndX, y1, m_v3Position.z);
+
+					STATEMANAGER.SetTexture(0, NULL);
+					CGraphicBase::SetDefaultIndexBuffer(CGraphicBase::DEFAULT_IB_FILL_RECT);
+					if (CGraphicBase::SetPDTStream(vertices, 4))
+						STATEMANAGER.DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 4, 0, 2);
+				};
+
+			if (pFontTexture->HasUnderLine())
+				DrawDecoLine(
+					(float)pFontTexture->GetUnderlineOffset(),
+					pFontTexture->GetUnderlineThickness());
+
+			if (pFontTexture->HasStrikeOut())
+				DrawDecoLine(
+					(float)pFontTexture->GetStrikeOutOffset(),
+					pFontTexture->GetStrikeOutThickness());
+		}
 	}
 
 	// --- Selection background (Ctrl+A / shift-select) ---

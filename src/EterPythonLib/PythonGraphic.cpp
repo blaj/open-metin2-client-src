@@ -492,14 +492,13 @@ void CPythonGraphic::RenderAlphaImage(CGraphicImageInstance* pImageInstance, flo
 		STATEMANAGER.DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 4, 0, 2);
 }
 
-void CPythonGraphic::RenderCoolTimeBox(float fxCenter, float fyCenter, float fRadius, float fTime)
+void CPythonGraphic::RenderCoolTimeBox(float fxCenter, float fyCenter, float fRadius, float fTime, D3DXCOLOR color)
 {
 	if (fTime >= 1.0f)
 		return;
 
 	fTime = std::max(0.0f, fTime);
 
-	static D3DXCOLOR color = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.5f);
 	static WORD s_wBoxIndicies[10] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 	static D3DXVECTOR2 s_v2BoxPos[8] =
 	{
@@ -573,6 +572,85 @@ void CPythonGraphic::RenderCoolTimeBox(float fxCenter, float fyCenter, float fRa
 		STATEMANAGER.RestoreTextureStageState(0, D3DTSS_COLOROP);
 		STATEMANAGER.RestoreTextureStageState(0, D3DTSS_ALPHAARG1);
 		STATEMANAGER.RestoreTextureStageState(0, D3DTSS_ALPHAOP);
+	}
+}
+
+void CPythonGraphic::RenderCoolTimeBoxInverse(float fxCenter, float fyCenter, float fRadius, float fTime)
+{
+	fTime = std::min(1.0f, fTime);
+	fTime = std::max(0.0f, fTime);
+
+	static D3DXCOLOR color = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.5f);
+	static D3DXVECTOR2 s_v2BoxPos[8] =
+	{
+		D3DXVECTOR2(+1.0f, -1.0f),
+		D3DXVECTOR2(+1.0f,  0.0f),
+		D3DXVECTOR2(+1.0f, +1.0f),
+		D3DXVECTOR2(0.0f, +1.0f),
+		D3DXVECTOR2(-1.0f, +1.0f),
+		D3DXVECTOR2(-1.0f,  0.0f),
+		D3DXVECTOR2(-1.0f, -1.0f),
+		D3DXVECTOR2(0.0f, -1.0f),
+	};
+
+	int iTriCount = int(8.0f * fTime);
+	const float fLastPercentage = 1.0f;
+
+	std::vector<TPDTVertex> vertices;
+
+	TPDTVertex vertex;
+
+	vertex.position = TPosition(fxCenter, fyCenter, 0.0f);
+	vertex.texCoord = TTextureCoordinate(0.0f, 0.0f);
+	vertex.diffuse = color;
+	vertices.push_back(vertex);
+
+	vertex.position = TPosition(fxCenter, fyCenter - fRadius, 0.0f);
+	vertex.texCoord = TTextureCoordinate(0.0f, 0.0f);
+	vertex.diffuse = color;
+	vertices.push_back(vertex);
+
+	for (int j = 0; j < iTriCount; ++j)
+	{
+		vertex.position.x = fxCenter + s_v2BoxPos[j].x * fRadius;
+		vertex.position.y = fyCenter + s_v2BoxPos[j].y * fRadius;
+		vertices.push_back(vertex);
+	}
+
+	if (fLastPercentage > 0.0f)
+	{
+		const int iPos = (iTriCount + 7) % 8;
+
+		vertex.position.x = ((s_v2BoxPos[iPos].x - s_v2BoxPos[(iTriCount + 8) % 8].x) * fLastPercentage + s_v2BoxPos[(iTriCount + 8) % 8].x) * fRadius + fxCenter;
+		vertex.position.y = (fLastPercentage * (s_v2BoxPos[iPos].y - s_v2BoxPos[(iTriCount + 8) % 8].y) + s_v2BoxPos[(iTriCount + 8) % 8].y) * fRadius + fyCenter;
+		vertices.push_back(vertex);
+
+		++iTriCount;
+	}
+
+	if (vertices.empty())
+		return;
+
+	if (SetPDTStream(&vertices[0], vertices.size()))
+	{
+		STATEMANAGER.SaveTextureStageState(0, D3DTSS_COLORARG1, D3DTA_DIFFUSE);
+		STATEMANAGER.SaveTextureStageState(0, D3DTSS_COLOROP, D3DTOP_SELECTARG1);
+		STATEMANAGER.SaveTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_DIFFUSE);
+		STATEMANAGER.SaveTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG1);
+		STATEMANAGER.SetTexture(0, NULL);
+		STATEMANAGER.SetTexture(1, NULL);
+		STATEMANAGER.SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1);
+
+		const DWORD dwState = STATEMANAGER.GetRenderState(D3DRS_CULLMODE);
+		STATEMANAGER.SetRenderState(D3DRS_CULLMODE, D3DBLEND_SRCCOLOR);
+
+		STATEMANAGER.DrawPrimitive(D3DPT_TRIANGLEFAN, 0, iTriCount);
+		STATEMANAGER.RestoreTextureStageState(0, D3DTSS_COLORARG1);
+		STATEMANAGER.RestoreTextureStageState(0, D3DTSS_COLOROP);
+		STATEMANAGER.RestoreTextureStageState(0, D3DTSS_ALPHAARG1);
+		STATEMANAGER.RestoreTextureStageState(0, D3DTSS_ALPHAOP);
+
+		STATEMANAGER.SetRenderState(D3DRS_CULLMODE, dwState);
 	}
 }
 

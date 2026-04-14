@@ -37,7 +37,8 @@ class CPythonGraphic : public CScreen, public CSingleton<CPythonGraphic>
 
 		void RenderImage(CGraphicImageInstance* pImageInstance, float x, float y);
 		void RenderAlphaImage(CGraphicImageInstance* pImageInstance, float x, float y, float aLeft, float aRight);
-		void RenderCoolTimeBox(float fxCenter, float fyCenter, float fRadius, float fTime);
+		void RenderCoolTimeBox(float fxCenter, float fyCenter, float fRadius, float fTime, D3DXCOLOR color);
+		void RenderCoolTimeBoxInverse(float fxCenter, float fyCenter, float fRadius, float fTime);
 
 		bool SaveJPEG(const char * pszFileName, LPBYTE pbyBuffer, UINT uWidth, UINT uHeight);
 		bool SaveScreenShot(const char *szFileName);

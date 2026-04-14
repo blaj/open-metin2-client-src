@@ -34,7 +34,7 @@ class CGraphicFontTexture : public CGraphicTexture
 		virtual ~CGraphicFontTexture();
 
 		void Destroy();
-		bool Create(const char* c_szFontName, int fontSize, bool bItalic);
+		bool Create(const char* c_szFontName, int fontSize, bool bItalic, bool bBold, bool bUnderLine, bool bStrikeOut);
 
 		bool CreateDeviceObjects();
 		void DestroyDeviceObjects();
@@ -50,6 +50,14 @@ class CGraphicFontTexture : public CGraphicTexture
 		float GetKerning(wchar_t prev, wchar_t cur);
 
 		bool IsEmpty() const;
+
+		bool HasUnderLine()				const { return m_bUnderLine; }
+		bool HasStrikeOut()				const { return m_bStrikeOut; }
+		int  GetUnderlineOffset()		const { return m_underlineOffset; }
+		int  GetUnderlineThickness()	const { return m_underlineThickness; }
+		int  GetStrikeOutOffset()		const { return m_strikeOutOffset; }
+		int  GetStrikeOutThickness()	const { return m_strikeOutThickness; }
+		int  GetAscender()				const { return m_ascender; }
 
 	protected:
 		void Initialize();
@@ -79,9 +87,17 @@ class CGraphicFontTexture : public CGraphicTexture
 
 		LONG m_fontSize;
 		bool m_bItalic;
+		bool	m_bBold;
+		bool	m_bUnderLine;
+		bool	m_bStrikeOut;
 
 		// FreeType metrics cached per-font
 		int m_ascender;
 		int m_lineHeight;
 		bool m_hasKerning;
+		int  m_boldStrength;
+		int  m_underlineOffset;
+		int  m_underlineThickness;
+		int  m_strikeOutOffset;
+		int  m_strikeOutThickness;
 };

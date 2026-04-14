@@ -7,6 +7,8 @@
 
 #include <ft2build.h>
 #include FT_FREETYPE_H
+#include FT_OUTLINE_H
+#include FT_SYNTHESIS_H
 
 #include <cmath>
 
@@ -39,9 +41,17 @@ void CGraphicFontTexture::Initialize()
 	m_atlasHeight = 0;
 	m_isDirty = false;
 	m_bItalic = false;
+	m_bBold = false;
+	m_bUnderLine = false;
+	m_bStrikeOut = false;
 	m_ascender = 0;
 	m_lineHeight = 0;
 	m_hasKerning = false;
+	m_boldStrength = 0;
+	m_underlineOffset = 0;
+	m_underlineThickness = 1;
+	m_strikeOutOffset = 0;
+	m_strikeOutThickness = 1;
 	m_x = 0;
 	m_y = 0;
 	m_step = 0;
@@ -114,12 +124,15 @@ void CGraphicFontTexture::DestroyDeviceObjects()
 	stl_wipe(m_pFontTextureVector);
 }
 
-bool CGraphicFontTexture::Create(const char* c_szFontName, int fontSize, bool bItalic)
+bool CGraphicFontTexture::Create(const char* c_szFontName, int fontSize, bool bItalic, bool bBold, bool bUnderLine, bool bStrikeOut)
 {
 	Destroy();
 
 	m_fontSize = fontSize;
 	m_bItalic = bItalic;
+	m_bBold = bBold;
+	m_bUnderLine = bUnderLine;
+	m_bStrikeOut = bStrikeOut;
 
 	m_x = 0;
 	m_y = 0;
@@ -153,6 +166,9 @@ bool CGraphicFontTexture::Create(const char* c_szFontName, int fontSize, bool bI
 
 	FT_Set_Pixel_Sizes(m_ftFace, 0, pixelSize);
 
+	if (m_bBold)
+		m_boldStrength = std::max(1, pixelSize / 12);
+
 	m_hasKerning = FT_HAS_KERNING(m_ftFace) != 0;
 
 	// Apply italic via shear matrix if needed
@@ -173,6 +189,12 @@ bool CGraphicFontTexture::Create(const char* c_szFontName, int fontSize, bool bI
 	// Cache font metrics
 	m_ascender = (int)(m_ftFace->size->metrics.ascender >> 6);
 	m_lineHeight = (int)(m_ftFace->size->metrics.height >> 6);
+
+	float scale = (float)m_ftFace->size->metrics.y_ppem / (float)m_ftFace->units_per_EM;
+	m_underlineOffset = (int)(-(m_ftFace->underline_position * scale) + 0.5f);
+	m_underlineThickness = std::max(1, (int)(m_ftFace->underline_thickness * scale + 0.5f));
+	m_strikeOutOffset = -(m_ascender / 2);
+	m_strikeOutThickness = m_underlineThickness;
 
 	if (!AppendTexture())
 		return false;
@@ -279,6 +301,13 @@ CGraphicFontTexture::TCharacterInfomation* CGraphicFontTexture::UpdateCharacterI
 
 	if (FT_Load_Glyph(m_ftFace, glyphIndex, FT_LOAD_TARGET_LCD) != 0)
 		return NULL;
+
+	if (m_bBold) {
+		if (m_ftFace->glyph->format == FT_GLYPH_FORMAT_OUTLINE)
+			FT_Outline_Embolden(&m_ftFace->glyph->outline, m_boldStrength * 64);
+		else
+			FT_GlyphSlot_Embolden(m_ftFace->glyph);
+	}
 
 	if (FT_Render_Glyph(m_ftFace->glyph, FT_RENDER_MODE_LCD) != 0)
 		return NULL;

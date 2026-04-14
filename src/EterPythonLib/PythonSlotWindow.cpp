@@ -11,6 +11,9 @@
 
 using namespace UI;
 
+const D3DXCOLOR c_Slot_Time_Info_Cooltime_Color = D3DXCOLOR(168.0f / 255.0f, 168.0f / 255.0f, 168.0f / 255.0f, 0.5f);
+const D3DXCOLOR c_Slot_Time_Info_Instance_Color = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
+
 class UI::CSlotWindow::CSlotButton : public CButton
 {
 	public:
@@ -422,6 +425,7 @@ void CSlotWindow::SetSlot(DWORD dwIndex, DWORD dwVirtualNumber, BYTE byWidth, BY
 		pSlot->pInstance = CGraphicImageInstance::New();
 		pSlot->pInstance->SetDiffuseColor(diffuseColor.r, diffuseColor.g, diffuseColor.b, diffuseColor.a);
 		pSlot->pInstance->SetImagePointer(pImage);
+		pSlot->d3InstanceColor = diffuseColor;
 	}
 
 	pSlot->byxPlacedItemSize = byWidth;
@@ -662,6 +666,14 @@ void CSlotWindow::ClearSlot(TSlot * pSlot)
 
 	pSlot->dwItemIndex = 0;
 	pSlot->bRenderBaseSlotImage = true;
+
+	pSlot->bCoolTimeInverse = false;
+	pSlot->d3CoolTimeColor = D3DXCOLOR(0.0f, 0.0f, 0.0f, 0.5f);
+
+	pSlot->bEnableTimeInfoText = false;
+	pSlot->d3InstanceColor = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
+	pSlot->d3Color = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
 
 	if (pSlot->pInstance)
 	{
@@ -1149,6 +1161,12 @@ void CSlotWindow::OnRender()
 		if (rSlot.pInstance)
 		{
 			rSlot.pInstance->SetPosition(m_rect.left + rSlot.ixPosition, m_rect.top + rSlot.iyPosition);
+
+			if (rSlot.bEnableTimeInfoText && rSlot.fCoolTime != 0.0f)
+				rSlot.pInstance->SetDiffuseColor(c_Slot_Time_Info_Instance_Color.r, c_Slot_Time_Info_Instance_Color.g, c_Slot_Time_Info_Instance_Color.b, c_Slot_Time_Info_Instance_Color.a);
+			else
+				rSlot.pInstance->SetDiffuseColor(rSlot.d3InstanceColor.r, rSlot.d3InstanceColor.g, rSlot.d3InstanceColor.b, rSlot.d3InstanceColor.a);
+
 			rSlot.pInstance->Render();
 		}
 
@@ -1175,18 +1193,46 @@ void CSlotWindow::OnRender()
 
 		if (rSlot.fCoolTime != 0.0f)
 		{
-			float fcurTime = CTimer::Instance().GetCurrentSecond();
-			float fPercentage = (fcurTime - rSlot.fStartCoolTime) / rSlot.fCoolTime;
-			CPythonGraphic::Instance().RenderCoolTimeBox(m_rect.left + rSlot.ixPosition + 16.0f, m_rect.top + rSlot.iyPosition + 16.0f, 16.0f, fPercentage);
+			const float fCurTime = CTimer::Instance().GetCurrentSecond();
+			const float fPercentage = (fCurTime - rSlot.fStartCoolTime) / rSlot.fCoolTime;
 
-			if (fcurTime - rSlot.fStartCoolTime >= rSlot.fCoolTime)
+			const int iXCellSize = rSlot.ixCellSize;
+			const int iYCellSize = rSlot.iyCellSize;
+
+			const float fxCenter = m_rect.left + rSlot.ixPosition + iXCellSize / 2.0f;
+			const float fyCenter = m_rect.top + rSlot.iyPosition + iYCellSize / 2.0f;
+			const float fRadius = MAX(iXCellSize, iYCellSize) / 2.0f;
+
+			if (rSlot.bCoolTimeInverse)
+				CPythonGraphic::Instance().RenderCoolTimeBoxInverse(fxCenter, fyCenter, fRadius, fPercentage);
+			else
+				if (rSlot.bEnableTimeInfoText)
+					CPythonGraphic::Instance().RenderCoolTimeBox(fxCenter, fyCenter, fRadius, fPercentage, c_Slot_Time_Info_Cooltime_Color);
+				else
+					CPythonGraphic::Instance().RenderCoolTimeBox(fxCenter, fyCenter, fRadius, fPercentage, rSlot.d3CoolTimeColor);
+
+			if (fCurTime - rSlot.fStartCoolTime >= rSlot.fCoolTime && !rSlot.bCoolTimeInverse)
 			{
-				// 쿨타임이 끝난지 1초 이내라면..
-				if ((fcurTime - rSlot.fStartCoolTime) - rSlot.fCoolTime < 1.0f)
+				if ((fCurTime - rSlot.fStartCoolTime) - rSlot.fCoolTime < 1.0f)
 					__CreateFinishCoolTimeEffect(&rSlot);
 
 				rSlot.fCoolTime = 0.0f;
 				rSlot.fStartCoolTime = 0.0f;
+			}
+			else if (rSlot.bEnableTimeInfoText && pTimeInfoTextInstance)
+			{
+				const float fRemainSec = rSlot.fCoolTime - (fCurTime - rSlot.fStartCoolTime);
+
+				char szBuffer[8];
+				if (fRemainSec > 1.0f)
+					snprintf(szBuffer, sizeof(szBuffer), "%d", static_cast<int>(fRemainSec));
+				else
+					snprintf(szBuffer, sizeof(szBuffer), "%.1f", fRemainSec);
+
+				pTimeInfoTextInstance->SetPosition(fxCenter + 1.0f, fyCenter - 1.0f);
+				pTimeInfoTextInstance->SetValue(szBuffer);
+				pTimeInfoTextInstance->Update();
+				pTimeInfoTextInstance->Render();
 			}
 		}
 
@@ -1232,6 +1278,7 @@ void CSlotWindow::OnRender()
 			int ix = m_rect.left + rSlot.ixPosition;
 			int iy = m_rect.top + rSlot.iyPosition;
 			m_pSlotActiveEffect->SetPosition(ix, iy);
+			m_pSlotActiveEffect->SetDiffuseColor(rSlot.d3Color.r, rSlot.d3Color.g, rSlot.d3Color.b, rSlot.d3Color.a);
 			m_pSlotActiveEffect->Render();
 		}
 	}
@@ -1410,11 +1457,16 @@ void CSlotWindow::ClearStoredSlotCoolTime(DWORD dwKey, DWORD dwSlotIndex)
 		store.erase(it);
 }
 
-void CSlotWindow::ActivateEffect(DWORD dwSlotIndex, float r, float g, float b, float a)
+void CSlotWindow::ActivateEffect(DWORD dwSlotIndex)
 {
 	TSlot* pSlot;
 	if (!GetSlotPointer(dwSlotIndex, &pSlot))
 		return;
+
+	float r = pSlot->d3Color.r;
+	float g = pSlot->d3Color.g;
+	float b = pSlot->d3Color.b;
+	float a = pSlot->d3Color.a;
 
 	for (int i = 0; i < 3; ++i)
 	{
@@ -1568,6 +1620,108 @@ void CSlotWindow::__DestroyBaseImage()
 	}
 }
 
+void CSlotWindow::SetSlotCoolTimeInverse(DWORD dwIndex, float fCoolTime, float fElapsedTime)
+{
+	TSlot* pSlot;
+	if (!GetSlotPointer(dwIndex, &pSlot))
+		return;
+
+	pSlot->fCoolTime = fCoolTime;
+	pSlot->fStartCoolTime = CTimer::Instance().GetCurrentSecond() - fElapsedTime;
+	pSlot->bCoolTimeInverse = true;
+}
+
+void CSlotWindow::SetSlotCoolTimeColor(DWORD dwSlotIndex, float fr, float fg, float fb, float fa)
+{
+	TSlot* pSlot;
+	if (!GetSlotPointer(dwSlotIndex, &pSlot))
+		return;
+
+	pSlot->d3CoolTimeColor = D3DXCOLOR(fr, fg, fb, fa);
+}
+
+void UI::CSlotWindow::__CreateTimeInfoText()
+{
+	__DestroyTimeInfoText();
+
+	CResource* pResource = CResourceManager::Instance().GetResourcePointer("Tahoma:16b.fnt");
+	if (!pResource || !pResource->IsType(CGraphicText::Type()))
+	{
+		TraceError("CSlotWindow::__CreateTimeInfoText - CANNOT_FIND_FONT");
+		return;
+	}
+
+	pTimeInfoTextInstance = CGraphicTextInstance::New();
+	pTimeInfoTextInstance->SetColor(1.0f, 1.0f, 1.0f, 1.0f);
+	pTimeInfoTextInstance->SetHorizonalAlign(CGraphicTextInstance::HORIZONTAL_ALIGN_CENTER);
+	pTimeInfoTextInstance->SetVerticalAlign(CGraphicTextInstance::VERTICAL_ALIGN_CENTER);
+	pTimeInfoTextInstance->SetOutline(true);
+	pTimeInfoTextInstance->SetTextPointer(static_cast<CGraphicText*>(pResource));
+}
+
+void UI::CSlotWindow::__DestroyTimeInfoText()
+{
+	if (pTimeInfoTextInstance)
+	{
+		CGraphicTextInstance::Delete(pTimeInfoTextInstance);
+		pTimeInfoTextInstance = NULL;
+	}
+}
+
+void UI::CSlotWindow::EnableSlotTimeInfoText(DWORD dwIndex)
+{
+	TSlot* pSlot;
+	if (!GetSlotPointer(dwIndex, &pSlot))
+		return;
+
+	pSlot->bEnableTimeInfoText = true;
+
+	if (!pTimeInfoTextInstance)
+		__CreateTimeInfoText();
+}
+
+void UI::CSlotWindow::DeactivateSlotTimeInfoText(DWORD dwIndex)
+{
+	TSlot* pSlot;
+	if (!GetSlotPointer(dwIndex, &pSlot))
+		return;
+
+	pSlot->bEnableTimeInfoText = false;
+}
+
+void CSlotWindow::SetSlotDiffuseColor(DWORD dwIndex, int iColorType)
+{
+	TSlot* pSlot;
+	if (!GetSlotPointer(dwIndex, &pSlot))
+		return;
+
+	switch (iColorType)
+	{
+	case COLOR_TYPE_ORANGE:
+		pSlot->d3Color = D3DXCOLOR(1.0f, 0.34509805f, 0.035294119f, 0.5f);
+		break;
+	case COLOR_TYPE_RED:
+		pSlot->d3Color = D3DXCOLOR(1.0f, 0.0f, 0.0f, 0.5f);
+		break;
+	case COLOR_TYPE_GREEN:
+		pSlot->d3Color = D3DXCOLOR(0.0f, 1.0f, 0.0f, 0.5f);
+		break;
+	case COLOR_TYPE_YELLOW:
+		pSlot->d3Color = D3DXCOLOR(1.0f, 1.0f, 0.0f, 0.5f);
+		break;
+	case COLOR_TYPE_SKY:
+		pSlot->d3Color = D3DXCOLOR(0.0f, 1.0f, 1.0f, 0.5f);
+		break;
+	case COLOR_TYPE_PINK:
+		pSlot->d3Color = D3DXCOLOR(1.0f, 0.0f, 1.0f, 0.5f);
+		break;
+	case COLOR_TYPE_WHITE:
+	default:
+		pSlot->d3Color = D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f);
+		break;
+	}
+}
+
 void CSlotWindow::__Initialize()
 {
 	m_dwSlotType = 0;
@@ -1583,6 +1737,8 @@ void CSlotWindow::__Initialize()
 	m_pToggleSlotImage = NULL;
 	m_pSlotActiveEffect = NULL;
 	m_pBaseImageInstance = NULL;
+
+	pTimeInfoTextInstance = NULL;
 }
 
 void CSlotWindow::Destroy()
@@ -1629,6 +1785,7 @@ void CSlotWindow::Destroy()
 	__DestroyToggleSlotImage();
 	__DestroySlotEnableEffect();
 	__DestroyBaseImage();
+	__DestroyTimeInfoText();
 
 	__Initialize();
 }

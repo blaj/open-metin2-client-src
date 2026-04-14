@@ -36,6 +36,9 @@ bool CGraphicText::OnLoad(int /*iSize*/, const void* /*c_pvBuf*/)
 	char strName[32];
 	int size;
 	bool bItalic = false;
+	bool bBold = false;
+	bool bUnderLine = false;
+	bool bStrikeOut = false;
 
 	// format
 	// 굴림.fnt		"굴림" 폰트 기본 사이즈 12 로 로딩
@@ -59,8 +62,10 @@ bool CGraphicText::OnLoad(int /*iSize*/, const void* /*c_pvBuf*/)
 		}
 
 		num[i] = '\0';
-		if(*p == 'i')
-			bItalic = true;
+		bItalic = strchr(p, 'i') != NULL;
+		bBold = strchr(p, 'b') != NULL;
+		bUnderLine = strchr(p, 'u') != NULL;
+		bStrikeOut = strchr(p, 's') != NULL;
 		size = atoi(num);
 	}
 	else
@@ -82,7 +87,7 @@ bool CGraphicText::OnLoad(int /*iSize*/, const void* /*c_pvBuf*/)
 		size = 12;
 	}
 
-	if (!m_fontTexture.Create(strName, size, bItalic))
+	if (!m_fontTexture.Create(strName, size, bItalic, bBold, bUnderLine, bStrikeOut))
 		return false;
 
 	return true;

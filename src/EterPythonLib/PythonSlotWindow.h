@@ -19,6 +19,17 @@ namespace UI
 		SLOT_STYLE_SELECT,
 	};
 
+	enum ESlotColorType
+	{
+		COLOR_TYPE_ORANGE,
+		COLOR_TYPE_WHITE,
+		COLOR_TYPE_RED,
+		COLOR_TYPE_GREEN,
+		COLOR_TYPE_YELLOW,
+		COLOR_TYPE_SKY,
+		COLOR_TYPE_PINK,
+	};
+
 	enum ESlotState
 	{
 		SLOT_STATE_LOCK		= (1 << 0),
@@ -73,6 +84,14 @@ namespace UI
 				CImageBox * pSignImage;
 				CAniImageBox * pFinishCoolTimeEffect;
 				CAniImageBox * pActiveSlotEffect[3];
+
+				bool bCoolTimeInverse;
+				D3DXCOLOR d3CoolTimeColor;
+
+				bool bEnableTimeInfoText;
+				D3DXCOLOR d3InstanceColor;
+
+				D3DXCOLOR d3Color;
 			} TSlot;
 
 			typedef std::list<TSlot> TSlotList;
@@ -152,6 +171,9 @@ namespace UI
 			BOOL OnOverInItem(DWORD dwSlotNumber);
 			void OnOverOutItem();
 
+			void SetSlotCoolTimeInverse(DWORD dwIndex, float fCoolTime, float fElapsedTime = 0.0f);
+			void SetSlotCoolTimeColor(DWORD dwSlotIndex, float fr, float fg, float fb, float fa);
+
 			// For Usable Item
 			void SetUseMode(BOOL bFlag);
 			void SetUsableItem(BOOL bFlag);
@@ -159,10 +181,15 @@ namespace UI
 			// CallBack
 			void ReserveDestroyCoolTimeFinishEffect(DWORD dwSlotIndex);
 
-			void ActivateEffect(DWORD dwSlotIndex, float r, float g, float b, float a);
+			void ActivateEffect(DWORD dwSlotIndex);
 			void DeactivateEffect(DWORD dwSlotIndex);
 
 			void ClearStoredSlotCoolTime(DWORD dwKey, DWORD dwSlotIndex);
+
+			void EnableSlotTimeInfoText(DWORD dwIndex);
+			void DeactivateSlotTimeInfoText(DWORD dwIndex);
+
+			void SetSlotDiffuseColor(DWORD dwIndex, int iColorType);
 
 		protected:
 			void __Initialize();
@@ -175,6 +202,9 @@ namespace UI
 			void __DestroySlotEnableEffect();
 			void __DestroyFinishCoolTimeEffect(TSlot * pSlot);
 			void __DestroyBaseImage();
+
+			void __CreateTimeInfoText();
+			void __DestroyTimeInfoText();
 
 			// Event
 			void OnUpdate();
@@ -222,5 +252,7 @@ namespace UI
 			CImageBox * m_pToggleSlotImage;
 			CAniImageBox * m_pSlotActiveEffect;
 			std::deque<DWORD> m_ReserveDestroyEffectDeque;
+
+			CGraphicTextInstance* pTimeInfoTextInstance;
 	};
 };

@@ -1654,6 +1654,13 @@ namespace UI
 	{
 		m_byDelay = iDelay;
 	}
+
+	void CAniImageBox::SetDiffuseColor(float r, float g, float b, float a)
+	{
+		for (CGraphicExpandedImageInstance* image : m_ImageVector)
+			image->SetDiffuseColor(r, g, b, a);
+	}
+
 	void CAniImageBox::AppendImage(const char* c_szFileName, float r, float g, float b, float a)
 	{
 		CResource * pResource = CResourceManager::Instance().GetResourcePointer(c_szFileName);
