@@ -216,7 +216,7 @@ bool CInstanceBase::SHORSE::CanUseSkill()
 bool CInstanceBase::SHORSE::CanAttack()
 {
 	if (IsMounting())
-		if (GetLevel()<=1)
+		if (GetLevel() < 1)
 			return false;
 
 	return true;
