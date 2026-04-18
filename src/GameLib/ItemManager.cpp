@@ -418,170 +418,71 @@ bool CItemManager::LoadItemScale(const char* c_szFileName)
 
 bool CItemManager::LoadItemTableFromApi(const char* c_szApiUrl, const char* c_szPath)
 {
+	CreateDirectoryA("cache", NULL);
+
+	const char* szCacheFile = "cache/item_definitions.bin";
+	const char* szChecksumFile = "cache/item_definitions.checksum";
+
 	auto ToWide = [](const char* str) -> std::wstring {
-		if (!str) return L"";
+		if (!str) 
+		{
+			return L"";
+		}
+
 		int len = MultiByteToWideChar(CP_ACP, 0, str, -1, nullptr, 0);
 		std::wstring result(len, 0);
 		MultiByteToWideChar(CP_ACP, 0, str, -1, result.data(), len);
-		return result;
-		};
 
+		return result;
+	};
+
+	std::string serverChecksum;
+	if (!HttpGet(ToWide(c_szApiUrl).c_str(), L"/api/definitions/items/checksum", serverChecksum))
+	{
+		TraceError("LoadItemTableFromAPI: failed to fetch checksum");
+		return LoadItemTableFromCache(szCacheFile);
+	}
+
+	serverChecksum.erase(std::remove(serverChecksum.begin(), serverChecksum.end(), '"'), serverChecksum.end());
+
+	std::string localChecksum;
+	if (FILE* f = fopen(szChecksumFile, "r"))
+	{
+		char buf[64] = {};
+		fgets(buf, sizeof(buf), f);
+		fclose(f);
+		localChecksum = buf;
+		localChecksum.erase(localChecksum.find_last_not_of("\r\n") + 1);
+	}
+
+	if (!localChecksum.empty() && localChecksum == serverChecksum)
+	{
+		Tracef("LoadItemTableFromAPI: cache hit, loading from %s\n", szCacheFile);
+		return LoadItemTableFromCache(szCacheFile);
+	}
+
+	Tracef("LoadItemTableFromAPI: cache miss, fetching from API\n");
 	std::vector<uint8_t> response;
 	if (!HttpGet(ToWide(c_szApiUrl).c_str(), ToWide(c_szPath).c_str(), response))
 	{
 		TraceError("LoadItemTableFromAPI: HTTP request failed");
+		return LoadItemTableFromCache(szCacheFile);
+	}
+
+	std::vector<CItemData::TItemTable> tables;
+	if (!ParseItemTables(response, tables))
+	{
 		return false;
 	}
 
-	try
+	SaveItemTableCache(szCacheFile, tables);
+	if (FILE* f = fopen(szChecksumFile, "w"))
 	{
-		msgpack::object_handle oh = msgpack::unpack(
-			reinterpret_cast<const char*>(response.data()), response.size());
-
-		msgpack::object root = oh.get();
-
-		if (root.type != msgpack::type::ARRAY)
-		{
-			TraceError("LoadItemTableFromAPI: expected root array");
-			return false;
-		}
-
-		char szName[64 + 1];
-		std::map<DWORD, DWORD> itemNameMap;  // hash nazwy ? vnum (do szukania ikon)
-
-		for (uint32_t i = 0; i < root.via.array.size; ++i)
-		{
-			msgpack::object& item = root.via.array.ptr[i];
-
-			if (item.type != msgpack::type::ARRAY || item.via.array.size < 23)
-			{
-				TraceError("LoadItemTableFromAPI: invalid item at index %u", i);
-				continue;
-			}
-
-			auto& f = item.via.array.ptr;
-
-			CItemData::TItemTable table{};
-
-			table.dwVnum = f[0].as<uint32_t>();
-			table.dwVnumRange = f[1].as<uint32_t>();
-
-			auto name = f[2].as<std::string>();
-			strncpy_s(table.szName, sizeof(table.szName), name.c_str(), _TRUNCATE);
-			strncpy_s(table.szLocaleName, sizeof(table.szLocaleName), name.c_str(), _TRUNCATE);
-
-			table.bType = f[4].as<uint8_t>();
-			table.bSubType = f[5].as<uint8_t>();
-			table.bWeight = f[6].as<uint8_t>();
-			table.bSize = f[7].as<uint8_t>();
-
-			table.dwAntiFlags = f[8].as<uint32_t>();
-			table.dwFlags = f[9].as<uint32_t>();
-			table.dwWearFlags = f[10].as<uint32_t>();
-			table.dwImmuneFlag = f[11].as<uint32_t>();
-
-			table.dwIBuyItemPrice = f[12].as<uint32_t>();
-			table.dwISellItemPrice = f[13].as<uint32_t>();
-
-			if (f[14].type == msgpack::type::ARRAY)
-			{
-				auto& limits = f[14].via.array;
-				for (uint32_t j = 0; j < std::min(limits.size, (uint32_t)2); ++j)
-				{
-					if (limits.ptr[j].type == msgpack::type::ARRAY && limits.ptr[j].via.array.size >= 2)
-					{
-						table.aLimits[j].bType = limits.ptr[j].via.array.ptr[0].as<uint8_t>();
-						table.aLimits[j].lValue = limits.ptr[j].via.array.ptr[1].as<int32_t>();
-					}
-				}
-			}
-
-			if (f[15].type == msgpack::type::ARRAY)
-			{
-				auto& applies = f[15].via.array;
-				for (uint32_t j = 0; j < std::min(applies.size, (uint32_t)3); ++j)
-				{
-					if (applies.ptr[j].type == msgpack::type::ARRAY && applies.ptr[j].via.array.size >= 2)
-					{
-						table.aApplies[j].bType = applies.ptr[j].via.array.ptr[0].as<uint8_t>();
-						table.aApplies[j].lValue = applies.ptr[j].via.array.ptr[1].as<int32_t>();
-					}
-				}
-			}
-
-			if (f[16].type == msgpack::type::ARRAY)
-			{
-				auto& values = f[16].via.array;
-				for (uint32_t j = 0; j < std::min(values.size, (uint32_t)6); ++j)
-					table.alValues[j] = values.ptr[j].as<int32_t>();
-			}
-
-			if (f[17].type == msgpack::type::ARRAY)
-			{
-				auto& sockets = f[17].via.array;
-				for (uint32_t j = 0; j < std::min(sockets.size, (uint32_t)3); ++j)
-					table.alSockets[j] = sockets.ptr[j].as<int32_t>();
-			}
-
-			table.dwRefinedVnum = f[18].as<uint32_t>();
-			table.wRefineSet = f[19].as<uint16_t>();
-			table.bAlterToMagicItemPct = f[20].as<uint8_t>();
-			table.bSpecular = f[21].as<uint8_t>();
-			table.bGainSocketPct = f[22].as<uint8_t>();
-
-			// === Logika ikon + m_ItemMap (tak samo jak LoadItemTable) ===
-			CItemData* pItemData;
-			DWORD dwVnum = table.dwVnum;
-
-			TItemMap::iterator it = m_ItemMap.find(dwVnum);
-			if (m_ItemMap.end() == it)
-			{
-				_snprintf(szName, sizeof(szName), "icon/item/%05d.tga", dwVnum);
-
-				if (!CResourceManager::Instance().IsFileExist(szName))
-				{
-					auto itHash = itemNameMap.find(GetHashCode(table.szName));
-					if (itHash != itemNameMap.end())
-						_snprintf(szName, sizeof(szName), "icon/item/%05d.tga", itHash->second);
-					else
-						_snprintf(szName, sizeof(szName), "icon/item/%05d.tga", dwVnum - dwVnum % 10);
-
-					if (!CResourceManager::Instance().IsFileExist(szName))
-					{
-						TraceError("%16s(#%-5d) cannot find icon file. setting to default.", table.szName, dwVnum);
-						const DWORD EmptyBowl = 27995;
-						_snprintf(szName, sizeof(szName), "icon/item/%05d.tga", EmptyBowl);
-					}
-				}
-
-				pItemData = CItemData::New();
-				pItemData->SetDefaultItemData(szName);
-				m_ItemMap.insert(TItemMap::value_type(dwVnum, pItemData));
-			}
-			else
-			{
-				pItemData = it->second;
-			}
-
-			if (itemNameMap.find(GetHashCode(table.szName)) == itemNameMap.end())
-				itemNameMap.insert(std::map<DWORD, DWORD>::value_type(GetHashCode(table.szName), dwVnum));
-
-			pItemData->SetItemTableData(&table);
-
-			if (table.dwVnumRange != 0)
-				m_vec_ItemRange.push_back(pItemData);
-		}
+		fputs(serverChecksum.c_str(), f);
+		fclose(f);
 	}
-	catch (const msgpack::unpack_error& e)
-	{
-		TraceError("LoadItemTableFromAPI: unpack error: %s", e.what());
-		return false;
-	}
-	catch (const std::exception& e)
-	{
-		TraceError("LoadItemTableFromAPI: error: %s", e.what());
-		return false;
-	}
+
+	LoadTablesIntoMap(tables);
 
 	return true;
 }
@@ -652,6 +553,263 @@ bool CItemManager::HttpGet(const wchar_t* host, const wchar_t* path, std::vector
 	WinHttpCloseHandle(hSession);
 
 	return true;
+}
+
+bool CItemManager::HttpGet(const wchar_t* host, const wchar_t* path, std::string& outResponse)
+{
+	HINTERNET hSession = WinHttpOpen(
+		L"Metin2Client/1.0",
+		WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
+		WINHTTP_NO_PROXY_NAME,
+		WINHTTP_NO_PROXY_BYPASS, 0);
+	if (!hSession)
+		return false;
+
+	HINTERNET hConnect = WinHttpConnect(hSession, host, 5001, 0);
+	if (!hConnect)
+	{
+		WinHttpCloseHandle(hSession);
+		return false;
+	}
+
+	HINTERNET hRequest = WinHttpOpenRequest(
+		hConnect, L"GET", path,
+		NULL, WINHTTP_NO_REFERER,
+		WINHTTP_DEFAULT_ACCEPT_TYPES, 0);
+
+	if (!hRequest)
+	{
+		WinHttpCloseHandle(hConnect);
+		WinHttpCloseHandle(hSession);
+		return false;
+	}
+
+	if (!WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0))
+	{
+		WinHttpCloseHandle(hRequest);
+		WinHttpCloseHandle(hConnect);
+		WinHttpCloseHandle(hSession);
+		return false;
+	}
+
+	WinHttpReceiveResponse(hRequest, NULL);
+
+	DWORD dwSize = 0;
+	DWORD dwDownloaded = 0;
+
+	do
+	{
+		WinHttpQueryDataAvailable(hRequest, &dwSize);
+		if (dwSize == 0)
+		{
+			break;
+		}
+
+		std::vector<char> buffer(dwSize);
+		WinHttpReadData(hRequest, buffer.data(), dwSize, &dwDownloaded);
+		outResponse.append(buffer.data(), dwDownloaded);
+	} while (dwSize > 0);
+
+	WinHttpCloseHandle(hRequest);
+	WinHttpCloseHandle(hConnect);
+	WinHttpCloseHandle(hSession);
+
+	return true;
+}
+
+bool CItemManager::SaveItemTableCache(const char* path, const std::vector<CItemData::TItemTable>& tables)
+{
+	FILE* f = fopen(path, "wb");
+	if (!f) 
+	{
+		return false;
+	}
+
+	DWORD count = (DWORD)tables.size();
+	fwrite(&count, sizeof(DWORD), 1, f);
+	fwrite(tables.data(), sizeof(CItemData::TItemTable), count, f);
+	fclose(f);
+
+	Tracef("LoadItemTableFromAPI: saved %u items to cache\n", count);
+	return true;
+}
+
+bool CItemManager::LoadItemTableFromCache(const char* path)
+{
+	FILE* f = fopen(path, "rb");
+	if (!f) 
+	{
+		return false;
+	}
+
+	DWORD count = 0;
+	fread(&count, sizeof(DWORD), 1, f);
+
+	std::vector<CItemData::TItemTable> tables(count);
+	fread(tables.data(), sizeof(CItemData::TItemTable), count, f);
+	fclose(f);
+
+	Tracef("LoadItemTableFromAPI: loaded %u items from cache\n", count);
+	LoadTablesIntoMap(tables);
+	return true;
+}
+
+void CItemManager::LoadTablesIntoMap(const std::vector<CItemData::TItemTable>& tables)
+{
+	char szName[64 + 1];
+	std::map<DWORD, DWORD> itemNameMap;
+
+	for (auto table : tables)
+	{
+		DWORD dwVnum = table.dwVnum;
+		CItemData* pItemData;
+
+		TItemMap::iterator it = m_ItemMap.find(dwVnum);
+		if (it == m_ItemMap.end())
+		{
+			_snprintf(szName, sizeof(szName), "icon/item/%05d.tga", dwVnum);
+
+			if (!CResourceManager::Instance().IsFileExist(szName))
+			{
+				auto itHash = itemNameMap.find(GetHashCode(table.szName));
+				if (itHash != itemNameMap.end())
+				{
+					_snprintf(szName, sizeof(szName), "icon/item/%05d.tga", itHash->second);
+				}
+				else
+				{
+					_snprintf(szName, sizeof(szName), "icon/item/%05d.tga", dwVnum - dwVnum % 10);
+				}
+
+				if (!CResourceManager::Instance().IsFileExist(szName))
+				{
+					const DWORD EmptyBowl = 27995;
+					_snprintf(szName, sizeof(szName), "icon/item/%05d.tga", EmptyBowl);
+				}
+			}
+
+			pItemData = CItemData::New();
+			pItemData->SetDefaultItemData(szName);
+			m_ItemMap.insert(TItemMap::value_type(dwVnum, pItemData));
+		}
+		else
+		{
+			pItemData = it->second;
+		}
+
+		if (itemNameMap.find(GetHashCode(table.szName)) == itemNameMap.end())
+		{
+			itemNameMap.insert({ GetHashCode(table.szName), dwVnum });
+		}
+
+		pItemData->SetItemTableData(&table);
+
+		if (table.dwVnumRange != 0)
+		{
+			m_vec_ItemRange.push_back(pItemData);
+		}
+	}
+}
+
+bool CItemManager::ParseItemTables(const std::vector<uint8_t>& data, std::vector<CItemData::TItemTable>& outTables)
+{
+	try
+	{
+		msgpack::object_handle oh = msgpack::unpack(
+			reinterpret_cast<const char*>(data.data()), data.size());
+
+		msgpack::object root = oh.get();
+		if (root.type != msgpack::type::ARRAY) 
+		{
+			return false;
+		}
+
+		outTables.reserve(root.via.array.size);
+
+		for (uint32_t i = 0; i < root.via.array.size; ++i)
+		{
+			msgpack::object& item = root.via.array.ptr[i];
+			if (item.type != msgpack::type::ARRAY || item.via.array.size < 23) 
+			{
+				continue;
+			}
+
+			auto& f = item.via.array.ptr;
+			CItemData::TItemTable table{};
+
+			table.dwVnum = f[0].as<uint32_t>();
+			table.dwVnumRange = f[1].as<uint32_t>();
+
+			auto name = f[2].as<std::string>();
+			strncpy_s(table.szName, sizeof(table.szName), name.c_str(), _TRUNCATE);
+			strncpy_s(table.szLocaleName, sizeof(table.szLocaleName), name.c_str(), _TRUNCATE);
+
+			table.bType = f[4].as<uint8_t>();
+			table.bSubType = f[5].as<uint8_t>();
+			table.bWeight = f[6].as<uint8_t>();
+			table.bSize = f[7].as<uint8_t>();
+
+			table.dwAntiFlags = f[8].as<uint32_t>();
+			table.dwFlags = f[9].as<uint32_t>();
+			table.dwWearFlags = f[10].as<uint32_t>();
+			table.dwImmuneFlag = f[11].as<uint32_t>();
+
+			table.dwIBuyItemPrice = f[12].as<uint32_t>();
+			table.dwISellItemPrice = f[13].as<uint32_t>();
+
+			if (f[14].type == msgpack::type::ARRAY)
+			{
+				auto& limits = f[14].via.array;
+				for (uint32_t j = 0; j < std::min(limits.size, (uint32_t)2); ++j)
+					if (limits.ptr[j].via.array.size >= 2)
+					{
+						table.aLimits[j].bType = limits.ptr[j].via.array.ptr[0].as<uint8_t>();
+						table.aLimits[j].lValue = limits.ptr[j].via.array.ptr[1].as<int32_t>();
+					}
+			}
+
+			if (f[15].type == msgpack::type::ARRAY)
+			{
+				auto& applies = f[15].via.array;
+				for (uint32_t j = 0; j < std::min(applies.size, (uint32_t)3); ++j)
+					if (applies.ptr[j].via.array.size >= 2)
+					{
+						table.aApplies[j].bType = applies.ptr[j].via.array.ptr[0].as<uint8_t>();
+						table.aApplies[j].lValue = applies.ptr[j].via.array.ptr[1].as<int32_t>();
+					}
+			}
+
+			if (f[16].type == msgpack::type::ARRAY)
+			{
+				for (uint32_t j = 0; j < std::min(f[16].via.array.size, (uint32_t)6); ++j)
+				{
+					table.alValues[j] = f[16].via.array.ptr[j].as<int32_t>();
+				}
+			}
+
+			if (f[17].type == msgpack::type::ARRAY)
+			{
+				for (uint32_t j = 0; j < std::min(f[17].via.array.size, (uint32_t)3); ++j)
+				{
+					table.alSockets[j] = f[17].via.array.ptr[j].as<int32_t>();
+				}
+			}
+
+			table.dwRefinedVnum = f[18].as<uint32_t>();
+			table.wRefineSet = f[19].as<uint16_t>();
+			table.bAlterToMagicItemPct = f[20].as<uint8_t>();
+			table.bSpecular = f[21].as<uint8_t>();
+			table.bGainSocketPct = f[22].as<uint8_t>();
+
+			outTables.push_back(table);
+		}
+		return true;
+	}
+	catch (const std::exception& e)
+	{
+		TraceError("ParseItemTables: %s", e.what());
+		return false;
+	}
 }
 
 void CItemManager::Destroy()

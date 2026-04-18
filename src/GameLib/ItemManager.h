@@ -58,4 +58,10 @@ class CItemManager : public CSingleton<CItemManager>
 
 	private:
 		bool HttpGet(const wchar_t* host, const wchar_t* path, std::vector<uint8_t>& outResponse);
+		bool HttpGet(const wchar_t* host, const wchar_t* path, std::string& outResponse);
+
+		bool SaveItemTableCache(const char* path, const std::vector<CItemData::TItemTable>& tables);
+		bool LoadItemTableFromCache(const char* path);
+		void LoadTablesIntoMap(const std::vector<CItemData::TItemTable>& tables);
+		bool ParseItemTables(const std::vector<uint8_t>& data, std::vector<CItemData::TItemTable>& outTables);
 };
