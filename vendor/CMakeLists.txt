@@ -15,6 +15,14 @@ set(FT_DISABLE_BZIP2 ON CACHE BOOL "" FORCE)
 set(FT_DISABLE_ZLIB ON CACHE BOOL "" FORCE)
 add_subdirectory(freetype-2.13.3)
 
+add_library(msgpack-cxx INTERFACE)
+target_include_directories(msgpack-cxx INTERFACE ${CMAKE_SOURCE_DIR}/vendor/msgpack-c-7.0.0/include)
+target_compile_definitions(msgpack-cxx INTERFACE
+    MSGPACK_NO_BOOST
+    MSGPACK_ENDIAN_LITTLE_BYTE=1
+    MSGPACK_ENDIAN_BIG_BYTE=0
+)
+
 if (WIN32)
 	set_target_properties(lzo2 PROPERTIES FOLDER vendor)
 	set_target_properties(sodium PROPERTIES FOLDER vendor)
@@ -25,4 +33,6 @@ if (WIN32)
 	set_target_properties(libzstd_static PROPERTIES FOLDER vendor/zstd)
 	set_target_properties(clean-all PROPERTIES FOLDER vendor/zstd)
 	set_target_properties(uninstall PROPERTIES FOLDER vendor/zstd)
+
+	set_target_properties(msgpack-cxx PROPERTIES FOLDER vendor)
 endif()

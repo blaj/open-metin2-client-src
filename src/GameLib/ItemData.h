@@ -61,55 +61,53 @@ class CItemData
 			ITEM_TYPE_MAX_NUM,				
 		};
 
-		enum EWeaponSubTypes
+		enum EItemSubTypes
 		{
-			WEAPON_SWORD,
+			WEAPON_NUM_TYPES = 7,
+			WEAPON_NONE = WEAPON_NUM_TYPES + 1,
+			ARMOR_NUM_TYPES = 7,
+			COSTUME_NUM_TYPES = 4,
+			DS_SLOT_NUM_TYPES = 6,
+			
+			WEAPON_SWORD = 0,
 			WEAPON_DAGGER,	//이도류
 			WEAPON_BOW,
 			WEAPON_TWO_HANDED,
 			WEAPON_BELL,
 			WEAPON_FAN,
 			WEAPON_ARROW,
-			WEAPON_NUM_TYPES,
-
-			WEAPON_NONE = WEAPON_NUM_TYPES+1,
-		};
-
-		enum EMaterialSubTypes
-		{
-			MATERIAL_LEATHER,
-			MATERIAL_BLOOD,
-			MATERIAL_ROOT,
-			MATERIAL_NEEDLE,
-			MATERIAL_JEWEL,
-			MATERIAL_DS_REFINE_NORMAL, 
-			MATERIAL_DS_REFINE_BLESSED, 
-			MATERIAL_DS_REFINE_HOLLY,
-		};
-
-		enum EArmorSubTypes
-		{
+			WEAPON_MOUNT_SPEAR,
 			ARMOR_BODY,
 			ARMOR_HEAD,
 			ARMOR_SHIELD,
 			ARMOR_WRIST,
 			ARMOR_FOOTS,
-		    ARMOR_NECK,
+			ARMOR_NECK,
 			ARMOR_EAR,
-			ARMOR_NUM_TYPES
-		};
-
-		enum ECostumeSubTypes
-		{
 			COSTUME_BODY,				//0	갑옷(main look)
 			COSTUME_HAIR,				//1	헤어(탈착가능)
 			COSTUME_MOUNT,
 			COSTUME_SHOULDER_SASH,
-			COSTUME_NUM_TYPES,
-		};
-
-		enum EUseSubTypes
-		{
+			METIN_NORMAL,
+			METIN_GOLD,
+			FISH_ALIVE,
+			FISH_DEAD,
+			RESOURCE_FISH_BONE,
+			RESOURCE_WATER_STONE_PIECE,
+			RESOURCE_WATER_STONE,
+			RESOURCE_BLOOD_PEARL,
+			RESOURCE_BLUE_PEARL,
+			RESOURCE_WHITE_PEARL,
+			RESOURCE_BUCKET,
+			RESOURCE_CRYSTAL,
+			RESOURCE_GEM,
+			RESOURCE_STONE,
+			RESOURCE_METIN,
+			RESOURCE_ORE,
+			UNIQUE_NONE,
+			UNIQUE_BOOK,
+			UNIQUE_SPECIAL_RIDE,
+			UNIQUE_SPECIAL_MOUNT_RIDE,
 			USE_POTION,					// 0
 			USE_TALISMAN,
 			USE_TUNING,
@@ -141,24 +139,135 @@ class CItemData
 			USE_TIME_CHARGE_FIX,				// 28
 			USE_PUT_INTO_BELT_SOCKET,			// 29 벨트 소켓에 사용할 수 있는 아이템 
 			USE_PUT_INTO_RING_SOCKET,			// 30 반지 소켓에 사용할 수 있는 아이템 (유니크 반지 말고, 새로 추가된 반지 슬롯)
-		};
-
-		enum EDragonSoulSubType
-		{
+			AUTO_USE_POTION,
+			AUTO_USE_ABILITY_UP,
+			AUTO_USE_BOMB,
+			AUTO_USE_GOLD,
+			AUTO_USE_MONEYBAG,
+			AUTO_USE_TREASURE_BOX,
+			MATERIAL_LEATHER,
+			MATERIAL_BLOOD,
+			MATERIAL_ROOT,
+			MATERIAL_NEEDLE,
+			MATERIAL_JEWEL,
+			MATERIAL_DS_REFINE_NORMAL,
+			MATERIAL_DS_REFINE_BLESSED,
+			MATERIAL_DS_REFINE_HOLLY,
+			SPECIAL_MAP,
+			SPECIAL_KEY,
+			SPECIAL_DOC,
+			SPECIAL_SPIRIT,
+			TOOL_FISHING_ROD,
+			LOTTERY_TICKET,
+			LOTTERY_INSTANT,
 			DS_SLOT1,
 			DS_SLOT2,
 			DS_SLOT3,
 			DS_SLOT4,
 			DS_SLOT5,
 			DS_SLOT6,
-			DS_SLOT_NUM_TYPES = 6,
+			EXTRACT_DRAGON_SOUL,
+			EXTRACT_DRAGON_HEART,
 		};
 
-		enum EMetinSubTypes
-		{
-			METIN_NORMAL,
-			METIN_GOLD,
-		};
+		//enum EWeaponSubTypes
+		//{
+		//	WEAPON_SWORD,
+		//	WEAPON_DAGGER,	//이도류
+		//	WEAPON_BOW,
+		//	WEAPON_TWO_HANDED,
+		//	WEAPON_BELL,
+		//	WEAPON_FAN,
+		//	WEAPON_ARROW,
+		//	WEAPON_NUM_TYPES,
+
+		//	WEAPON_NONE = WEAPON_NUM_TYPES+1,
+		//};
+
+		//enum EMaterialSubTypes
+		//{
+		//	MATERIAL_LEATHER,
+		//	MATERIAL_BLOOD,
+		//	MATERIAL_ROOT,
+		//	MATERIAL_NEEDLE,
+		//	MATERIAL_JEWEL,
+		//	MATERIAL_DS_REFINE_NORMAL, 
+		//	MATERIAL_DS_REFINE_BLESSED, 
+		//	MATERIAL_DS_REFINE_HOLLY,
+		//};
+
+		//enum EArmorSubTypes
+		//{
+		//	ARMOR_BODY,
+		//	ARMOR_HEAD,
+		//	ARMOR_SHIELD,
+		//	ARMOR_WRIST,
+		//	ARMOR_FOOTS,
+		//    ARMOR_NECK,
+		//	ARMOR_EAR,
+		//	ARMOR_NUM_TYPES
+		//};
+
+		//enum ECostumeSubTypes
+		//{
+		//	COSTUME_BODY,				//0	갑옷(main look)
+		//	COSTUME_HAIR,				//1	헤어(탈착가능)
+		//	COSTUME_MOUNT,
+		//	COSTUME_SHOULDER_SASH,
+		//	COSTUME_NUM_TYPES,
+		//};
+
+		//enum EUseSubTypes
+		//{
+		//	USE_POTION,					// 0
+		//	USE_TALISMAN,
+		//	USE_TUNING,
+		//	USE_MOVE,
+		//	USE_TREASURE_BOX,
+		//	USE_MONEYBAG,
+		//	USE_BAIT,
+		//	USE_ABILITY_UP,
+		//	USE_AFFECT,
+		//	USE_CREATE_STONE,
+		//	USE_SPECIAL,				// 10
+		//	USE_POTION_NODELAY,
+		//	USE_CLEAR,
+		//	USE_INVISIBILITY,
+		//	USE_DETACHMENT,
+		//	USE_BUCKET,
+		//	USE_POTION_CONTINUE,
+		//	USE_CLEAN_SOCKET,
+		//	USE_CHANGE_ATTRIBUTE,
+		//	USE_ADD_ATTRIBUTE,
+		//	USE_ADD_ACCESSORY_SOCKET,	// 20
+		//	USE_PUT_INTO_ACCESSORY_SOCKET,
+		//	USE_ADD_ATTRIBUTE2,
+		//	USE_RECIPE,
+		//	USE_CHANGE_ATTRIBUTE2,
+		//	USE_BIND,
+		//	USE_UNBIND,
+		//	USE_TIME_CHARGE_PER,
+		//	USE_TIME_CHARGE_FIX,				// 28
+		//	USE_PUT_INTO_BELT_SOCKET,			// 29 벨트 소켓에 사용할 수 있는 아이템 
+		//	USE_PUT_INTO_RING_SOCKET,			// 30 반지 소켓에 사용할 수 있는 아이템 (유니크 반지 말고, 새로 추가된 반지 슬롯)
+		//};
+
+		//enum EDragonSoulSubType
+		//{
+		//	DS_SLOT1,
+		//	DS_SLOT2,
+		//	DS_SLOT3,
+		//	DS_SLOT4,
+		//	DS_SLOT5,
+		//	DS_SLOT6,
+		//	DS_SLOT_NUM_TYPES = 6,
+		//};
+
+		//enum EMetinSubTypes
+		//{
+		//	METIN_NORMAL,
+		//	METIN_GOLD,
+		//};
 
 		enum ELimitTypes
 		{

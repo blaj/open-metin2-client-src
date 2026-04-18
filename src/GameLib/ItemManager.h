@@ -49,9 +49,13 @@ class CItemManager : public CSingleton<CItemManager>
 		bool			LoadItemTable(const char* c_szFileName);
 		CItemData *		MakeItemData(DWORD dwIndex);
 		bool			LoadItemScale(const char* c_szFileName);
+		bool			LoadItemTableFromApi(const char* c_szApiUrl, const char* c_szPath);
 
 	protected:
 		TItemMap m_ItemMap;
 		std::vector<CItemData*>  m_vec_ItemRange;
-		CItemData * m_pSelectedItemData;		
+		CItemData * m_pSelectedItemData;
+
+	private:
+		bool HttpGet(const wchar_t* host, const wchar_t* path, std::vector<uint8_t>& outResponse);
 };

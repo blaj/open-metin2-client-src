@@ -738,9 +738,15 @@ bool LoadLocaleData(const char* localePath)
 		TraceError("LoadLocaleData - LoadItemList(%s) Error", szItemList);
 	}
 
-	if (!rkItemMgr.LoadItemTable(szItemProto))
+	/*if (!rkItemMgr.LoadItemTable(szItemProto))
 	{
 		TraceError("LoadLocaleData - LoadItemProto(%s) Error", szItemProto);
+		return false;
+	}*/
+
+	if (!rkItemMgr.LoadItemTableFromApi("localhost", "api/definitions/items"))
+	{
+		TraceError("LoadItemTableFromApi: error while loading.");
 		return false;
 	}
 

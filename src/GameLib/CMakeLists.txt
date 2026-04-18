@@ -5,6 +5,8 @@ add_library(GameLib STATIC ${FILE_SOURCES})
 target_link_libraries(GameLib
 	lzo2
 	mio
+	winhttp
+	msgpack-cxx
 )
 
 GroupSourcesByFolder(GameLib)

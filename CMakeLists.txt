@@ -68,6 +68,7 @@ include_directories("src")
 include_directories("extern/include")
 include_directories("vendor/libsodium/src/libsodium/include")
 include_directories("vendor/freetype-2.13.3/include")
+include_directories("vendor/msgpack-c-7.0.0/include")
 
 # Add subdirectories for libraries and executables
 add_subdirectory(vendor)
