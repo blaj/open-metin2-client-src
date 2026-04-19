@@ -2778,6 +2778,9 @@ DWORD CInstanceBase::GetWeaponType()
 	if (!CItemManager::Instance().GetItemDataPointer(dwWeapon, &pItemData))
 		return CItemData::WEAPON_NONE;
 
+	if (pItemData->GetType() == CItemData::ITEM_TYPE_COSTUME)
+		return pItemData->GetValue(3);
+
 	return pItemData->GetWeaponType();
 }
 
@@ -2883,7 +2886,12 @@ bool CInstanceBase::SetWeapon(DWORD eWeapon)
 	//Weapon Effect
 	CItemData * pItemData;
 	if (CItemManager::Instance().GetItemDataPointer(eWeapon, &pItemData))
+	{
+		if (pItemData->GetType() == CItemData::ITEM_TYPE_COSTUME)
+			__ClearWeaponRefineEffect();
+
 		__GetRefinedEffect(pItemData);
+	}
 	else
 		__ClearWeaponRefineEffect();
 
@@ -3016,6 +3024,63 @@ void CInstanceBase::RefreshState(DWORD dwMotIndex, bool isLoop)
 		else
 		{
 			SetMotionMode(CRaceMotionData::MODE_FISHING);
+		}
+	}
+	else if (byItemType == CItemData::ITEM_TYPE_COSTUME)
+	{
+		switch (pItemData->GetValue(3))
+		{
+		case CItemData::WEAPON_SWORD:
+			if (m_kHorse.IsMounting())
+				SetMotionMode(CRaceMotionData::MODE_HORSE_ONEHAND_SWORD);
+			else
+				SetMotionMode(CRaceMotionData::MODE_ONEHAND_SWORD);
+			break;
+		case CItemData::WEAPON_DAGGER:
+			if (m_kHorse.IsMounting())
+				SetMotionMode(CRaceMotionData::MODE_HORSE_DUALHAND_SWORD);
+			else
+				SetMotionMode(CRaceMotionData::MODE_DUALHAND_SWORD);
+			break;
+		case CItemData::WEAPON_BOW:
+			if (m_kHorse.IsMounting())
+				SetMotionMode(CRaceMotionData::MODE_HORSE_BOW);
+			else
+#ifdef ENABLE_NEW_ARROW_SYSTEM
+			{
+				if (m_awPart[CRaceData::PART_ARROW_TYPE] == CItemData::WEAPON_UNLIMITED_ARROW)
+					SetMotionMode(CRaceMotionData::MODE_BOW_SPECIAL);
+				else
+					SetMotionMode(CRaceMotionData::MODE_BOW);
+			}
+#else
+				SetMotionMode(CRaceMotionData::MODE_BOW);
+#endif
+			break;
+		case CItemData::WEAPON_TWO_HANDED:
+			if (m_kHorse.IsMounting())
+				SetMotionMode(CRaceMotionData::MODE_HORSE_TWOHAND_SWORD);
+			else
+				SetMotionMode(CRaceMotionData::MODE_TWOHAND_SWORD);
+			break;
+		case CItemData::WEAPON_BELL:
+			if (m_kHorse.IsMounting())
+				SetMotionMode(CRaceMotionData::MODE_HORSE_BELL);
+			else
+				SetMotionMode(CRaceMotionData::MODE_BELL);
+			break;
+		case CItemData::WEAPON_FAN:
+			if (m_kHorse.IsMounting())
+				SetMotionMode(CRaceMotionData::MODE_HORSE_FAN);
+			else
+				SetMotionMode(CRaceMotionData::MODE_FAN);
+			break;
+		default:
+			if (m_kHorse.IsMounting())
+				SetMotionMode(CRaceMotionData::MODE_HORSE);
+			else
+				SetMotionMode(CRaceMotionData::MODE_GENERAL);
+			break;
 		}
 	}
 	else if (m_kHorse.IsMounting())

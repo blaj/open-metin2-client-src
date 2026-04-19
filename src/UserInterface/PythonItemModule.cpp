@@ -656,6 +656,7 @@ void initItem()
 	PyModule_AddIntConstant(poModule, "COSTUME_TYPE_HAIR",			CItemData::COSTUME_HAIR);
 	PyModule_AddIntConstant(poModule, "COSTUME_TYPE_MOUNT",			CItemData::COSTUME_MOUNT);
 	PyModule_AddIntConstant(poModule, "COSTUME_TYPE_SHOULDER_SASH",	CItemData::COSTUME_SHOULDER_SASH);
+	PyModule_AddIntConstant(poModule, "COSTUME_TYPE_WEAPON",		CItemData::COSTUME_WEAPON);
 
 	// 인벤토리 및 장비창에서의 슬롯 번호
 	PyModule_AddIntConstant(poModule, "COSTUME_SLOT_START",			c_Costume_Slot_Start);
@@ -665,6 +666,7 @@ void initItem()
 	PyModule_AddIntConstant(poModule, "COSTUME_SLOT_MOUNT",			c_Costume_Slot_Mount);
 	PyModule_AddIntConstant(poModule, "COSTUME_SLOT_SHOULDER_SASH",	c_Costume_Slot_ShoulderSash);
 	PyModule_AddIntConstant(poModule, "COSTUME_SLOT_END",			c_Costume_Slot_End);
+	PyModule_AddIntConstant(poModule, "COSTUME_SLOT_WEAPON",		c_Costume_Slot_Weapon);
 #endif
 
 #ifdef ENABLE_NEW_EQUIPMENT_SYSTEM

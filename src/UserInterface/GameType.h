@@ -101,10 +101,11 @@ enum EDragonSoulStepTypes
 
 #ifdef ENABLE_COSTUME_SYSTEM
 	const DWORD c_Costume_Slot_Start = c_Equipment_Start + CItemData::WEAR_COSTUME_BODY;
-	const DWORD	c_Costume_Slot_Body = c_Costume_Slot_Start + CItemData::COSTUME_BODY;
-	const DWORD	c_Costume_Slot_Hair = c_Costume_Slot_Start + CItemData::COSTUME_HAIR;
-	const DWORD	c_Costume_Slot_Mount = c_Costume_Slot_Start + CItemData::COSTUME_MOUNT;
-	const DWORD	c_Costume_Slot_ShoulderSash = c_Costume_Slot_Start + CItemData::COSTUME_SHOULDER_SASH;
+	const DWORD	c_Costume_Slot_Body = c_Costume_Slot_Start + 0;
+	const DWORD	c_Costume_Slot_Hair = c_Costume_Slot_Start + 1;
+	const DWORD	c_Costume_Slot_Mount = c_Costume_Slot_Start + 2;
+	const DWORD	c_Costume_Slot_ShoulderSash = c_Costume_Slot_Start + 3;
+	const DWORD c_Costume_Slot_Weapon = c_Costume_Slot_Start + 4;
 
 	const DWORD c_Costume_Slot_Count = CItemData::COSTUME_NUM_TYPES;
 	const DWORD c_Costume_Slot_End = c_Costume_Slot_Start + c_Costume_Slot_Count;

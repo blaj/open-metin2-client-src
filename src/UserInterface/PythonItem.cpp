@@ -311,6 +311,12 @@ void CPythonItem::CreateItem(DWORD dwVirtualID, DWORD dwVirtualNumber, float x, 
 			 pItemData->GetWeaponType() == CItemData::WEAPON_ARROW))
 			bStabGround = true;
 
+		if (pItemData->GetType() == CItemData::ITEM_TYPE_COSTUME && 
+			pItemData->GetSubType() == CItemData::COSTUME_WEAPON || 
+			pItemData->GetType() == CItemData::ITEM_TYPE_WEAPON && 
+			(pItemData->GetWeaponType() == CItemData::WEAPON_SWORD || pItemData->GetWeaponType() == CItemData::WEAPON_ARROW))
+			bStabGround = true;
+
 		bStabGround = false;
 		pGroundItemInstance->bAnimEnded = false;
 	}

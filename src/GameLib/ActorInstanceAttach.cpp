@@ -135,7 +135,7 @@ bool CActorInstance::__IsWeaponTrace(DWORD weaponType)
 	}
 }
 
-void CActorInstance::AttachWeapon(DWORD dwItemIndex,DWORD dwParentPartIndex, DWORD dwPartIndex)
+void CActorInstance::AttachWeapon(DWORD dwItemIndex, DWORD dwParentPartIndex, DWORD dwPartIndex)
 {
 	if (dwPartIndex>=CRaceData::PART_MAX_NUM)
 		return;
@@ -144,7 +144,7 @@ void CActorInstance::AttachWeapon(DWORD dwItemIndex,DWORD dwParentPartIndex, DWO
 
 	if (USE_VIETNAM_CONVERT_WEAPON_VNUM)
 		dwItemIndex = Vietnam_ConvertWeaponVnum(dwItemIndex);
-
+	
 	CItemData * pItemData;
 	if (!CItemManager::Instance().GetItemDataPointer(dwItemIndex, &pItemData))
 	{
@@ -157,13 +157,25 @@ void CActorInstance::AttachWeapon(DWORD dwItemIndex,DWORD dwParentPartIndex, DWO
 		RefreshActorInstance();
 		return;
 	}
-
+	
 	__DestroyWeaponTrace();
-	//양손무기(자객 이도류) 왼손,오른손 모두에 장착.
-	if (__IsRightHandWeapon(pItemData->GetWeaponType()))
-		AttachWeapon(dwParentPartIndex, CRaceData::PART_WEAPON, pItemData);
-	if (__IsLeftHandWeapon(pItemData->GetWeaponType()))
-		AttachWeapon(dwParentPartIndex, CRaceData::PART_WEAPON_LEFT, pItemData);
+	if (pItemData->GetType() != CItemData::ITEM_TYPE_COSTUME)
+	{
+		if (__IsRightHandWeapon(pItemData->GetWeaponType()))
+			AttachWeapon(dwParentPartIndex, CRaceData::PART_WEAPON, pItemData);
+		
+		if (__IsLeftHandWeapon(pItemData->GetWeaponType()))
+			AttachWeapon(dwParentPartIndex, CRaceData::PART_WEAPON_LEFT, pItemData);
+	}
+	else
+	{
+		DWORD typeDec = pItemData->GetValue(3);
+		if (__IsRightHandWeapon(typeDec))
+			AttachWeapon(dwParentPartIndex, CRaceData::PART_WEAPON, pItemData);
+		
+		if (__IsLeftHandWeapon(typeDec))
+			AttachWeapon(dwParentPartIndex, CRaceData::PART_WEAPON_LEFT, pItemData);
+	}
 }
 
 BOOL CActorInstance::GetAttachingBoneName(DWORD dwPartIndex, const char ** c_pszBoneName)
@@ -172,17 +184,15 @@ BOOL CActorInstance::GetAttachingBoneName(DWORD dwPartIndex, const char ** c_psz
 }
 
 
-void CActorInstance::AttachWeapon(DWORD dwParentPartIndex, DWORD dwPartIndex, CItemData * pItemData)
+void CActorInstance::AttachWeapon(DWORD dwParentPartIndex, DWORD dwPartIndex, CItemData* pItemData)
 {
-//	assert(m_pkCurRaceData);
 	if (!pItemData)
 		return;
 
-	const char * szBoneName;
+	const char* szBoneName;
 	if (!GetAttachingBoneName(dwPartIndex, &szBoneName))
 		return;
 
-	// NOTE : (이도류처리)단도일 경우 형태가 다른 것으로 얻는다. 없을 경우 디폴트를 리턴
 	if (CRaceData::PART_WEAPON_LEFT == dwPartIndex)
 	{
 		RegisterModelThing(dwPartIndex, pItemData->GetSubModelThing());
@@ -194,8 +204,7 @@ void CActorInstance::AttachWeapon(DWORD dwParentPartIndex, DWORD dwPartIndex, CI
 
 	for (DWORD i = 0; i < pItemData->GetLODModelThingCount(); ++i)
 	{
-		CGraphicThing * pThing;
-
+		CGraphicThing* pThing;
 		if (!pItemData->GetLODModelThingPointer(i, &pThing))
 			continue;
 
@@ -204,8 +213,6 @@ void CActorInstance::AttachWeapon(DWORD dwParentPartIndex, DWORD dwPartIndex, CI
 
 	SetModelInstance(dwPartIndex, dwPartIndex, 0);
 	AttachModelInstance(dwParentPartIndex, szBoneName, dwPartIndex);
-
-	// 20041208.myevan.무기스펙큘러(값옷은 SetShape에서 직접 해준다.)
 	if (USE_WEAPON_SPECULAR)
 	{
 		SMaterialData kMaterialData;
@@ -216,12 +223,24 @@ void CActorInstance::AttachWeapon(DWORD dwParentPartIndex, DWORD dwPartIndex, CI
 		SetMaterialData(dwPartIndex, NULL, kMaterialData);
 	}
 
-	// Weapon Trace
-	if (__IsWeaponTrace(pItemData->GetWeaponType()))
+	if (pItemData->GetType() != CItemData::ITEM_TYPE_COSTUME)
 	{
-		CWeaponTrace * pWeaponTrace = CWeaponTrace::New();		
-		pWeaponTrace->SetWeaponInstance(this, dwPartIndex, szBoneName);
-		m_WeaponTraceVector.push_back(pWeaponTrace);
+		if (__IsWeaponTrace(pItemData->GetWeaponType()))
+		{
+			CWeaponTrace* pWeaponTrace = CWeaponTrace::New();
+			pWeaponTrace->SetWeaponInstance(this, dwPartIndex, szBoneName);
+			m_WeaponTraceVector.push_back(pWeaponTrace);
+		}
+	}
+	else
+	{
+		DWORD typeDec = pItemData->GetValue(3);
+		if (__IsWeaponTrace(typeDec))
+		{
+			CWeaponTrace* pWeaponTrace = CWeaponTrace::New();
+			pWeaponTrace->SetWeaponInstance(this, dwPartIndex, szBoneName);
+			m_WeaponTraceVector.push_back(pWeaponTrace);
+		}
 	}
 }
 
