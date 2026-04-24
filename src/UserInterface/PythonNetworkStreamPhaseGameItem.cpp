@@ -418,6 +418,8 @@ bool CPythonNetworkStream::SendShopEndPacket()
 	packet_shop.header = CG::SHOP;
 	packet_shop.length = sizeof(packet_shop);
 	packet_shop.subheader = ShopSub::CG::END;
+	packet_shop.count = 0;
+	packet_shop.position = 0;
 
 	if (!Send(sizeof(packet_shop), &packet_shop))
 	{
@@ -435,23 +437,12 @@ bool CPythonNetworkStream::SendShopBuyPacket(BYTE bPos)
 	
 	TPacketCGShop PacketShop;
 	PacketShop.header = CG::SHOP;
-	PacketShop.length = sizeof(PacketShop) + sizeof(BYTE) + sizeof(BYTE);
+	PacketShop.length = sizeof(PacketShop);
 	PacketShop.subheader = ShopSub::CG::BUY;
+	PacketShop.count = 1;
+	PacketShop.position = bPos;
 
 	if (!Send(sizeof(TPacketCGShop), &PacketShop))
-	{
-		Tracef("SendShopBuyPacket Error\n");
-		return false;
-	}
-
-	BYTE bCount=1;
-	if (!Send(sizeof(BYTE), &bCount))
-	{
-		Tracef("SendShopBuyPacket Error\n");
-		return false;
-	}
-
-	if (!Send(sizeof(BYTE), &bPos))
 	{
 		Tracef("SendShopBuyPacket Error\n");
 		return false;
@@ -467,17 +458,14 @@ bool CPythonNetworkStream::SendShopSellPacket(BYTE bySlot)
 
 	TPacketCGShop PacketShop;
 	PacketShop.header = CG::SHOP;
-	PacketShop.length = sizeof(PacketShop) + sizeof(BYTE);
+	PacketShop.length = sizeof(PacketShop);
 	PacketShop.subheader = ShopSub::CG::SELL;
+	PacketShop.count = 1;
+	PacketShop.position = bySlot;
 
 	if (!Send(sizeof(TPacketCGShop), &PacketShop))
 	{
 		Tracef("SendShopSellPacket Error\n");
-		return false;
-	}
-	if (!Send(sizeof(BYTE), &bySlot))
-	{
-		Tracef("SendShopAddSellPacket Error\n");
 		return false;
 	}
 
@@ -491,22 +479,14 @@ bool CPythonNetworkStream::SendShopSellPacketNew(BYTE bySlot, BYTE byCount)
 
 	TPacketCGShop PacketShop;
 	PacketShop.header = CG::SHOP;
-	PacketShop.length = sizeof(PacketShop) + sizeof(BYTE) + sizeof(BYTE);
+	PacketShop.length = sizeof(PacketShop);
 	PacketShop.subheader = ShopSub::CG::SELL2;
+	PacketShop.count = byCount;
+	PacketShop.position = bySlot;
 
 	if (!Send(sizeof(TPacketCGShop), &PacketShop))
 	{
 		Tracef("SendShopSellPacket Error\n");
-		return false;
-	}
-	if (!Send(sizeof(BYTE), &bySlot))
-	{
-		Tracef("SendShopAddSellPacket Error\n");
-		return false;
-	}
-	if (!Send(sizeof(BYTE), &byCount))
-	{
-		Tracef("SendShopAddSellPacket Error\n");
 		return false;
 	}
 

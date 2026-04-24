@@ -783,6 +783,8 @@ typedef struct command_shop
 	uint16_t	header;
 	uint16_t	length;
 	uint8_t		subheader;
+    uint8_t     position;
+    uint8_t     count;
 } TPacketCGShop;
 
 typedef struct command_exchange
