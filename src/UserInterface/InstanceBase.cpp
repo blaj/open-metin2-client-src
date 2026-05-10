@@ -463,6 +463,12 @@ BOOL CInstanceBase::IsGameMaster()
 {
 	if (m_kAffectFlagContainer.IsSet(AFFECT_YMIR))
 		return true;
+	if (m_kAffectFlagContainer.IsSet(AFFECT_SERVER_ADMIN))
+		return true;
+	if (m_kAffectFlagContainer.IsSet(AFFECT_GAME_MASTER))
+		return true;
+	if (m_kAffectFlagContainer.IsSet(AFFECT_COMMUNITY_MANAGER))
+		return true;
 	return false;
 }
 

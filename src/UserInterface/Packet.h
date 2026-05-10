@@ -262,6 +262,7 @@ namespace GC
     constexpr uint16_t MOUNT              = 0x0A40;
     constexpr uint16_t OWNERSHIP          = 0x0A41;
     constexpr uint16_t NPC_POSITION       = 0x0A50;
+    constexpr uint16_t GAME_MASTERS_NAMES = 0x0A60;
 
     // World
     constexpr uint16_t FISHING            = 0x0B10;
@@ -2389,6 +2390,12 @@ struct TNPCPosition
     int32_t x;
     int32_t y;
 };
+
+typedef struct SPacketGCGameMastersNames
+{
+    uint16_t	header;
+    uint16_t	length;
+} TPacketGCGameMastersNames;
 
 typedef struct SPacketGCChangeName
 {

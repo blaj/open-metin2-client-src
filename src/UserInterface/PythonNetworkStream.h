@@ -603,6 +603,7 @@ class CPythonNetworkStream : public CNetworkStream, public CSingleton<CPythonNet
 		bool RecvChannelPacket();
 
 		bool RecvShoulderSashPacket();
+		bool RecvGameMastersNamesPacket();
 
 	protected:
 		// 이모티콘

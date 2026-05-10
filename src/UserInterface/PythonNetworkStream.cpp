@@ -910,7 +910,8 @@ void CPythonNetworkStream::RegisterGameHandlers()
 	h[GC::DIG_MOTION]             = { &CPythonNetworkStream::RecvDigMotionPacket,          sizeof(TPacketGCDigMotion),                  false };
 	h[GC::DRAGON_SOUL_REFINE]     = { &CPythonNetworkStream::RecvDragonSoulRefine,         sizeof(TPacketGCDragonSoulRefine),           false };
 
-	h[GC::SHOULDER_SASH]		  = { &CPythonNetworkStream::RecvShoulderSashPacket,	   sizeof(TPacketShoulderSash),							false };
+	h[GC::SHOULDER_SASH]		  = { &CPythonNetworkStream::RecvShoulderSashPacket,	   sizeof(TPacketShoulderSash),					false };
+	h[GC::GAME_MASTERS_NAMES]	  = { &CPythonNetworkStream::RecvGameMastersNamesPacket,   sizeof(TPacketGCGameMastersNames),			false };
 }
 
 void CPythonNetworkStream::RegisterLoadingHandlers()

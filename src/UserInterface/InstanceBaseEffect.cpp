@@ -883,6 +883,9 @@ void CInstanceBase::__SetAffect(UINT eAffect, bool isVisible)
 	switch (eAffect)
 	{
 		case AFFECT_YMIR:
+		case AFFECT_SERVER_ADMIN:
+		case AFFECT_GAME_MASTER:
+		case AFFECT_COMMUNITY_MANAGER:
 			if (IsAffect(AFFECT_INVISIBILITY))
 				return;
 			break;

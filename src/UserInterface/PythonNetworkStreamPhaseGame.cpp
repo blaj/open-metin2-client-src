@@ -2316,6 +2316,35 @@ bool CPythonNetworkStream::RecvShoulderSashPacket()
 	return true;
 }
 
+bool CPythonNetworkStream::RecvGameMastersNamesPacket()
+{
+	TPacketGCGameMastersNames sPacket;
+	if (!Recv(sizeof(TPacketGCGameMastersNames), &sPacket))
+	{
+		Tracen("Recv Game Masters Name Packet Error");
+		return false;
+	}
+
+	BYTE byCount;
+	if (!Recv(sizeof(byCount), &byCount))
+	{
+		return false;
+	}
+
+	PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "ClearGameMastersNames", Py_BuildValue("()"));
+
+	for (BYTE i = 0; i < byCount; ++i)
+	{ 
+		char szName[CHARACTER_NAME_MAX_LEN + 1] = "";
+		if (!Recv(sizeof(szName), &szName))
+		{
+			return false;
+		}
+
+		PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "RegisterGameMasterName", Py_BuildValue("(s)", szName));
+	}
+}
+
 bool CPythonNetworkStream::SendShoulderSashClosePacket()
 {
 	if (!__CanActMainInstance())

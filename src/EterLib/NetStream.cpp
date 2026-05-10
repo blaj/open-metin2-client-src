@@ -450,6 +450,7 @@ static const char* GetHeaderName(uint16_t header)
 		{ GC::MOUNT,              "GC_MOUNT" },
 		{ GC::OWNERSHIP,          "GC_OWNERSHIP" },
 		{ GC::NPC_POSITION,       "GC_NPC_POSITION" },
+		{ GC::GAME_MASTERS_NAMES, "GC_GAME_MASTERS_NAMES" },
 		{ CG::CHARACTER_POSITION, "CG_CHARACTER_POSITION" },
 		// World
 		{ CG::FISHING,            "CG_FISHING" },
