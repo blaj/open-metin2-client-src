@@ -266,7 +266,7 @@ class CPythonNetworkStream : public CNetworkStream, public CSingleton<CPythonNet
 		bool SendBuildPrivateShopPacket(const char * c_szName, const std::vector<TShopItemTable> & c_rSellingItemStock);
 
 		// Refine
-		bool SendRefinePacket(BYTE byPos, BYTE byType);
+		bool SendRefinePacket(BYTE bySourcePos, BYTE byTargetPos, BYTE byType);
 		bool SendSelectItemPacket(DWORD dwItemPos);
 
 		// Client Version

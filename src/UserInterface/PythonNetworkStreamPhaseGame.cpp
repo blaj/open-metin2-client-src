@@ -4099,12 +4099,13 @@ void CPythonNetworkStream::__TEST_SetSkillGroupFake(int iIndex)
 	PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "RefreshCharacter", Py_BuildValue("()"));
 }
 
-bool CPythonNetworkStream::SendRefinePacket(BYTE byPos, BYTE byType)
+bool CPythonNetworkStream::SendRefinePacket(BYTE bySourcePos, BYTE byTargetPos, BYTE byType)
 {
 	TPacketCGRefine kRefinePacket;
 	kRefinePacket.header = CG::REFINE;
 	kRefinePacket.length = sizeof(kRefinePacket);
-	kRefinePacket.pos = byPos;
+	kRefinePacket.sourcePos = bySourcePos;
+	kRefinePacket.targetPos = byTargetPos;
 	kRefinePacket.type = byType;
 
 	if (!Send(sizeof(kRefinePacket), &kRefinePacket))
@@ -4135,8 +4136,9 @@ bool CPythonNetworkStream::RecvRefineInformationPacket()
 	TRefineTable & rkRefineTable = kRefineInfoPacket.refine_table;
 	PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], 
 		"OpenRefineDialog", 
-		Py_BuildValue("(iiii)", 
-			kRefineInfoPacket.pos, 
+		Py_BuildValue("(iiiii)", 
+			kRefineInfoPacket.sourcePos, 
+			kRefineInfoPacket.targetPos, 
 			kRefineInfoPacket.refine_table.result_vnum, 
 			rkRefineTable.cost, 
 			rkRefineTable.prob));
@@ -4147,8 +4149,9 @@ bool CPythonNetworkStream::RecvRefineInformationPacket()
 	}
 
 #ifdef _DEBUG
-	Tracef(" >> RecvRefineInformationPacket(pos=%d, result_vnum=%d, cost=%d, prob=%d)\n",
-														kRefineInfoPacket.pos,
+	Tracef(" >> RecvRefineInformationPacket(sourcePos=%d, targetPos=%d, result_vnum=%d, cost=%d, prob=%d)\n",
+														kRefineInfoPacket.sourcePos,
+														kRefineInfoPacket.targetPos,
 														kRefineInfoPacket.refine_table.result_vnum,
 														rkRefineTable.cost,
 														rkRefineTable.prob);
@@ -4166,8 +4169,9 @@ bool CPythonNetworkStream::RecvRefineInformationPacketNew()
 	TRefineTable & rkRefineTable = kRefineInfoPacket.refine_table;
 	PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], 
 		"OpenRefineDialog", 
-		Py_BuildValue("(iiiii)", 
-			kRefineInfoPacket.pos, 
+		Py_BuildValue("(iiiiii)", 
+			kRefineInfoPacket.sourcePos, 
+			kRefineInfoPacket.targetPos, 
 			kRefineInfoPacket.refine_table.result_vnum, 
 			rkRefineTable.cost, 
 			rkRefineTable.prob, 
@@ -4180,8 +4184,9 @@ bool CPythonNetworkStream::RecvRefineInformationPacketNew()
 	}
 
 #ifdef _DEBUG
-	Tracef(" >> RecvRefineInformationPacketNew(pos=%d, result_vnum=%d, cost=%d, prob=%d, type=%d)\n",
-														kRefineInfoPacket.pos,
+	Tracef(" >> RecvRefineInformationPacketNew(sourcePos=%d, targetPos=%d, result_vnum=%d, cost=%d, prob=%d, type=%d)\n",
+														kRefineInfoPacket.sourcePos,
+														kRefineInfoPacket.targetPos,
 														kRefineInfoPacket.refine_table.result_vnum,
 														rkRefineTable.cost,
 														rkRefineTable.prob,

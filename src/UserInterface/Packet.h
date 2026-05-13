@@ -1096,7 +1096,8 @@ typedef struct SPacketCGRefine
 {
 	uint16_t	header;
 	uint16_t	length;
-	uint8_t		pos;
+	uint8_t		sourcePos;
+	uint8_t		targetPos;
 	uint8_t		type;
 } TPacketCGRefine;
 
@@ -2322,16 +2323,18 @@ typedef struct SPacketGCRefineInformation
     uint16_t header;
     uint16_t length;
     uint8_t  type;
-    uint8_t  pos;
+    uint8_t  sourcePos;
+    uint8_t  targetPos;
     TRefineTable refine_table;
 } TPacketGCRefineInformation;
 
 typedef struct SPacketGCRefineInformationNew
 {
-	uint16_t	header;
-	uint16_t	length;
-	uint8_t			type;
-	uint8_t			pos;
+	uint16_t	    header;
+	uint16_t	    length;
+	uint8_t		    type;
+    uint8_t         sourcePos;
+    uint8_t         targetPos;
 	TRefineTable	refine_table;
 } TPacketGCRefineInformationNew;
 

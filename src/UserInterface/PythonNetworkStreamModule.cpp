@@ -1502,15 +1502,20 @@ PyObject* netSendRequestRefineInfoPacket(PyObject* poSelf, PyObject* poArgs)
 
 PyObject* netSendRefinePacket(PyObject* poSelf, PyObject* poArgs)
 {
-	int iSlotIndex;
-	if (!PyTuple_GetInteger(poArgs, 0, &iSlotIndex))
+	int iSourceSlotIndex;
+	if (!PyTuple_GetInteger(poArgs, 0, &iSourceSlotIndex))
 		return Py_BuildException();
+
+	int iTargetSlotIndex;
+	if (!PyTuple_GetInteger(poArgs, 1, &iTargetSlotIndex))
+		return Py_BuildException();
+
 	int iType;
-	if (!PyTuple_GetInteger(poArgs, 1, &iType))
+	if (!PyTuple_GetInteger(poArgs, 2, &iType))
 		return Py_BuildException();
 
 	CPythonNetworkStream& rns=CPythonNetworkStream::Instance();
-	rns.SendRefinePacket(iSlotIndex, iType);
+	rns.SendRefinePacket(iSourceSlotIndex, iTargetSlotIndex, iType);
 
 	return Py_BuildNone();
 }
