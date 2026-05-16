@@ -152,6 +152,26 @@ PyObject * exchangeSetElkMode(PyObject * poTarget, PyObject * poArgs)
 	return Py_BuildNone();
 }
 
+PyObject* exchangeGetRaceFromSelf(PyObject* poTarget, PyObject* poArgs)
+{
+	return Py_BuildValue("I", CPythonExchange::Instance().GetRaceFromSelf());
+}
+
+PyObject* exchangeGetRaceFromTarget(PyObject* poTarget, PyObject* poArgs)
+{
+	return Py_BuildValue("I", CPythonExchange::Instance().GetRaceFromTarget());
+}
+
+PyObject* exchangeGetLevelFromSelf(PyObject* poTarget, PyObject* poArgs)
+{
+	return Py_BuildValue("I", CPythonExchange::Instance().GetLevelFromSelf());
+}
+
+PyObject* exchangeGetLevelFromTarget(PyObject* poTarget, PyObject* poArgs)
+{
+	return Py_BuildValue("I", CPythonExchange::Instance().GetLevelFromTarget());
+}
+
 void initTrade()
 {
 	static PyMethodDef s_methods[] = 
@@ -182,6 +202,11 @@ void initTrade()
 
 		{"GetElkMode",					exchangeGetElkMode,					METH_VARARGS},
 		{"SetElkMode",					exchangeSetElkMode,					METH_VARARGS},
+
+		{"GetRaceFromSelf",				exchangeGetRaceFromSelf,			METH_VARARGS},
+		{"GetRaceFromTarget",			exchangeGetRaceFromTarget,			METH_VARARGS},
+		{"GetLevelFromSelf",			exchangeGetLevelFromSelf,			METH_VARARGS},
+		{"GetLevelFromTarget",			exchangeGetLevelFromTarget,			METH_VARARGS},
 
 		{NULL, NULL},
 	};

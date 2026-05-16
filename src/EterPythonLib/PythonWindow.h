@@ -157,6 +157,7 @@ namespace UI
 			virtual BOOL	OnKeyUp(int ikey);
 			virtual BOOL	OnPressEscapeKey();
 			virtual BOOL	OnPressExitKey();
+			virtual BOOL	OnMouseWheel(int nLen);
 			///////////////////////////////////////
 
 			virtual void	SetColor(DWORD dwColor){}

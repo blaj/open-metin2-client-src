@@ -60,12 +60,14 @@ void CPythonApplication::OnMouseMiddleButtonUp(int x, int y)
 
 void CPythonApplication::OnMouseWheel(int nLen)
 {
-	CCameraManager& rkCmrMgr=CCameraManager::Instance();
-	CCamera* pkCmrCur=rkCmrMgr.GetCurrentCamera();
-	if (pkCmrCur)
-		pkCmrCur->Wheel(nLen);
+	UI::CWindowManager& rkWndMgr = UI::CWindowManager::Instance();
+	if (!rkWndMgr.RunMouseWheel(nLen))
+	{
+		CCameraManager& rkCmrMgr = CCameraManager::Instance();
+		if (CCamera* pkCmrCur = rkCmrMgr.GetCurrentCamera())
+			pkCmrCur->Wheel(nLen);
+	}
 }
-
 
 void CPythonApplication::OnMouseMove(int x, int y)
 {

@@ -862,6 +862,12 @@ namespace UI
 		return FALSE;
 	}
 
+	BOOL CWindow::OnMouseWheel(int nLen)
+	{
+		long lValue;
+		return PyCallClassMemberFunc(m_poHandler, "OnMouseWheel", Py_BuildValue("(i)", nLen), &lValue) && 0 != lValue;
+	}
+
 	/////
 
 	bool CWindow::IsIn(long x, long y)

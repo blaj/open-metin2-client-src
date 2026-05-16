@@ -2177,6 +2177,10 @@ DWORD CInstanceBase::GetRace()
 	return m_dwRace;
 }
 
+DWORD CInstanceBase::GetLevel()
+{
+	return m_dwLevel;
+}
 
 bool CInstanceBase::IsConflictAlignmentInstance(CInstanceBase& rkInstVictim)
 {

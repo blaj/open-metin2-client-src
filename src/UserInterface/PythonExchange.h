@@ -10,7 +10,7 @@ class CPythonExchange : public CSingleton<CPythonExchange>
 	public:
 		enum
 		{
-			EXCHANGE_ITEM_MAX_NUM = 12,
+			EXCHANGE_ITEM_MAX_NUM = 42,
 		};
 
 		typedef struct trade
@@ -24,6 +24,8 @@ class CPythonExchange : public CSingleton<CPythonExchange>
 
 			BYTE					accept;
 			DWORD					elk;
+			DWORD					race;
+			DWORD					level;
 		} TExchangeData;
 
 	public:
@@ -82,6 +84,18 @@ class CPythonExchange : public CSingleton<CPythonExchange>
 
 		bool			GetElkMode();
 		void			SetElkMode(bool value);
+
+		void			SetSelfRace(DWORD race);
+		DWORD			GetRaceFromSelf();
+
+		void			SetTargetRace(DWORD race);
+		DWORD			GetRaceFromTarget();
+
+		void			SetSelfLevel(DWORD level);
+		DWORD			GetLevelFromSelf();
+
+		void			SetTargetLevel(DWORD level);
+		DWORD			GetLevelFromTarget();
 
 	protected:
 		bool				m_isTrading;

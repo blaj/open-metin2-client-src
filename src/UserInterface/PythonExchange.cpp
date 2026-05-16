@@ -207,6 +207,46 @@ void CPythonExchange::SetElkMode(bool value)
 	m_elk_mode = value;
 }
 
+void CPythonExchange::SetSelfRace(DWORD race)
+{
+	m_self.race = race;
+}
+
+DWORD CPythonExchange::GetRaceFromSelf()
+{
+	return m_self.race;
+}
+
+void CPythonExchange::SetTargetRace(DWORD race)
+{
+	m_victim.race = race;
+}
+
+DWORD CPythonExchange::GetRaceFromTarget()
+{
+	return m_victim.race;
+}
+
+void CPythonExchange::SetSelfLevel(DWORD level)
+{
+	m_self.level = level;
+}
+
+DWORD CPythonExchange::GetLevelFromSelf()
+{
+	return m_self.level;
+}
+
+void CPythonExchange::SetTargetLevel(DWORD level)
+{
+	m_victim.level = level;
+}
+
+DWORD CPythonExchange::GetLevelFromTarget()
+{
+	return m_victim.level;
+}
+
 void CPythonExchange::Start()
 {
 	m_isTrading = true;

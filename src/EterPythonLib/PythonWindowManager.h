@@ -136,6 +136,7 @@ namespace UI
 			void		RunKeyUp(int vkey);
 			void		RunPressEscapeKey();
 			void		RunPressExitKey();
+			bool		RunMouseWheel(int nLen);
 
 		private:
 			void		SetMousePosition(long x, long y);

@@ -1279,4 +1279,16 @@ namespace UI
 
 		m_pRootWindow->RunPressExitKeyEvent();
 	}
+
+	bool CWindowManager::RunMouseWheel(int nLen)
+	{
+		CWindow* pWin = GetPointWindow();
+		while (pWin)
+		{
+			if (pWin->OnMouseWheel(nLen))
+				return true;
+			pWin = pWin->GetParent();
+		}
+		return false;
+	}
 }

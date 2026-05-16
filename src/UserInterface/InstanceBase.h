@@ -529,6 +529,7 @@ class CInstanceBase
 		DWORD					GetPart(CRaceData::EParts part);
 		DWORD					GetShape();
 		DWORD					GetRace();
+		DWORD					GetLevel();
 		DWORD					GetVirtualID();
 		DWORD					GetVirtualNumber();
 		DWORD					GetEmpireID();

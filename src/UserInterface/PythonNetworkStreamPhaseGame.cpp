@@ -1517,12 +1517,18 @@ bool CPythonNetworkStream::RecvExchangeSub_Start(const TPacketGCExchange& pack)
 	CPythonExchange::Instance().Clear();
 	CPythonExchange::Instance().Start();
 	CPythonExchange::Instance().SetSelfName(CPythonPlayer::Instance().GetName());
+	CPythonExchange::Instance().SetSelfRace(CPythonPlayer::Instance().GetRace());
+	CPythonExchange::Instance().SetSelfLevel(CPythonPlayer::Instance().GetStatus(POINT_LEVEL));
 
 	{
 		CInstanceBase * pCharacterInstance = CPythonCharacterManager::Instance().GetInstancePtr(pack.arg1);
 
 		if (pCharacterInstance)
+		{
 			CPythonExchange::Instance().SetTargetName(pCharacterInstance->GetNameString());
+			CPythonExchange::Instance().SetTargetRace(pCharacterInstance->GetRace());
+			CPythonExchange::Instance().SetTargetLevel(pCharacterInstance->GetLevel());
+		}
 	}
 
 	PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "StartExchange", Py_BuildValue("()"));
