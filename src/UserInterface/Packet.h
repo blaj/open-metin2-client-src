@@ -1904,8 +1904,9 @@ typedef struct packet_target
 {
     uint16_t	header;
     uint16_t	length;
-    uint32_t       dwVID;
-    uint8_t        bHPPercent;
+    uint32_t    dwVID;
+    int32_t     dwCurrentHp;
+    int32_t     dwMaxHp;
 } TPacketGCTarget;
 
 typedef struct packet_damage_info
