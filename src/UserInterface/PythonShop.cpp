@@ -106,7 +106,7 @@ void CPythonShop::ClearPrivateShopStock()
 {
 	m_PrivateShopItemStock.clear();
 }
-void CPythonShop::AddPrivateShopItemStock(TItemPos ItemPos, uint8_t dwDisplayPos, DWORD dwPrice)
+void CPythonShop::AddPrivateShopItemStock(TItemPos ItemPos, uint8_t dwDisplayPos, long long dwPrice)
 {
 	DelPrivateShopItemStock(ItemPos);
 
@@ -125,7 +125,7 @@ void CPythonShop::DelPrivateShopItemStock(TItemPos ItemPos)
 
 	m_PrivateShopItemStock.erase(ItemPos);
 }
-int CPythonShop::GetPrivateShopItemPrice(TItemPos ItemPos)
+long long CPythonShop::GetPrivateShopItemPrice(TItemPos ItemPos)
 {
 	TPrivateShopItemStock::iterator itor = m_PrivateShopItemStock.find(ItemPos);
 
@@ -279,9 +279,9 @@ PyObject * shopGetItemPrice(PyObject * poSelf, PyObject * poArgs)
 
 	const TShopItemData * c_pItemData;
 	if (CPythonShop::Instance().GetItemData(iIndex, &c_pItemData))
-		return Py_BuildValue("i", c_pItemData->price);
+		return Py_BuildValue("l", c_pItemData->price);
 
-	return Py_BuildValue("i", 0);
+	return Py_BuildValue("l", 0);
 }
 
 PyObject * shopGetItemMetinSocket(PyObject * poSelf, PyObject * poArgs)
@@ -335,8 +335,8 @@ PyObject * shopAddPrivateShopItemStock(PyObject * poSelf, PyObject * poArgs)
 	int iDisplaySlotIndex;
 	if (!PyTuple_GetInteger(poArgs, 2, &iDisplaySlotIndex))
 		return Py_BuildException();
-	int iPrice;
-	if (!PyTuple_GetInteger(poArgs, 3, &iPrice))
+	long long iPrice;
+	if (!PyTuple_GetLongLong(poArgs, 3, &iPrice))
 		return Py_BuildException();
 
 	CPythonShop::Instance().AddPrivateShopItemStock(TItemPos(bItemWindowType, wItemSlotIndex), iDisplaySlotIndex, iPrice);
@@ -363,8 +363,8 @@ PyObject * shopGetPrivateShopItemPrice(PyObject * poSelf, PyObject * poArgs)
 	if (!PyTuple_GetInteger(poArgs, 1, &wItemSlotIndex))
 		return Py_BuildException();
 
-	int iValue = CPythonShop::Instance().GetPrivateShopItemPrice(TItemPos(bItemWindowType, wItemSlotIndex));
-	return Py_BuildValue("i", iValue);
+	long long iValue = CPythonShop::Instance().GetPrivateShopItemPrice(TItemPos(bItemWindowType, wItemSlotIndex));
+	return Py_BuildValue("l", iValue);
 }
 PyObject * shopBuildPrivateShop(PyObject * poSelf, PyObject * poArgs)
 {

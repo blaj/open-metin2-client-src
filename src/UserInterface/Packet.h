@@ -793,7 +793,7 @@ typedef struct command_exchange
 	uint16_t	header;
 	uint16_t	length;
 	uint8_t		subheader;
-	uint32_t		arg1;
+	uint64_t	arg1;
 	uint8_t		arg2;
 	TItemPos	Pos;
 } TPacketCGExchange;
@@ -1076,11 +1076,11 @@ typedef struct command_dungeon
 // Private Shop
 typedef struct SShopItemTable
 {
-    uint32_t		vnum;
+    uint32_t	vnum;
     uint8_t		count;
 
     TItemPos	pos;			// PC 상점에만 이용
-    uint32_t		price;			// PC 상점에만 이용
+    uint64_t	price;			// PC 상점에만 이용
     uint8_t		display_pos;	//	PC 상점에만 이용, 보일 위치.
 } TShopItemTable;
 
@@ -1707,7 +1707,7 @@ typedef struct packet_points
 {
     uint16_t	header;
     uint16_t	length;
-    int32_t        points[POINT_MAX_NUM];
+    int64_t     points[POINT_MAX_NUM];
 } TPacketGCPoints;
 
 typedef struct packet_point_change
@@ -1715,11 +1715,11 @@ typedef struct packet_point_change
     uint16_t	header;
     uint16_t	length;
 
-	uint32_t		dwVID;
+	uint32_t	dwVID;
 	uint8_t		Type;
 
-	int32_t        amount; // 바뀐 값
-    int32_t        value;  // 현재 값
+	int64_t     amount; // 바뀐 값
+    int64_t     value;  // 현재 값
 } TPacketGCPointChange;
 
 typedef struct packet_motion
@@ -1859,7 +1859,7 @@ typedef struct packet_shop_update_item
 
 typedef struct packet_shop_update_price
 {
-	int32_t iElkAmount;
+	int64_t iElkAmount;
 } TPacketGCShopUpdatePrice;
 
 typedef struct packet_shop
@@ -1873,11 +1873,11 @@ typedef struct packet_exchange
 {
     uint16_t	header;
     uint16_t	length;
-    uint8_t        subheader;
-    uint8_t        is_me;
-    uint32_t       arg1;
-    TItemPos       arg2;
-    uint32_t       arg3;
+    uint8_t     subheader;
+    uint8_t     is_me;
+    uint64_t    arg1;
+    TItemPos    arg2;
+    uint32_t    arg3;
 	int32_t		alValues[ITEM_SOCKET_SLOT_MAX_NUM];
     TPlayerItemAttribute aAttr[ITEM_ATTRIBUTE_SLOT_MAX_NUM];
 } TPacketGCExchange;
@@ -1905,8 +1905,8 @@ typedef struct packet_target
     uint16_t	header;
     uint16_t	length;
     uint32_t    dwVID;
-    int32_t     dwCurrentHp;
-    int32_t     dwMaxHp;
+    int64_t     dwCurrentHp;
+    int64_t     dwMaxHp;
 } TPacketGCTarget;
 
 typedef struct packet_damage_info

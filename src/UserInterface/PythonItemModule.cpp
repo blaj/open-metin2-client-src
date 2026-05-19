@@ -138,23 +138,22 @@ PyObject * itemGetItemSubType(PyObject * poSelf, PyObject * poArgs)
 PyObject * itemGetIBuyItemPrice(PyObject * poSelf, PyObject * poArgs)
 {
 	CItemData * pItemData = CItemManager::Instance().GetSelectedItemDataPointer();
-	
+
 	if (!pItemData)
 		return Py_BuildException("no selected item data");
 
-	return Py_BuildValue("i", pItemData->GetIBuyItemPrice());
+	return PyLong_FromLongLong(pItemData->GetIBuyItemPrice());
 }
 
 PyObject * itemGetISellItemPrice(PyObject * poSelf, PyObject * poArgs)
 {
 	CItemData * pItemData = CItemManager::Instance().GetSelectedItemDataPointer();
-	
+
 	if (!pItemData)
 		return Py_BuildException("no selected item data");
 
-	return Py_BuildValue("i", pItemData->GetISellItemPrice());
+	return PyLong_FromLongLong(pItemData->GetISellItemPrice());
 }
-
 
 PyObject * itemIsAntiFlag(PyObject * poSelf, PyObject * poArgs)
 {

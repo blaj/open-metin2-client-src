@@ -333,7 +333,7 @@ typedef struct packet_item
 typedef struct packet_shop_item
 {
     uint32_t       vnum;
-    uint32_t       price;
+    uint64_t       price;
 	uint8_t        count;
 	uint8_t		display_pos;
 	int32_t		alSockets[ITEM_SOCKET_SLOT_MAX_NUM];

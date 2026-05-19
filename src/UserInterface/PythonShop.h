@@ -50,9 +50,9 @@ class CPythonShop : public CSingleton<CPythonShop>
 		BOOL IsMainPlayerPrivateShop();
 
 		void ClearPrivateShopStock();
-		void AddPrivateShopItemStock(TItemPos ItemPos, uint8_t byDisplayPos, DWORD dwPrice);
+		void AddPrivateShopItemStock(TItemPos ItemPos, uint8_t byDisplayPos, long long dwPrice);
 		void DelPrivateShopItemStock(TItemPos ItemPos);
-		int GetPrivateShopItemPrice(TItemPos ItemPos);
+		long long GetPrivateShopItemPrice(TItemPos ItemPos);
 		void BuildPrivateShop(const char * c_szName);
 
 	protected:

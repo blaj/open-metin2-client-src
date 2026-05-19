@@ -21,22 +21,22 @@ char * CPythonExchange::GetNameFromTarget()
 	return m_victim.name;
 }
 
-void CPythonExchange::SetElkToTarget(DWORD	elk)
+void CPythonExchange::SetElkToTarget(long long	elk)
 {	
 	m_victim.elk = elk;
 }
 
-void CPythonExchange::SetElkToSelf(DWORD elk)
+void CPythonExchange::SetElkToSelf(long long elk)
 {
 	m_self.elk = elk;
 }
 
-DWORD CPythonExchange::GetElkFromTarget()
+long long CPythonExchange::GetElkFromTarget()
 {
 	return m_victim.elk;
 }
 
-DWORD CPythonExchange::GetElkFromSelf()
+long long CPythonExchange::GetElkFromSelf()
 {
 	return m_self.elk;
 }

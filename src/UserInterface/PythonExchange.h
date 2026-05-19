@@ -23,7 +23,7 @@ class CPythonExchange : public CSingleton<CPythonExchange>
 			TPlayerItemAttribute	item_attr[EXCHANGE_ITEM_MAX_NUM][ITEM_ATTRIBUTE_SLOT_MAX_NUM];
 
 			BYTE					accept;
-			DWORD					elk;
+			long long				elk;
 			DWORD					race;
 			DWORD					level;
 		} TExchangeData;
@@ -46,11 +46,11 @@ class CPythonExchange : public CSingleton<CPythonExchange>
 		char			*GetNameFromSelf();
 		char			*GetNameFromTarget();
 
-		void			SetElkToTarget(DWORD elk);
-		void			SetElkToSelf(DWORD elk);
+		void			SetElkToTarget(long long elk);
+		void			SetElkToSelf(long long elk);
 
-		DWORD			GetElkFromTarget();
-		DWORD			GetElkFromSelf();
+		long long		GetElkFromTarget();
+		long long		GetElkFromSelf();
 
 		void			SetItemToTarget(DWORD pos, DWORD vnum, BYTE count);
 		void			SetItemToSelf(DWORD pos, DWORD vnum, BYTE count);

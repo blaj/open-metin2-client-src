@@ -1203,7 +1203,9 @@ bool CPythonNetworkStream::RecvPointChange()
 		{
 			if (PointChange.amount > 0)
 			{
-				PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "OnPickMoney", Py_BuildValue("(i)", PointChange.amount));
+				PyObject* args = PyTuple_New(1);
+				PyTuple_SetItem(args, 0, PyLong_FromLongLong(PointChange.amount));
+				PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "OnPickMoney", args);
 			}
 		}
 	}
@@ -1451,7 +1453,9 @@ bool CPythonNetworkStream::RecvShopSub_UpdateItem(const std::vector<char>& buf)
 
 bool CPythonNetworkStream::RecvShopSub_UpdatePrice(const std::vector<char>& buf)
 {
-	PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "SetShopSellingPrice", Py_BuildValue("(i)", *(int *)&buf[0]));
+	PyObject* args = PyTuple_New(1);
+	PyTuple_SetItem(args, 0, PyLong_FromLongLong(*(long long*)&buf[0]));
+	PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "SetShopSellingPrice", Py_BuildValue("(i)", args));
 	return true;
 }
 
@@ -1817,7 +1821,7 @@ bool CPythonNetworkStream::SendExchangeStartPacket(DWORD vid)
 	return true;
 }
 
-bool CPythonNetworkStream::SendExchangeElkAddPacket(DWORD elk)
+bool CPythonNetworkStream::SendExchangeElkAddPacket(long long elk)
 {
 	if (!__CanActMainInstance())
 		return true;
@@ -2203,7 +2207,7 @@ bool CPythonNetworkStream::RecvTargetPacket()
 			if (pInstTarget->IsPC() || pInstTarget->IsBuilding())
 				PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "CloseTargetBoardIfDifferent", Py_BuildValue("(i)", TargetPacket.dwVID));
 			else if (pInstPlayer->CanViewTargetHP(*pInstTarget))
-				PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "SetHPTargetBoard", Py_BuildValue("(iii)", TargetPacket.dwVID, TargetPacket.dwCurrentHp, TargetPacket.dwMaxHp));
+				PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "SetHPTargetBoard", Py_BuildValue("(ill)", TargetPacket.dwVID, TargetPacket.dwCurrentHp, TargetPacket.dwMaxHp));
 			else
 				PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "CloseTargetBoard", Py_BuildValue("()"));
 

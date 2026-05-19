@@ -859,8 +859,8 @@ PyObject* netSendExchangeStartPacket(PyObject* poSelf, PyObject* poArgs)
 
 PyObject* netSendExchangeElkAddPacket(PyObject* poSelf, PyObject* poArgs)
 {
-	int iElk;
-	if (!PyTuple_GetInteger(poArgs, 0, &iElk))
+	long long iElk;
+	if (!PyTuple_GetLongLong(poArgs, 0, &iElk))
 		return Py_BuildException();
 
 	CPythonNetworkStream& rkNetStream=CPythonNetworkStream::Instance();
