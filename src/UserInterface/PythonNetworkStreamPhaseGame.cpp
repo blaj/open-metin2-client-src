@@ -1554,7 +1554,7 @@ bool CPythonNetworkStream::RecvExchangeSub_ItemAdd(const TPacketGCExchange& pack
 	if (pack.is_me)
 	{
 		int iSlotIndex = pack.arg2.cell;
-		CPythonExchange::Instance().SetItemToSelf(iSlotIndex, pack.arg1, (BYTE) pack.arg3);
+		CPythonExchange::Instance().SetItemToSelf(iSlotIndex, pack.arg1, (WORD) pack.arg3);
 		for (int i = 0; i < ITEM_SOCKET_SLOT_MAX_NUM; ++i)
 			CPythonExchange::Instance().SetItemMetinSocketToSelf(iSlotIndex, i, pack.alValues[i]);
 		for (int j = 0; j < ITEM_ATTRIBUTE_SLOT_MAX_NUM; ++j)
@@ -1563,7 +1563,7 @@ bool CPythonNetworkStream::RecvExchangeSub_ItemAdd(const TPacketGCExchange& pack
 	else
 	{
 		int iSlotIndex = pack.arg2.cell;
-		CPythonExchange::Instance().SetItemToTarget(iSlotIndex, pack.arg1, (BYTE) pack.arg3);
+		CPythonExchange::Instance().SetItemToTarget(iSlotIndex, pack.arg1, (WORD) pack.arg3);
 		for (int i = 0; i < ITEM_SOCKET_SLOT_MAX_NUM; ++i)
 			CPythonExchange::Instance().SetItemMetinSocketToTarget(iSlotIndex, i, pack.alValues[i]);
 		for (int j = 0; j < ITEM_ATTRIBUTE_SLOT_MAX_NUM; ++j)
@@ -4017,7 +4017,7 @@ bool CPythonNetworkStream::SendBuildPrivateShopPacket(const char * c_szName, con
 	packet.header = CG::MYSHOP;
 	packet.length = sizeof(packet) + sizeof(TShopItemTable) * c_rSellingItemStock.size();
 	strncpy(packet.szSign, c_szName, SHOP_SIGN_MAX_LEN);
-	packet.bCount = static_cast<unsigned char>(c_rSellingItemStock.size());
+	packet.wCount = static_cast<unsigned char>(c_rSellingItemStock.size());
 	if (!Send(sizeof(packet), &packet))
 		return false;
 

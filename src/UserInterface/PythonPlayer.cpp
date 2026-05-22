@@ -734,12 +734,12 @@ void CPythonPlayer::GetItemAttribute(TItemPos Cell, DWORD dwAttrSlotIndex, BYTE 
 	*psValue = GetItemData(Cell)->aAttr[dwAttrSlotIndex].sValue;
 }
 
-void CPythonPlayer::SetItemCount(TItemPos Cell, BYTE byCount)
+void CPythonPlayer::SetItemCount(TItemPos Cell, WORD wCount)
 {
 	if (!Cell.IsValidCell())
 		return;
 
-	(const_cast <TItemData *>(GetItemData(Cell)))->count = byCount;
+	(const_cast <TItemData *>(GetItemData(Cell)))->count = wCount;
 	PyCallClassMemberFunc(m_ppyGameWindow, "RefreshInventory", Py_BuildValue("()"));	
 }
 

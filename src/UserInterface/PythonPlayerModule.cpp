@@ -921,14 +921,14 @@ PyObject * playerSetItemCount(PyObject* poSelf, PyObject* poArgs)
 			if (!PyTuple_GetInteger(poArgs, 0, &iSlotIndex))
 				return Py_BuildException();
 
-			uint8_t bCount;
-			if (!PyTuple_GetInteger(poArgs, 1, &bCount))
+			uint16_t wCount;
+			if (!PyTuple_GetInteger(poArgs, 1, &wCount))
 				return Py_BuildException();
 
-			if (0 == bCount)
+			if (0 == wCount)
 				return Py_BuildException();
 
-			CPythonPlayer::Instance().SetItemCount(TItemPos (INVENTORY, iSlotIndex), bCount);
+			CPythonPlayer::Instance().SetItemCount(TItemPos (INVENTORY, iSlotIndex), wCount);
 			return Py_BuildNone();
 		}
 	case 3:
@@ -940,11 +940,11 @@ PyObject * playerSetItemCount(PyObject* poSelf, PyObject* poArgs)
 			if (!PyTuple_GetInteger(poArgs, 1, &Cell.cell))
 				return Py_BuildException();
 
-			uint8_t bCount;
-			if (!PyTuple_GetInteger(poArgs, 2, &bCount))
+			uint16_t wCount;
+			if (!PyTuple_GetInteger(poArgs, 2, &wCount))
 				return Py_BuildException();
 
-			CPythonPlayer::Instance().SetItemCount(Cell, bCount);
+			CPythonPlayer::Instance().SetItemCount(Cell, wCount);
 
 			return Py_BuildNone();
 		}
@@ -2209,7 +2209,7 @@ PyObject* playerGetGemShopItemCount(PyObject* poSelf, PyObject* poArgs)
 
 	const TGemShopItem* c_pItemData;
 	if (CPythonPlayer::Instance().GetGemShopItemData(nPos, &c_pItemData))
-		return Py_BuildValue("i", c_pItemData->bCount);
+		return Py_BuildValue("i", c_pItemData->wCount);
 
 	return Py_BuildValue("i", 0);
 }

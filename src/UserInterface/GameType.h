@@ -322,21 +322,21 @@ typedef struct TPlayerItemAttribute
 
 typedef struct packet_item
 {
-    uint32_t       vnum;
-	uint8_t        count;
+    uint32_t		vnum;
+	uint16_t		count;
 	uint32_t		flags;
 	uint32_t		anti_flags;
-	int32_t		alSockets[ITEM_SOCKET_SLOT_MAX_NUM];
+	int32_t			alSockets[ITEM_SOCKET_SLOT_MAX_NUM];
     TPlayerItemAttribute aAttr[ITEM_ATTRIBUTE_SLOT_MAX_NUM];
 } TItemData;
 
 typedef struct packet_shop_item
 {
-    uint32_t       vnum;
-    uint64_t       price;
-	uint8_t        count;
-	uint8_t		display_pos;
-	int32_t		alSockets[ITEM_SOCKET_SLOT_MAX_NUM];
+    uint32_t		vnum;
+    uint64_t		price;
+	uint16_t		count;
+	uint8_t			display_pos;
+	int32_t			alSockets[ITEM_SOCKET_SLOT_MAX_NUM];
     TPlayerItemAttribute aAttr[ITEM_ATTRIBUTE_SLOT_MAX_NUM];
 } TShopItemData;
 
@@ -346,7 +346,7 @@ typedef struct SGemShopItem
 	uint8_t		status;
 
 	uint32_t	dwVnum;
-	uint8_t		bCount;
+	uint16_t	wCount;
 	uint64_t	dwPrice;
 } TGemShopItem;
 

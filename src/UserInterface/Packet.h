@@ -736,26 +736,26 @@ typedef struct command_item_drop
 {
 	uint16_t	header;
 	uint16_t	length;
-	TItemPos pos;
-	uint32_t elk;
+	TItemPos    pos;
+	uint32_t    elk;
 } TPacketCGItemDrop;
 
 typedef struct command_item_drop2
 {
     uint16_t	header;
     uint16_t	length;
-    TItemPos pos;
-    uint32_t       gold;
-    uint8_t        count;
+    TItemPos    pos;
+    uint32_t    gold;
+    uint16_t     count;
 } TPacketCGItemDrop2;
 
 typedef struct command_item_move
 {
 	uint16_t	header;
 	uint16_t	length;
-	TItemPos pos;
-	TItemPos change_pos;
-	uint8_t num;
+	TItemPos    pos;
+	TItemPos    change_pos;
+	uint16_t    num;
 } TPacketCGItemMove;
 
 typedef struct command_item_pickup
@@ -1123,7 +1123,7 @@ typedef struct command_dungeon
 typedef struct SShopItemTable
 {
     uint32_t	vnum;
-    uint8_t		count;
+    uint16_t	count;
 
     TItemPos	pos;			// PC 상점에만 이용
     uint64_t	price;			// PC 상점에만 이용
@@ -1135,7 +1135,7 @@ typedef struct SPacketCGMyShop
     uint16_t	header;
     uint16_t	length;
     char        szSign[SHOP_SIGN_MAX_LEN + 1];
-    uint8_t        bCount;	// count of TShopItemTable, max 39
+    uint8_t        wCount;	// count of TShopItemTable, max 39
 } TPacketCGMyShop;
 
 typedef struct SPacketCGRefine
@@ -1792,7 +1792,7 @@ typedef struct packet_set_item
 	uint16_t	length;
 	TItemPos				pos;
 	uint32_t				vnum;
-	uint8_t					count;
+	uint16_t				count;
 	uint32_t				flags;	// 플래그 추가
 	uint32_t				anti_flags;	// 플래그 추가
 	uint8_t					highlight;
@@ -1805,7 +1805,7 @@ typedef struct packet_item_get
 	uint16_t	header;
 	uint16_t	length;
 	uint32_t	dwItemVnum;
-	uint8_t		bCount;
+	uint16_t	wCount;
 	uint8_t		bArg;		// 0: normal, 1: from party member
 	char		szFromName[CHARACTER_NAME_MAX_LEN + 1];
 } TPacketGCItemGet;
@@ -1826,7 +1826,7 @@ typedef struct packet_update_item
 	uint16_t	header;
 	uint16_t	length;
 	TItemPos	Cell;
-	uint8_t		count;
+	uint16_t	count;
 	int32_t		alSockets[ITEM_SOCKET_SLOT_MAX_NUM];
     TPlayerItemAttribute aAttr[ITEM_ATTRIBUTE_SLOT_MAX_NUM];
 } TPacketGCItemUpdate;
@@ -2492,7 +2492,7 @@ typedef struct packet_channel
 typedef struct SEquipmentItemSet
 {
 	uint32_t   vnum;
-	uint8_t    count;
+	uint16_t   count;
 	int32_t    alSockets[ITEM_SOCKET_SLOT_MAX_NUM];
 	TPlayerItemAttribute aAttr[ITEM_ATTRIBUTE_SLOT_MAX_NUM];
 } TEquipmentItemSet;

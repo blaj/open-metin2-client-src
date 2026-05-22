@@ -57,7 +57,7 @@ bool CPythonNetworkStream::SendSafeBoxCheckoutPacket(BYTE bySafeBoxPos, TItemPos
 	return true;
 }
 
-bool CPythonNetworkStream::SendSafeBoxItemMovePacket(BYTE bySourcePos, BYTE byTargetPos, BYTE byCount)
+bool CPythonNetworkStream::SendSafeBoxItemMovePacket(BYTE bySourcePos, BYTE byTargetPos, WORD wCount)
 {
 	__PlaySafeBoxItemDropSound(bySourcePos);
 
@@ -65,7 +65,7 @@ bool CPythonNetworkStream::SendSafeBoxItemMovePacket(BYTE bySourcePos, BYTE byTa
 	kItemMove.header = CG::SAFEBOX_ITEM_MOVE;
 	kItemMove.length = sizeof(kItemMove);
 	kItemMove.pos = TItemPos(INVENTORY, bySourcePos);
-	kItemMove.num = byCount;
+	kItemMove.num = wCount;
 	kItemMove.change_pos = TItemPos(INVENTORY, byTargetPos);
 	if (!Send(sizeof(kItemMove), &kItemMove))
 		return false;
@@ -276,19 +276,19 @@ bool CPythonNetworkStream::RecvItemGetPacket()
 	{
 		// Normal pickup
 		PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "BINARY_ItemGet",
-			Py_BuildValue("(si)", pItemData->GetName(), packet.bCount));
+			Py_BuildValue("(si)", pItemData->GetName(), packet.wCount));
 	}
 	else if (packet.bArg == 1)
 	{
 		// Received from party member
 		PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "BINARY_ItemGetFromParty",
-			Py_BuildValue("(ssi)", pItemData->GetName(), packet.szFromName, packet.bCount));
+			Py_BuildValue("(ssi)", pItemData->GetName(), packet.szFromName, packet.wCount));
 	}
 	else if (packet.bArg == 2)
 	{
 		// Delivered to party member
 		PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "BINARY_ItemDeliverToParty",
-			Py_BuildValue("(ssi)", pItemData->GetName(), packet.szFromName, packet.bCount));
+			Py_BuildValue("(ssi)", pItemData->GetName(), packet.szFromName, packet.wCount));
 	}
 
 	return true;
@@ -473,7 +473,7 @@ bool CPythonNetworkStream::SendShopSellPacket(BYTE bySlot)
 	return true;
 }
 
-bool CPythonNetworkStream::SendShopSellPacketNew(BYTE bySlot, BYTE byCount)
+bool CPythonNetworkStream::SendShopSellPacketNew(BYTE bySlot, WORD wCount)
 {
 	if (!__CanActMainInstance())
 		return true;
@@ -482,7 +482,7 @@ bool CPythonNetworkStream::SendShopSellPacketNew(BYTE bySlot, BYTE byCount)
 	PacketShop.header = CG::SHOP;
 	PacketShop.length = sizeof(PacketShop);
 	PacketShop.subheader = ShopSub::CG::SELL2;
-	PacketShop.count = byCount;
+	PacketShop.count = wCount;
 	PacketShop.position = bySlot;
 
 	if (!Send(sizeof(TPacketCGShop), &PacketShop))
@@ -491,7 +491,7 @@ bool CPythonNetworkStream::SendShopSellPacketNew(BYTE bySlot, BYTE byCount)
 		return false;
 	}
 
-	Tracef(" SendShopSellPacketNew(bySlot=%d, byCount=%d)\n", bySlot, byCount);
+	Tracef(" SendShopSellPacketNew(bySlot=%d, byCount=%d)\n", bySlot, wCount);
 
 	return true;
 }
@@ -658,7 +658,7 @@ void CPythonNetworkStream::__PlayMallItemDropSound(UINT uSlotPos)
 	rkItem.PlayDropSound(dwItemID);
 }
 
-bool CPythonNetworkStream::SendItemMovePacket(TItemPos pos, TItemPos change_pos, BYTE num)
+bool CPythonNetworkStream::SendItemMovePacket(TItemPos pos, TItemPos change_pos, WORD num)
 {	
 	if (!__CanActMainInstance())
 		return true;
@@ -984,7 +984,7 @@ bool CPythonNetworkStream::RecvGemShopOpenPacket()
 		GemItem.status = kPacket.shopItems[i].status;
 
 		GemItem.dwVnum = kPacket.shopItems[i].dwVnum;
-		GemItem.bCount = kPacket.shopItems[i].bCount;
+		GemItem.wCount = kPacket.shopItems[i].wCount;
 		GemItem.dwPrice = kPacket.shopItems[i].dwPrice;
 
 		CPythonPlayer::Instance().SetGemShopItemData(kPacket.shopItems[i].slotIndex, GemItem);
@@ -1011,7 +1011,7 @@ bool CPythonNetworkStream::RecvGemShopRefreshPacket()
 		GemItem.status = kPacket.shopItems[i].status;
 
 		GemItem.dwVnum = kPacket.shopItems[i].dwVnum;
-		GemItem.bCount = kPacket.shopItems[i].bCount;
+		GemItem.wCount = kPacket.shopItems[i].wCount;
 		GemItem.dwPrice = kPacket.shopItems[i].dwPrice;
 
 		CPythonPlayer::Instance().SetGemShopItemData(kPacket.shopItems[i].slotIndex, GemItem);
