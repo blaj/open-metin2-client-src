@@ -89,6 +89,7 @@ class CPythonEventManager : public CSingleton<CPythonEventManager>
 			EVENT_TYPE_INSERT_IMAGE,
 
 			EVENT_TYPE_SELECT_ITEM,
+			EVENT_TYPE_SELECT_ITEM_EX,
 		};
 
 	private:

@@ -294,6 +294,13 @@ class CPythonPlayer : public CSingleton<CPythonPlayer>, public IAbstractPlayer
 		void	GetItemAttribute(TItemPos Cell, DWORD dwAttrSlotIndex, BYTE * pbyType, short * psValue);
 		void	SendClickItemPacket(DWORD dwIID);
 
+		void 	ClearGemShopItemVector();
+		void 	SetGemShopItemData(BYTE slotIndex, const TGemShopItem& rItemInstance);
+		bool 	GetGemShopItemData(BYTE slotIndex, const TGemShopItem** ppGemItemInfo);
+
+		void 	SetGemShopRefreshTime(int refreshTime);
+		int 	GetGemShopRefreshTime();
+
 		void	RequestAddLocalQuickSlot(DWORD dwLocalSlotIndex, DWORD dwWndType, DWORD dwWndItemPos);
 		void	RequestAddToEmptyLocalQuickSlot(DWORD dwWndType, DWORD dwWndItemPos);
 		void	RequestMoveGlobalQuickSlotToLocalQuickSlot(DWORD dwGlobalSrcSlotIndex, DWORD dwLocalDstSlotIndex);
@@ -628,6 +635,9 @@ class CPythonPlayer : public CSingleton<CPythonPlayer>, public IAbstractPlayer
 
 		// Party
 		std::map<DWORD, TPartyMemberInfo>	m_PartyMemberMap;
+
+		std::map<BYTE, TGemShopItem>	m_GemItemsMap;
+		int 							m_pRefreshGemShopTime;
 
 		// PVP
 		std::set<DWORD>			m_ChallengeInstanceSet;

@@ -788,6 +788,11 @@ void CPythonEventManager::ProcessEventSet(TEventSet * pEventSet)
 			PyCallClassMemberFunc(m_poInterface, "BINARY_OpenSelectItemWindow", Py_BuildValue("()"));
 			break;
 		}
+		case EVENT_TYPE_SELECT_ITEM_EX:
+		{
+			PyCallClassMemberFunc(m_poInterface, "BINARY_OpenSelectItemExWindow", Py_BuildValue("()"));
+			break;
+		}
 	}
 }
 
@@ -1190,6 +1195,7 @@ CPythonEventManager::CPythonEventManager()
 	EventTypeMap["INSERT_IMAGE"]=EVENT_TYPE_INSERT_IMAGE;
 
 	EventTypeMap["SELECT_ITEM"]=EVENT_TYPE_SELECT_ITEM;
+	EventTypeMap["SELECT_ITEM_EX"] = EVENT_TYPE_SELECT_ITEM_EX;
 }
 
 CPythonEventManager::~CPythonEventManager()

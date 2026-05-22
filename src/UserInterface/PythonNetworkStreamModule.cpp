@@ -1632,6 +1632,40 @@ PyObject* netRegisterErrorLog(PyObject* poSelf, PyObject* poArgs)
 	return Py_BuildNone();
 }
 
+PyObject* netSendGemShopBuyPacket(PyObject* poSelf, PyObject* poArgs)
+{
+	int iItemPos;
+	if (!PyTuple_GetInteger(poArgs, 0, &iItemPos))
+		return Py_BuildException();
+
+	CPythonNetworkStream::Instance().SendGemShopBuyPacket(iItemPos);
+
+	return Py_BuildNone();
+}
+
+PyObject* netSendGemShopAddPacket(PyObject* poSelf, PyObject* poArgs)
+{
+	int iItemPos;
+	if (!PyTuple_GetInteger(poArgs, 0, &iItemPos))
+		return Py_BuildException();
+
+	CPythonNetworkStream::Instance().SendGemShopAddPacket(iItemPos);
+
+	return Py_BuildNone();
+}
+
+PyObject* netSendGemShopRefreshPacket(PyObject* poSelf, PyObject* poArgs)
+{
+	CPythonNetworkStream::Instance().SendGemShopRefreshPacket();
+	return Py_BuildNone();
+}
+
+PyObject* netSendGemShopClosePacket(PyObject* poSelf, PyObject* poArgs)
+{
+	CPythonNetworkStream::Instance().SendGemShopClosePacket();
+	return Py_BuildNone();
+}
+
 void initnet()
 {
 	static PyMethodDef s_methods[] =
@@ -1790,6 +1824,12 @@ void initnet()
 
 		// Log
 		{ "RegisterErrorLog",						netRegisterErrorLog,						METH_VARARGS },
+
+		// Gem Shop
+		{ "SendGemShopBuyPacket",					netSendGemShopBuyPacket,					METH_VARARGS },
+		{ "SendGemShopAddPacket",					netSendGemShopAddPacket,					METH_VARARGS },
+		{ "SendGemShopRefreshPacket",				netSendGemShopRefreshPacket,				METH_VARARGS },
+		{ "SendGemShopClosePacket",					netSendGemShopClosePacket,					METH_VARARGS },
 
 		{ NULL,										NULL,										NULL },
 	};

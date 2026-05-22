@@ -2187,6 +2187,69 @@ PyObject* playerSendDragonSoulRefine(PyObject* poSelf, PyObject* poArgs)
 	
 	return Py_BuildNone();
 }
+
+PyObject* playerGetGemShopItemVnum(PyObject* poSelf, PyObject* poArgs)
+{
+	int nPos;
+	if (!PyTuple_GetInteger(poArgs, 0, &nPos))
+		return Py_BuildException();
+
+	const TGemShopItem* c_pItemData;
+	if (CPythonPlayer::Instance().GetGemShopItemData(nPos, &c_pItemData))
+		return Py_BuildValue("i", c_pItemData->dwVnum);
+
+	return Py_BuildValue("i", 0);
+}
+
+PyObject* playerGetGemShopItemCount(PyObject* poSelf, PyObject* poArgs)
+{
+	int nPos;
+	if (!PyTuple_GetInteger(poArgs, 0, &nPos))
+		return Py_BuildException();
+
+	const TGemShopItem* c_pItemData;
+	if (CPythonPlayer::Instance().GetGemShopItemData(nPos, &c_pItemData))
+		return Py_BuildValue("i", c_pItemData->bCount);
+
+	return Py_BuildValue("i", 0);
+}
+
+PyObject* playerGetGemShopItemPrice(PyObject* poSelf, PyObject* poArgs)
+{
+	int nPos;
+	if (!PyTuple_GetInteger(poArgs, 0, &nPos))
+		return Py_BuildException();
+
+	const TGemShopItem* c_pItemData;
+	if (CPythonPlayer::Instance().GetGemShopItemData(nPos, &c_pItemData))
+		return Py_BuildValue("l", c_pItemData->dwPrice);
+
+	return Py_BuildValue("l", 0);
+}
+
+PyObject* playerGetGemShopItemStatus(PyObject* poSelf, PyObject* poArgs)
+{
+	int nPos;
+	if (!PyTuple_GetInteger(poArgs, 0, &nPos))
+		return Py_BuildException();
+
+	const TGemShopItem* c_pItemData;
+	if (CPythonPlayer::Instance().GetGemShopItemData(nPos, &c_pItemData))
+		return Py_BuildValue("i", c_pItemData->status);
+
+	return Py_BuildValue("i", 0);
+}
+
+PyObject* playerGetGemShopRefreshTime(PyObject* poSelf, PyObject* poArgs)
+{
+	return Py_BuildValue("i", CPythonPlayer::Instance().GetGemShopRefreshTime());
+}
+
+PyObject* playerGetGem(PyObject* poSelf, PyObject* poArgs)
+{
+	return Py_BuildValue("b", CPythonPlayer::Instance().GetStatus(POINT_GEM));
+}
+
 void initPlayer()
 {
 	static PyMethodDef s_methods[] =
@@ -2352,6 +2415,13 @@ void initPlayer()
 		{ "SlotTypeToInvenType",		playerSlotTypeToInvenType,			METH_VARARGS },
 		{ "SendDragonSoulRefine",		playerSendDragonSoulRefine,			METH_VARARGS },
 
+		{ "GetGemShopItemVnum",			playerGetGemShopItemVnum,			METH_VARARGS },
+		{ "GetGemShopItemCount",		playerGetGemShopItemCount,			METH_VARARGS },
+		{ "GetGemShopItemPrice",		playerGetGemShopItemPrice,			METH_VARARGS },
+		{ "GetGemShopItemStatus",		playerGetGemShopItemStatus,			METH_VARARGS },
+		{ "GetGemShopRefreshTime",		playerGetGemShopRefreshTime,		METH_VARARGS },
+		{ "GetGem",						playerGetGem,						METH_VARARGS },
+
 		{ NULL,							NULL,								NULL },
 	};
 
@@ -2494,6 +2564,7 @@ void initPlayer()
 	PyModule_AddIntConstant(poModule, "RESIST_DARK",                    POINT_RESIST_DARK);
 	PyModule_AddIntConstant(poModule, "RESIST_CRITICAL",                POINT_RESIST_CRITICAL);
 	PyModule_AddIntConstant(poModule, "RESIST_PENETRATE",               POINT_RESIST_PENETRATE);
+	PyModule_AddIntConstant(poModule, "GEM",							POINT_GEM);
 	PyModule_AddIntConstant(poModule, "MIN_WEP",                        POINT_MIN_WEP);
 	PyModule_AddIntConstant(poModule, "MAX_WEP",                        POINT_MAX_WEP);
 	PyModule_AddIntConstant(poModule, "MIN_MAGIC_WEP",                  POINT_MIN_MAGIC_WEP);

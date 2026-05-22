@@ -5,6 +5,7 @@
 #include "PythonExchange.h"
 #include "PythonSafeBox.h"
 #include "PythonCharacterManager.h"
+#include "PythonPlayer.h"
 
 #include "AbstractPlayer.h"
 #include "GameLib/ItemManager.h"
@@ -964,6 +965,159 @@ bool CPythonNetworkStream::RecvDragonSoulRefine()
 		PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "BINARY_DragonSoulRefineWindow_RefineSucceed", 
 				Py_BuildValue("(ii)", kDragonSoul.Pos.window_type, kDragonSoul.Pos.cell));
 		break;
+	}
+
+	return true;
+}
+
+bool CPythonNetworkStream::RecvGemShopOpenPacket()
+{
+	TPacketGCGemShopOpen kPacket;
+	if (!Recv(sizeof(kPacket), &kPacket))
+		return false;
+
+	CPythonPlayer::Instance().ClearGemShopItemVector();
+	for (int i = 0; i < GEM_SHOP_ITEM_COUNT; ++i)
+	{
+		TGemShopItem GemItem;
+		GemItem.slotIndex = kPacket.shopItems[i].slotIndex;
+		GemItem.status = kPacket.shopItems[i].status;
+
+		GemItem.dwVnum = kPacket.shopItems[i].dwVnum;
+		GemItem.bCount = kPacket.shopItems[i].bCount;
+		GemItem.dwPrice = kPacket.shopItems[i].dwPrice;
+
+		CPythonPlayer::Instance().SetGemShopItemData(kPacket.shopItems[i].slotIndex, GemItem);
+	}
+
+	CPythonPlayer::Instance().SetGemShopRefreshTime(kPacket.nextRefreshTime);
+
+	PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "OpenGemShop", Py_BuildValue("()"));
+
+	return true;
+}
+
+bool CPythonNetworkStream::RecvGemShopRefreshPacket()
+{
+	TPacketGCGemShopRefresh kPacket;
+	if (!Recv(sizeof(kPacket), &kPacket))
+		return false;
+
+	CPythonPlayer::Instance().ClearGemShopItemVector();
+	for (int i = 0; i < GEM_SHOP_ITEM_COUNT; ++i)
+	{
+		TGemShopItem GemItem;
+		GemItem.slotIndex = kPacket.shopItems[i].slotIndex;
+		GemItem.status = kPacket.shopItems[i].status;
+
+		GemItem.dwVnum = kPacket.shopItems[i].dwVnum;
+		GemItem.bCount = kPacket.shopItems[i].bCount;
+		GemItem.dwPrice = kPacket.shopItems[i].dwPrice;
+
+		CPythonPlayer::Instance().SetGemShopItemData(kPacket.shopItems[i].slotIndex, GemItem);
+	}
+
+	CPythonPlayer::Instance().SetGemShopRefreshTime(kPacket.nextRefreshTime);
+
+	PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "RefreshGemShop", Py_BuildValue("()"));
+
+	return true;
+}
+
+bool CPythonNetworkStream::RecvGemShopClosePacket()
+{
+	TPacketGCGemShopClose kPacket;
+	if (!Recv(sizeof(kPacket), &kPacket))
+		return false;
+
+	PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "CloseGemShop", Py_BuildValue("()"));
+
+	return true;
+}
+
+bool CPythonNetworkStream::SendGemShopBuyPacket(BYTE bPos)
+{
+	if (!__CanActMainInstance())
+		return true;
+
+	TPacketCGGemShop PacketGemShop;
+	PacketGemShop.header = CG::GEM_SHOP;
+	PacketGemShop.subheader = GemShopSub::CG::BUY;
+	PacketGemShop.length = sizeof(PacketGemShop) + sizeof(BYTE);
+
+	if (!Send(sizeof(PacketGemShop), &PacketGemShop))
+	{
+		Tracef("SendGemShopBuyPacket Error\n");
+		return false;
+	}
+
+	if (!Send(sizeof(BYTE), &bPos))
+	{
+		Tracef("SendGemShopBuyPacket Error\n");
+		return false;
+	}
+
+	return true;
+}
+
+bool CPythonNetworkStream::SendGemShopAddPacket(BYTE bPos)
+{
+	if (!__CanActMainInstance())
+		return true;
+
+	TPacketCGGemShop PacketGemShop;
+	PacketGemShop.header = CG::GEM_SHOP;
+	PacketGemShop.subheader = GemShopSub::CG::ADD;
+	PacketGemShop.length = sizeof(PacketGemShop) + sizeof(BYTE);
+
+	if (!Send(sizeof(PacketGemShop), &PacketGemShop))
+	{
+		Tracef("SendGemShopAddPacket Error\n");
+		return false;
+	}
+
+	if (!Send(sizeof(BYTE), &bPos))
+	{
+		Tracef("SendGemShopAddPacket Error\n");
+		return false;
+	}
+
+	return true;
+}
+
+bool CPythonNetworkStream::SendGemShopRefreshPacket()
+{
+	if (!__CanActMainInstance())
+		return true;
+
+	TPacketCGGemShop PacketGemShop;
+	PacketGemShop.header = CG::GEM_SHOP;
+	PacketGemShop.subheader = GemShopSub::CG::REFRESH;
+	PacketGemShop.length = sizeof(PacketGemShop);
+
+	if (!Send(sizeof(PacketGemShop), &PacketGemShop))
+	{
+		Tracef("SendGemShopRefreshPacket Error\n");
+		return false;
+	}
+
+	return true;
+}
+
+bool CPythonNetworkStream::SendGemShopClosePacket()
+{
+	if (!__CanActMainInstance())
+		return true;
+
+	TPacketCGGemShop PacketGemShop;
+	PacketGemShop.header = CG::GEM_SHOP;
+	PacketGemShop.subheader = GemShopSub::CG::CLOSE;
+	PacketGemShop.length = sizeof(PacketGemShop);
+
+	if (!Send(sizeof(PacketGemShop), &PacketGemShop))
+	{
+		Tracef("SendGemShopClosePacket Error\n");
+		return false;
 	}
 
 	return true;

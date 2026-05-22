@@ -1208,6 +1208,16 @@ bool CPythonNetworkStream::RecvPointChange()
 				PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "OnPickMoney", args);
 			}
 		}
+
+		if (POINT_GEM == PointChange.Type)
+		{
+			if (PointChange.amount > 0)
+			{
+				PyObject* args = PyTuple_New(1);
+				PyTuple_SetItem(args, 0, PyLong_FromLongLong(PointChange.amount));
+				PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "OnPickGem", args);
+			}
+		}
 	}
 	else
 	{

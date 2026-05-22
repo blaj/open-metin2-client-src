@@ -635,6 +635,35 @@ void CPythonPlayer::SetItemData(TItemPos Cell, const TItemData & c_rkItemInst)
 	}
 }
 
+void CPythonPlayer::ClearGemShopItemVector() {
+	m_GemItemsMap.clear();
+}
+
+void CPythonPlayer::SetGemShopItemData(BYTE slotIndex, const TGemShopItem& rItemInstance)
+{
+	m_GemItemsMap.insert(std::make_pair(slotIndex, rItemInstance));
+}
+
+bool CPythonPlayer::GetGemShopItemData(BYTE slotIndex, const TGemShopItem** ppGemItemInfo)
+{
+	std::map<BYTE, TGemShopItem>::iterator itor = m_GemItemsMap.find(slotIndex);
+
+	if (m_GemItemsMap.end() == itor)
+		return false;
+
+	*ppGemItemInfo = &(itor->second);
+
+	return true;
+}
+
+void CPythonPlayer::SetGemShopRefreshTime(int refreshTime) {
+	m_pRefreshGemShopTime = refreshTime;
+}
+
+int CPythonPlayer::GetGemShopRefreshTime() {
+	return m_pRefreshGemShopTime;
+}
+
 DWORD CPythonPlayer::GetItemIndex(TItemPos Cell)
 {
 	if (!Cell.IsValidCell())

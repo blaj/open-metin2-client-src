@@ -108,6 +108,7 @@ namespace CG
     // Shop / Safebox / Mall
     constexpr uint16_t SHOP               = 0x0801;
     constexpr uint16_t MYSHOP             = 0x0802;
+    constexpr uint16_t GEM_SHOP           = 0x0803;
     constexpr uint16_t SAFEBOX_CHECKIN    = 0x0820;
     constexpr uint16_t SAFEBOX_CHECKOUT   = 0x0821;
     constexpr uint16_t SAFEBOX_ITEM_MOVE  = 0x0822;
@@ -236,6 +237,9 @@ namespace GC
     // Shop / Safebox / Mall
     constexpr uint16_t SHOP               = 0x0810;
     constexpr uint16_t SHOP_SIGN          = 0x0811;
+    constexpr uint16_t GEM_SHOP_OPEN      = 0x0812;
+    constexpr uint16_t GEM_SHOP_REFRESH   = 0x0813;
+    constexpr uint16_t GEM_SHOP_CLOSE     = 0x0814;
     constexpr uint16_t SAFEBOX_SET        = 0x0830;
     constexpr uint16_t SAFEBOX_DEL        = 0x0831;
     constexpr uint16_t SAFEBOX_WRONG_PASSWORD = 0x0832;
@@ -460,49 +464,62 @@ namespace ShoulderSashSub {
     }
 }
 
+namespace GemShopSub {
+    namespace CG {
+        enum : uint8_t {
+            BUY = 0,
+            ADD,
+            REFRESH,
+            CLOSE
+        };
+    }
+}
+
 enum
 {
-	ID_MAX_NUM = 30,
-	PASS_MAX_NUM = 16,
-	CHAT_MAX_NUM = 128,
-	PATH_NODE_MAX_NUM = 64,
-	SHOP_SIGN_MAX_LEN = 32,
+    ID_MAX_NUM = 30,
+    PASS_MAX_NUM = 16,
+    CHAT_MAX_NUM = 128,
+    PATH_NODE_MAX_NUM = 64,
+    SHOP_SIGN_MAX_LEN = 32,
 
-	PLAYER_PER_ACCOUNT3 = 3,
-	PLAYER_PER_ACCOUNT4 = 4,
+    PLAYER_PER_ACCOUNT3 = 3,
+    PLAYER_PER_ACCOUNT4 = 4,
 
-	PLAYER_ITEM_SLOT_MAX_NUM = 20,		// 플래이어의 슬롯당 들어가는 갯수.
+    PLAYER_ITEM_SLOT_MAX_NUM = 20,		// 플래이어의 슬롯당 들어가는 갯수.
 
-	QUICKSLOT_MAX_LINE = 4,
-	QUICKSLOT_MAX_COUNT_PER_LINE = 8, // 클라이언트 임의 결정값
-	QUICKSLOT_MAX_COUNT = QUICKSLOT_MAX_LINE * QUICKSLOT_MAX_COUNT_PER_LINE,
+    QUICKSLOT_MAX_LINE = 4,
+    QUICKSLOT_MAX_COUNT_PER_LINE = 8, // 클라이언트 임의 결정값
+    QUICKSLOT_MAX_COUNT = QUICKSLOT_MAX_LINE * QUICKSLOT_MAX_COUNT_PER_LINE,
 
-	QUICKSLOT_MAX_NUM = 36, // 서버와 맞춰져 있는 값
+    QUICKSLOT_MAX_NUM = 36, // 서버와 맞춰져 있는 값
 
-	SHOP_HOST_ITEM_MAX_NUM = 40,
+    SHOP_HOST_ITEM_MAX_NUM = 40,
 
-	METIN_SOCKET_COUNT = 6,
+    METIN_SOCKET_COUNT = 6,
 
-	PARTY_AFFECT_SLOT_MAX_NUM = 7,
+    PARTY_AFFECT_SLOT_MAX_NUM = 7,
 
-	GUILD_GRADE_NAME_MAX_LEN = 8,
-	GUILD_NAME_MAX_LEN = 12,
-	GUILD_GRADE_COUNT = 15,
-	GULID_COMMENT_MAX_LEN = 50,
+    GUILD_GRADE_NAME_MAX_LEN = 8,
+    GUILD_NAME_MAX_LEN = 12,
+    GUILD_GRADE_COUNT = 15,
+    GULID_COMMENT_MAX_LEN = 50,
 
-	MARK_CRC_NUM = 8*8,
-	MARK_DATA_SIZE = 16*12,
-	SYMBOL_DATA_SIZE = 128*256,
-	QUEST_INPUT_STRING_MAX_NUM = 64,
+    MARK_CRC_NUM = 8 * 8,
+    MARK_DATA_SIZE = 16 * 12,
+    SYMBOL_DATA_SIZE = 128 * 256,
+    QUEST_INPUT_STRING_MAX_NUM = 64,
 
-	PRIVATE_CODE_LENGTH = 8,
+    PRIVATE_CODE_LENGTH = 8,
 
-	REFINE_MATERIAL_MAX_NUM = 5,
+    REFINE_MATERIAL_MAX_NUM = 5,
 
-	WEAR_MAX_NUM = 11,
+    WEAR_MAX_NUM = 11,
 
-	SHOP_TAB_NAME_MAX = 32,
-	SHOP_TAB_COUNT_MAX = 3,
+    SHOP_TAB_NAME_MAX = 32,
+    SHOP_TAB_COUNT_MAX = 3,
+
+    GEM_SHOP_ITEM_COUNT = 9
 };
 
 #pragma pack(push)
@@ -787,6 +804,35 @@ typedef struct command_shop
     uint8_t     position;
     uint8_t     count;
 } TPacketCGShop;
+
+typedef struct command_gem_shop
+{
+    uint16_t	header;
+    uint16_t	length;
+    uint8_t		subheader;
+} TPacketCGGemShop;
+
+typedef struct command_gem_shop_open
+{
+    uint16_t	    header;
+    uint16_t	    length;
+    int32_t         nextRefreshTime;
+    TGemShopItem    shopItems[GEM_SHOP_ITEM_COUNT];
+} TPacketGCGemShopOpen;
+
+typedef struct command_gem_shop_refresh
+{
+    uint16_t	    header;
+    uint16_t	    length;
+    int32_t         nextRefreshTime;
+    TGemShopItem    shopItems[GEM_SHOP_ITEM_COUNT];
+} TPacketGCGemShopRefresh;
+
+typedef struct command_gem_shop_close
+{
+    uint16_t	header;
+    uint16_t	length;
+} TPacketGCGemShopClose;
 
 typedef struct command_exchange
 {
@@ -1691,6 +1737,8 @@ enum EPointTypes
 	POINT_RESIST_CRITICAL = 136,		// 크리티컬 저항	: 상대의 크리티컬 확률을 감소
 	POINT_RESIST_PENETRATE = 137,		// 관통타격 저항	: 상대의 관통타격 확률을 감소
 	// MR-10: -- END OF -- Added missing POINT_* values
+
+    POINT_GEM = 138,
 
 	// 클라이언트 포인트
 	POINT_MIN_WEP = 200,

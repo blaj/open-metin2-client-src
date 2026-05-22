@@ -822,6 +822,9 @@ void CPythonNetworkStream::RegisterGameHandlers()
 	h[GC::SHOP]                   = { &CPythonNetworkStream::RecvShopPacket,               sizeof(TPacketGCShop),                       false };
 	h[GC::SHOP_SIGN]              = { &CPythonNetworkStream::RecvShopSignPacket,           sizeof(TPacketGCShopSign),                   false };
 	h[GC::EXCHANGE]               = { &CPythonNetworkStream::RecvExchangePacket,           sizeof(TPacketGCExchange),                   false };
+	h[GC::GEM_SHOP_OPEN]          = { &CPythonNetworkStream::RecvGemShopOpenPacket,		   sizeof(TPacketGCGemShopOpen),                false };
+	h[GC::GEM_SHOP_REFRESH]       = { &CPythonNetworkStream::RecvGemShopRefreshPacket,     sizeof(TPacketGCGemShopRefresh),             false };
+	h[GC::GEM_SHOP_CLOSE]		  = { &CPythonNetworkStream::RecvGemShopClosePacket,	   sizeof(TPacketGCGemShopClose),				false };
 
 	// Quest
 	h[GC::QUEST_INFO]             = { &CPythonNetworkStream::RecvQuestInfoPacket,          sizeof(TPacketGCQuestInfo),                  false };

@@ -340,6 +340,16 @@ typedef struct packet_shop_item
     TPlayerItemAttribute aAttr[ITEM_ATTRIBUTE_SLOT_MAX_NUM];
 } TShopItemData;
 
+typedef struct SGemShopItem
+{
+	uint8_t		slotIndex;
+	uint8_t		status;
+
+	uint32_t	dwVnum;
+	uint8_t		bCount;
+	uint64_t	dwPrice;
+} TGemShopItem;
+
 #pragma pack(pop)
 
 inline float GetSqrtDistance(int ix1, int iy1, int ix2, int iy2) // By sqrt

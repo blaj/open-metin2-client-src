@@ -180,6 +180,12 @@ class CPythonNetworkStream : public CNetworkStream, public CSingleton<CPythonNet
 		bool SendShopSellPacket(BYTE bySlot);
 		bool SendShopSellPacketNew(BYTE bySlot, BYTE byCount);
 
+		// Gem Shop
+		bool SendGemShopBuyPacket(BYTE bPos);
+		bool SendGemShopAddPacket(BYTE bPos);
+		bool SendGemShopRefreshPacket();
+		bool SendGemShopClosePacket();
+
 		// Exchange
 		bool SendExchangeStartPacket(DWORD vid);
 		bool SendExchangeItemAddPacket(TItemPos ItemPos, BYTE byDisplayPos);
@@ -480,6 +486,12 @@ class CPythonNetworkStream : public CNetworkStream, public CSingleton<CPythonNet
 		bool RecvShopSignPacket();
 
 		bool RecvExchangePacket();
+
+		// Gem Shop
+		bool RecvGemShopOpenPacket();
+		bool RecvGemShopRefreshPacket();
+		bool RecvGemShopClosePacket();
+
 		// Exchange sub-handlers
 		bool RecvExchangeSub_Start(const TPacketGCExchange& pack);
 		bool RecvExchangeSub_ItemAdd(const TPacketGCExchange& pack);
