@@ -38,7 +38,7 @@ const DWORD c_FileName_Max_Length = 128;
 const DWORD c_Short_Name_Max_Length = 32;
 
 const DWORD c_Inventory_Page_Size = 5*9; // x*y
-const DWORD c_Inventory_Page_Count = 2;
+const DWORD c_Inventory_Page_Count = 5;
 const DWORD c_ItemSlot_Count = c_Inventory_Page_Size * c_Inventory_Page_Count;
 const DWORD c_Equipment_Count = 12;
 
@@ -70,6 +70,10 @@ const DWORD c_Equipment_Shield = c_Equipment_Start + CItemData::WEAR_SHIELD;
 	const DWORD c_Equipment_Ring2 = c_Equipment_Start + CItemData::WEAR_RING2;
 	const DWORD c_Equipment_Belt = c_Equipment_Start + CItemData::WEAR_BELT;
 #endif
+
+const DWORD c_ExtendInventory_PageCount = 2;
+const DWORD c_ExtendInventory_PageStart = 3;
+const DWORD c_ExtendInventory_StageMax = 9;
 
 enum EDragonSoulDeckType
 {
@@ -311,7 +315,7 @@ enum
 typedef struct SQuickSlot
 {
 	uint8_t Type;
-	uint8_t Position;
+	uint16_t Position;
 } TQuickSlot;
 
 typedef struct TPlayerItemAttribute

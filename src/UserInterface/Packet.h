@@ -87,6 +87,7 @@ namespace CG
     constexpr uint16_t REFINE             = 0x050C;
     constexpr uint16_t DRAGON_SOUL_REFINE = 0x050D;
     constexpr uint16_t SHOULDER_SASH      = 0x050E;
+    constexpr uint16_t EXTEND_INVENTORY   = 0x050F;
 
     // Chat
     constexpr uint16_t CHAT               = 0x0601;
@@ -214,6 +215,7 @@ namespace GC
     constexpr uint16_t REFINE_INFORMATION_NEW = 0x051E;
     constexpr uint16_t DRAGON_SOUL_REFINE = 0x051F;
     constexpr uint16_t SHOULDER_SASH      = 0x0520;
+    constexpr uint16_t EXTEND_INVENTORY   = 0x0521;
 
     // Chat
     constexpr uint16_t CHAT               = 0x0603;
@@ -769,7 +771,7 @@ typedef struct command_quickslot_add
 {
     uint16_t	header;
     uint16_t	length;
-    uint8_t        pos;
+    uint16_t    pos;
 	TQuickSlot	slot;
 }TPacketCGQuickSlotAdd;
 
@@ -777,15 +779,15 @@ typedef struct command_quickslot_del
 {
     uint16_t	header;
     uint16_t	length;
-    uint8_t        pos;
+    uint16_t    pos;
 }TPacketCGQuickSlotDel;
 
 typedef struct command_quickslot_swap
 {
     uint16_t	header;
     uint16_t	length;
-    uint8_t        pos;
-    uint8_t        change_pos;
+    uint16_t     pos;
+    uint16_t    change_pos;
 }TPacketCGQuickSlotSwap;
 
 typedef struct command_on_click
@@ -1101,9 +1103,9 @@ typedef struct command_give_item
 {
 	uint16_t	header;
 	uint16_t	length;
-	uint32_t dwTargetVID;
-	TItemPos ItemPos;
-	uint8_t byItemCount;
+	uint32_t    dwTargetVID;
+	TItemPos    ItemPos;
+	uint16_t    itemCount;
 } TPacketCGGiveItem;
 
 typedef struct SPacketCGHack
@@ -1142,8 +1144,8 @@ typedef struct SPacketCGRefine
 {
 	uint16_t	header;
 	uint16_t	length;
-	uint8_t		sourcePos;
-	uint8_t		targetPos;
+	uint16_t	sourcePos;
+	uint16_t	targetPos;
 	uint8_t		type;
 } TPacketCGRefine;
 
@@ -1862,7 +1864,7 @@ typedef struct packet_quickslot_add
 {
     uint16_t	header;
     uint16_t	length;
-    uint8_t        pos;
+    uint16_t    pos;
 	TQuickSlot	slot;
 } TPacketGCQuickSlotAdd;
 
@@ -1870,15 +1872,15 @@ typedef struct packet_quickslot_del
 {
     uint16_t	header;
     uint16_t	length;
-    uint8_t        pos;
+    uint16_t    pos;
 } TPacketGCQuickSlotDel;
 
 typedef struct packet_quickslot_swap
 {
     uint16_t	header;
     uint16_t	length;
-    uint8_t        pos;
-    uint8_t        change_pos;
+    uint16_t    pos;
+    uint16_t    change_pos;
 } TPacketGCQuickSlotSwap;
 
 typedef struct packet_shop_start
@@ -2372,8 +2374,8 @@ typedef struct SPacketGCRefineInformation
     uint16_t header;
     uint16_t length;
     uint8_t  type;
-    uint8_t  sourcePos;
-    uint8_t  targetPos;
+    uint16_t  sourcePos;
+    uint16_t  targetPos;
     TRefineTable refine_table;
 } TPacketGCRefineInformation;
 
@@ -2382,8 +2384,8 @@ typedef struct SPacketGCRefineInformationNew
 	uint16_t	    header;
 	uint16_t	    length;
 	uint8_t		    type;
-    uint8_t         sourcePos;
-    uint8_t         targetPos;
+    uint16_t        sourcePos;
+    uint16_t        targetPos;
 	TRefineTable	refine_table;
 } TPacketGCRefineInformationNew;
 
@@ -2748,5 +2750,31 @@ typedef struct SShoulderSashResult
     uint32_t    dwMinAbs;
     uint32_t    dwMaxAbs;
 } TShoulderSashResult;
+
+typedef struct SPacketGCExtendInventory
+{
+    uint16_t	header;
+    uint16_t	length;
+    uint8_t		subheader;
+    uint32_t	dwId1;
+    uint32_t	dwId2;
+    uint32_t	dwId3;
+    uint16_t	wExtendInventoryMax;
+    uint16_t	wExtendInventoryStage;
+} TPacketGCExtendInventory;
+
+enum EExtendInventoryTypes
+{
+    SET_STAGE_EXTEND_INVENTORY = 0,
+    NOTIFY_EXTEND_INVENTORY_ITEM_USE = 1,
+    SET_MAX_EXTEND_INVENTORY = 2,
+};
+
+typedef struct SPacketCGExtendInventory
+{
+    uint16_t	header;
+    uint16_t	length;
+    uint8_t		subheader;
+} TPacketCGExtendInventory;
 
 #pragma pack(pop)

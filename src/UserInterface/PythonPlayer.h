@@ -322,11 +322,16 @@ class CPythonPlayer : public CSingleton<CPythonPlayer>, public IAbstractPlayer
 
 		bool	IsEquipItemInSlot(TItemPos iSlotIndex);
 
+		int		GetExtendInventoryStage();
+		void	SetExtendInventoryStage(short inventoryStage);
+		
+		int		GetExtendInventoryMax();
+		void	SetExtendInventoryMax(short inventoryMax);
 
 		// Quickslot
 		int		GetQuickPage();
 		void	SetQuickPage(int nPageIndex);
-		void	AddQuickSlot(int QuickslotIndex, char IconType, char IconPosition);
+		void	AddQuickSlot(int QuickslotIndex, char IconType, short IconPosition);
 		void	DeleteQuickSlot(int QuickslotIndex);
 		void	MoveQuickSlot(int Source, int Target);
 
@@ -673,6 +678,9 @@ class CPythonPlayer : public CSingleton<CPythonPlayer>, public IAbstractPlayer
 		DWORD					m_dwTargetVID;
 		DWORD					m_dwTargetEndTime;
 		DWORD					m_dwPlayTime;
+
+		DWORD					m_dwExtendInventoryStage;
+		DWORD					m_dwExtendInventoryMax;
 
 		SAutoPotionInfo			m_kAutoPotionInfo[AUTO_POTION_TYPE_NUM];
 

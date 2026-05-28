@@ -167,9 +167,9 @@ class CPythonNetworkStream : public CNetworkStream, public CSingleton<CPythonNet
 		bool SendItemMovePacket(TItemPos pos, TItemPos change_pos, WORD num);
 		bool SendItemPickUpPacket(DWORD vid);
 
-		bool SendQuickSlotAddPacket(BYTE wpos, BYTE type, BYTE pos);
-		bool SendQuickSlotDelPacket(BYTE wpos);
-		bool SendQuickSlotMovePacket(BYTE wpos, BYTE change_pos);
+		bool SendQuickSlotAddPacket(USHORT wpos, BYTE type, USHORT pos);
+		bool SendQuickSlotDelPacket(USHORT wpos);
+		bool SendQuickSlotMovePacket(USHORT wpos, USHORT change_pos);
 
 		// PointReset 개 임시
 		bool SendPointResetPacket();
@@ -178,7 +178,7 @@ class CPythonNetworkStream : public CNetworkStream, public CSingleton<CPythonNet
 		bool SendShopEndPacket();
 		bool SendShopBuyPacket(BYTE byCount);
 		bool SendShopSellPacket(BYTE bySlot);
-		bool SendShopSellPacketNew(BYTE bySlot, WORD wCount);
+		bool SendShopSellPacketNew(USHORT bySlot, WORD wCount);
 
 		// Gem Shop
 		bool SendGemShopBuyPacket(BYTE bPos);
@@ -272,7 +272,7 @@ class CPythonNetworkStream : public CNetworkStream, public CSingleton<CPythonNet
 		bool SendBuildPrivateShopPacket(const char * c_szName, const std::vector<TShopItemTable> & c_rSellingItemStock);
 
 		// Refine
-		bool SendRefinePacket(BYTE bySourcePos, BYTE byTargetPos, BYTE byType);
+		bool SendRefinePacket(USHORT bySourcePos, USHORT byTargetPos, BYTE byType);
 		bool SendSelectItemPacket(DWORD dwItemPos);
 
 		// Client Version
@@ -301,6 +301,9 @@ class CPythonNetworkStream : public CNetworkStream, public CSingleton<CPythonNet
 		bool SendShoulderSashAddPacket(TItemPos tPos, BYTE bPos);
 		bool SendShoulderSashRemovePacket(BYTE bPos);
 		bool SendShoulderSashRefinePacket();
+
+		bool SendExtendInventoryUpgradePacket();
+		bool SendExtendInventoryButtonClickPacket(int index);
 
 	//////////////////////////////////////////////////////////////////////////
 	// Phase 관련
@@ -610,6 +613,8 @@ class CPythonNetworkStream : public CNetworkStream, public CSingleton<CPythonNet
 		// Affect
 		bool RecvAffectAddPacket();
 		bool RecvAffectRemovePacket();
+
+		bool RecvExtendInventoryPacket();
 
 		// Channel
 		bool RecvChannelPacket();

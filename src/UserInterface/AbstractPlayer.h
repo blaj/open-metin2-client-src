@@ -39,7 +39,7 @@ class IAbstractPlayer : public TAbstractSingleton<IAbstractPlayer>
 
 		virtual bool	IsEquipItemInSlot(TItemPos itemPos) = 0;
 
-		virtual void	AddQuickSlot(int QuickslotIndex, char IconType, char IconPosition) = 0;
+		virtual void	AddQuickSlot(int QuickslotIndex, char IconType, short IconPosition) = 0;
 		virtual void	DeleteQuickSlot(int QuickslotIndex) = 0;
 		virtual void	MoveQuickSlot(int Source, int Target) = 0;
 

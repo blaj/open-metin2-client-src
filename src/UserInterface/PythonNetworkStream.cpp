@@ -915,6 +915,8 @@ void CPythonNetworkStream::RegisterGameHandlers()
 
 	h[GC::SHOULDER_SASH]		  = { &CPythonNetworkStream::RecvShoulderSashPacket,	   sizeof(TPacketShoulderSash),					false };
 	h[GC::GAME_MASTERS_NAMES]	  = { &CPythonNetworkStream::RecvGameMastersNamesPacket,   sizeof(TPacketGCGameMastersNames),			false };
+
+	h[GC::EXTEND_INVENTORY]		  = { &CPythonNetworkStream::RecvExtendInventoryPacket,   sizeof(TPacketGCExtendInventory),				false };
 }
 
 void CPythonNetworkStream::RegisterLoadingHandlers()

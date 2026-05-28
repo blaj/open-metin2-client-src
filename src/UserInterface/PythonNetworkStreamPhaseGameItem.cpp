@@ -473,7 +473,7 @@ bool CPythonNetworkStream::SendShopSellPacket(BYTE bySlot)
 	return true;
 }
 
-bool CPythonNetworkStream::SendShopSellPacketNew(BYTE bySlot, WORD wCount)
+bool CPythonNetworkStream::SendShopSellPacketNew(USHORT bySlot, WORD wCount)
 {
 	if (!__CanActMainInstance())
 		return true;
@@ -725,7 +725,7 @@ bool CPythonNetworkStream::SendItemPickUpPacket(DWORD vid)
 }
 
 
-bool CPythonNetworkStream::SendQuickSlotAddPacket(BYTE wpos, BYTE type, BYTE pos)
+bool CPythonNetworkStream::SendQuickSlotAddPacket(USHORT wpos, BYTE type, USHORT pos)
 {
 	if (!__CanActMainInstance())
 		return true;
@@ -747,7 +747,7 @@ bool CPythonNetworkStream::SendQuickSlotAddPacket(BYTE wpos, BYTE type, BYTE pos
 	return true;
 }
 
-bool CPythonNetworkStream::SendQuickSlotDelPacket(BYTE pos)
+bool CPythonNetworkStream::SendQuickSlotDelPacket(USHORT pos)
 {
 	if (!__CanActMainInstance())
 		return true;
@@ -767,7 +767,7 @@ bool CPythonNetworkStream::SendQuickSlotDelPacket(BYTE pos)
 	return true;
 }
 
-bool CPythonNetworkStream::SendQuickSlotMovePacket(BYTE pos, BYTE change_pos)
+bool CPythonNetworkStream::SendQuickSlotMovePacket(USHORT pos, USHORT change_pos)
 {
 	if (!__CanActMainInstance())
 		return true;

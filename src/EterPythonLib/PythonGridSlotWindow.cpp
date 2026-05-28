@@ -41,10 +41,17 @@ void CGridSlotWindow::OnRenderPickingSlot()
 		}
 
 		// 아니면 그냥 옮기기
-		if (CheckMoving(dwSlotNumber, dwItemIndex, SlotList))
-			CPythonGraphic::Instance().SetDiffuseColor(1.0f, 1.0f, 1.0f, 0.5f);
+		if (!CheckMoving(dwSlotNumber, dwItemIndex, SlotList))
+		{
+			if (CheckSwappable(byHeight, SlotList))
+				CPythonGraphic::Instance().SetDiffuseColor(0.0f, 0.55f, 0.55f, 0.5f);
+			else
+				CPythonGraphic::Instance().SetDiffuseColor(1.0f, 0.0f, 0.0f, 0.5f);
+		}
 		else
-			CPythonGraphic::Instance().SetDiffuseColor(1.0f, 0.0f, 0.0f, 0.5f);
+		{
+			CPythonGraphic::Instance().SetDiffuseColor(1.0f, 1.0f, 1.0f, 0.5f);
+		}
 
 		RECT Rect;
 		Rect.left = m_rect.right;
@@ -63,6 +70,36 @@ void CGridSlotWindow::OnRenderPickingSlot()
 
 		CPythonGraphic::Instance().RenderBar2d(Rect.left, Rect.top, Rect.right, Rect.bottom);
 	}
+}
+
+BOOL CGridSlotWindow::CheckSwappable(BYTE bySrcHeight, const std::list<TSlot*>& c_rDstSlotList)
+{
+	std::set<DWORD> processedCenters;
+	int totalDisplacedHeight = 0;
+
+	for (const TSlot* pSlot : c_rDstSlotList)
+	{
+		DWORD dwCenter = pSlot->dwCenterSlotNumber;
+
+		if (!pSlot->isItem && dwCenter == pSlot->dwSlotNumber)
+			continue;
+
+		if (processedCenters.count(dwCenter))
+			continue;
+
+		processedCenters.insert(dwCenter);
+
+		TSlot* pCenter;
+		if (!GetSlotPointer(dwCenter, &pCenter) || !pCenter->isItem)
+			continue;
+
+		totalDisplacedHeight += pCenter->byyPlacedItemSize;
+	}
+
+	if (processedCenters.empty())
+		return FALSE;
+
+	return totalDisplacedHeight <= bySrcHeight;
 }
 
 BOOL CGridSlotWindow::GetPickedSlotPointer(TSlot ** ppSlot)
@@ -96,13 +133,6 @@ BOOL CGridSlotWindow::GetPickedSlotPointer(TSlot ** ppSlot)
 			if (pSlot->dwSlotNumber < pMinSlot->dwSlotNumber)
 			{
 				pMinSlot = pSlot;
-			}
-			else
-			{
-				if (!pMinSlot->isItem && pSlot->isItem)
-				{
-					pMinSlot = pSlot;
-				}
 			}
 		}
 	}

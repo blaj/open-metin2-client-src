@@ -2247,7 +2247,17 @@ PyObject* playerGetGemShopRefreshTime(PyObject* poSelf, PyObject* poArgs)
 
 PyObject* playerGetGem(PyObject* poSelf, PyObject* poArgs)
 {
-	return Py_BuildValue("b", CPythonPlayer::Instance().GetStatus(POINT_GEM));
+	return Py_BuildValue("l", CPythonPlayer::Instance().GetStatus(POINT_GEM));
+}
+
+PyObject* playerGetExtendInventoryStage(PyObject* poSelf, PyObject* poArgs)
+{
+	return Py_BuildValue("i", CPythonPlayer::Instance().GetExtendInventoryStage());
+}
+
+PyObject* playerGetExtendInventoryMax(PyObject* poSelf, PyObject* poArgs)
+{
+	return Py_BuildValue("i", CPythonPlayer::Instance().GetExtendInventoryMax());
 }
 
 void initPlayer()
@@ -2421,6 +2431,9 @@ void initPlayer()
 		{ "GetGemShopItemStatus",		playerGetGemShopItemStatus,			METH_VARARGS },
 		{ "GetGemShopRefreshTime",		playerGetGemShopRefreshTime,		METH_VARARGS },
 		{ "GetGem",						playerGetGem,						METH_VARARGS },
+
+		{ "GetExtendInventoryStage",				playerGetExtendInventoryStage,				METH_VARARGS },
+		{ "GetExtendInventoryMax",					playerGetExtendInventoryMax,				METH_VARARGS },
 
 		{ NULL,							NULL,								NULL },
 	};
@@ -2740,4 +2753,7 @@ void initPlayer()
 	PyModule_AddIntConstant(poModule, "DS_SUB_HEADER_DO_IMPROVEMENT",	DragonSoulSub::DO_IMPROVEMENT);
 	PyModule_AddIntConstant(poModule, "DS_SUB_HEADER_DO_REFINE",	DragonSoulSub::DO_REFINE);
 
+	PyModule_AddIntConstant(poModule, "EXTEND_INVENTORY_PAGE_COUNT", c_ExtendInventory_PageCount);
+	PyModule_AddIntConstant(poModule, "EXTEND_INVENTORY_PAGE_START", c_ExtendInventory_PageStart);
+	PyModule_AddIntConstant(poModule, "EXTEND_INVENTORY_STAGE_MAX", c_ExtendInventory_StageMax);
 }

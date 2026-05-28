@@ -820,7 +820,7 @@ TQuickSlot & CPythonPlayer::__RefGlobalQuickSlot(int SlotIndex)
 
 void CPythonPlayer::RemoveQuickSlotByValue(int iType, int iPosition)
 {
-	for (BYTE i = 0; i < QUICKSLOT_MAX_NUM; ++i)
+	for (USHORT i = 0; i < QUICKSLOT_MAX_NUM; ++i)
 	{
 		if (iType == m_playerStatus.aQuickSlot[i].Type)
 			if (iPosition == m_playerStatus.aQuickSlot[i].Position)
@@ -842,7 +842,7 @@ void CPythonPlayer::RequestMoveGlobalQuickSlotToLocalQuickSlot(DWORD dwGlobalSrc
 	DWORD dwGlobalDstSlotIndex=LocalQuickSlotIndexToGlobalQuickSlotIndex(dwLocalDstSlotIndex);
 
 	CPythonNetworkStream& rkNetStream=CPythonNetworkStream::Instance();
-	rkNetStream.SendQuickSlotMovePacket((BYTE) dwGlobalSrcSlotIndex, (BYTE)dwGlobalDstSlotIndex);
+	rkNetStream.SendQuickSlotMovePacket((USHORT) dwGlobalSrcSlotIndex, (USHORT)dwGlobalDstSlotIndex);
 }
 
 void CPythonPlayer::RequestAddLocalQuickSlot(DWORD dwLocalSlotIndex, DWORD dwWndType, DWORD dwWndItemPos)
@@ -853,7 +853,7 @@ void CPythonPlayer::RequestAddLocalQuickSlot(DWORD dwLocalSlotIndex, DWORD dwWnd
 	DWORD dwGlobalSlotIndex=LocalQuickSlotIndexToGlobalQuickSlotIndex(dwLocalSlotIndex);
 
 	CPythonNetworkStream& rkNetStream=CPythonNetworkStream::Instance();
-	rkNetStream.SendQuickSlotAddPacket((BYTE)dwGlobalSlotIndex, (BYTE)dwWndType, (BYTE)dwWndItemPos);
+	rkNetStream.SendQuickSlotAddPacket((BYTE)dwGlobalSlotIndex, (BYTE)dwWndType, (USHORT)dwWndItemPos);
 }
 
 void CPythonPlayer::RequestAddToEmptyLocalQuickSlot(DWORD dwWndType, DWORD dwWndItemPos)
@@ -866,7 +866,7 @@ void CPythonPlayer::RequestAddToEmptyLocalQuickSlot(DWORD dwWndType, DWORD dwWnd
         {
             DWORD dwGlobalQuickSlotIndex=LocalQuickSlotIndexToGlobalQuickSlotIndex(i);
             CPythonNetworkStream& rkNetStream=CPythonNetworkStream::Instance();
-            rkNetStream.SendQuickSlotAddPacket((BYTE)dwGlobalQuickSlotIndex, (BYTE)dwWndType, (BYTE)dwWndItemPos);
+            rkNetStream.SendQuickSlotAddPacket((BYTE)dwGlobalQuickSlotIndex, (BYTE)dwWndType, (USHORT)dwWndItemPos);
             return;
         }
     }
@@ -884,7 +884,7 @@ void CPythonPlayer::RequestDeleteGlobalQuickSlot(DWORD dwGlobalSlotIndex)
 	//DWORD dwGlobalSlotIndex=LocalQuickSlotIndexToGlobalQuickSlotIndex(dwLocalSlotIndex);
 
 	CPythonNetworkStream& rkNetStream=CPythonNetworkStream::Instance();
-	rkNetStream.SendQuickSlotDelPacket((BYTE)dwGlobalSlotIndex);
+	rkNetStream.SendQuickSlotDelPacket((USHORT)dwGlobalSlotIndex);
 }
 
 void CPythonPlayer::RequestUseLocalQuickSlot(DWORD dwLocalSlotIndex)
@@ -917,7 +917,7 @@ void CPythonPlayer::RequestUseLocalQuickSlot(DWORD dwLocalSlotIndex)
 	}
 }
 
-void CPythonPlayer::AddQuickSlot(int QuickSlotIndex, char IconType, char IconPosition)
+void CPythonPlayer::AddQuickSlot(int QuickSlotIndex, char IconType, short IconPosition)
 {
 	if (QuickSlotIndex < 0 || QuickSlotIndex >= QUICKSLOT_MAX_NUM)
 		return;
@@ -993,6 +993,25 @@ bool CPythonPlayer::IsEquipItemInSlot(TItemPos Cell)
 	return pItemData->IsEquipment() ? true : false;
 }
 
+int CPythonPlayer::GetExtendInventoryStage()
+{
+	return m_dwExtendInventoryStage;;
+}
+
+void CPythonPlayer::SetExtendInventoryStage(short inventoryStage)
+{
+	m_dwExtendInventoryStage = inventoryStage;
+}
+
+int CPythonPlayer::GetExtendInventoryMax()
+{
+	return m_dwExtendInventoryMax;
+}
+
+void CPythonPlayer::SetExtendInventoryMax(short inventoryMax)
+{
+	m_dwExtendInventoryMax = inventoryMax;
+}
 
 void CPythonPlayer::SetSkill(DWORD dwSlotIndex, DWORD dwSkillIndex)
 {

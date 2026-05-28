@@ -3886,7 +3886,7 @@ bool CPythonNetworkStream::SendGiveItemPacket(DWORD dwTargetVID, TItemPos ItemPo
 	GiveItemPacket.length = sizeof(GiveItemPacket);
 	GiveItemPacket.dwTargetVID = dwTargetVID;
 	GiveItemPacket.ItemPos = ItemPos;
-	GiveItemPacket.byItemCount = iItemCount;
+	GiveItemPacket.itemCount = iItemCount;
 
 	if (!Send(sizeof(GiveItemPacket), &GiveItemPacket))
 		return false;
@@ -4119,7 +4119,7 @@ void CPythonNetworkStream::__TEST_SetSkillGroupFake(int iIndex)
 	PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "RefreshCharacter", Py_BuildValue("()"));
 }
 
-bool CPythonNetworkStream::SendRefinePacket(BYTE bySourcePos, BYTE byTargetPos, BYTE byType)
+bool CPythonNetworkStream::SendRefinePacket(USHORT bySourcePos, USHORT byTargetPos, BYTE byType)
 {
 	TPacketCGRefine kRefinePacket;
 	kRefinePacket.header = CG::REFINE;
@@ -4304,6 +4304,87 @@ bool CPythonNetworkStream::RecvAffectRemovePacket()
 		return false;
 
 	PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "BINARY_NEW_RemoveAffect", Py_BuildValue("(ii)", kAffectRemove.dwType, kAffectRemove.bApplyOn));
+
+	return true;
+}
+
+bool CPythonNetworkStream::SendExtendInventoryUpgradePacket()
+{
+	if (!__CanActMainInstance())
+		return true;
+
+	TPacketCGExtendInventory ExtendInventoryUpgradePacket;
+
+	ExtendInventoryUpgradePacket.header = CG::EXTEND_INVENTORY;
+	ExtendInventoryUpgradePacket.length = sizeof(ExtendInventoryUpgradePacket);
+	ExtendInventoryUpgradePacket.subheader = 0;
+
+	if (!Send(sizeof(ExtendInventoryUpgradePacket), &ExtendInventoryUpgradePacket))
+	{
+		Tracef("ExtendInventoryUpgradePacket Error\n");
+		return false;
+	}
+
+	return true;
+}
+
+bool CPythonNetworkStream::SendExtendInventoryButtonClickPacket(int index)
+{
+	TPacketCGExtendInventory ExtendInventoryButtonClickPacket;
+	ExtendInventoryButtonClickPacket.header = CG::EXTEND_INVENTORY;
+	ExtendInventoryButtonClickPacket.length = sizeof(ExtendInventoryButtonClickPacket);
+	ExtendInventoryButtonClickPacket.subheader = 1;
+
+	if (!Send(sizeof(ExtendInventoryButtonClickPacket), &ExtendInventoryButtonClickPacket))
+	{
+		Tracef("ExtendInventoryButtonClickPacket Error\n");
+		return false;
+	}
+
+	return true;
+}
+
+bool CPythonNetworkStream::RecvExtendInventoryPacket()
+{
+	TPacketGCExtendInventory ExtendInventoryPacket;
+
+	if (!Peek(sizeof(ExtendInventoryPacket), &ExtendInventoryPacket))
+	{
+		Tracen("Recv ExtendInventory Info Packet Error #1");
+		return false;
+	}
+
+	switch (ExtendInventoryPacket.subheader)
+	{
+	case SET_STAGE_EXTEND_INVENTORY:
+	{
+		if (!Recv(sizeof(ExtendInventoryPacket), &ExtendInventoryPacket))
+			return false;
+
+		CPythonPlayer::instance().SetExtendInventoryStage(ExtendInventoryPacket.wExtendInventoryStage);
+		break;
+	}
+	case NOTIFY_EXTEND_INVENTORY_ITEM_USE:
+	{
+		if (!Recv(sizeof(ExtendInventoryPacket), &ExtendInventoryPacket))
+			return false;
+
+		PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "ExtendInventoryItemUseMessage", Py_BuildValue("(iii)", ExtendInventoryPacket.dwId1, ExtendInventoryPacket.dwId2, ExtendInventoryPacket.dwId3));
+		break;
+	}
+	case SET_MAX_EXTEND_INVENTORY:
+	{
+		if (!Recv(sizeof(ExtendInventoryPacket), &ExtendInventoryPacket))
+			return false;
+
+		CPythonPlayer::instance().SetExtendInventoryMax(ExtendInventoryPacket.wExtendInventoryMax);
+
+		break;
+	}
+	}
+
+	__RefreshStatus();
+	__RefreshInventoryWindow();
 
 	return true;
 }

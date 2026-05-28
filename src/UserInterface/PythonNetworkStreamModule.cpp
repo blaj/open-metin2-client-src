@@ -1666,6 +1666,23 @@ PyObject* netSendGemShopClosePacket(PyObject* poSelf, PyObject* poArgs)
 	return Py_BuildNone();
 }
 
+PyObject* netSendExtendInventoryButtonClickPacket(PyObject* poSelf, PyObject* poArgs)
+{
+	int index;
+	if (!PyTuple_GetInteger(poArgs, 0, &index))
+		return Py_BuildException();
+
+	CPythonNetworkStream::Instance().SendExtendInventoryButtonClickPacket(index);
+
+	return Py_BuildNone();
+}
+
+PyObject* netSendExtendInventoryUpgradePacket(PyObject* poSelf, PyObject* poArgs)
+{
+	CPythonNetworkStream::Instance().SendExtendInventoryUpgradePacket();
+	return Py_BuildNone();
+}
+
 void initnet()
 {
 	static PyMethodDef s_methods[] =
@@ -1830,6 +1847,9 @@ void initnet()
 		{ "SendGemShopAddPacket",					netSendGemShopAddPacket,					METH_VARARGS },
 		{ "SendGemShopRefreshPacket",				netSendGemShopRefreshPacket,				METH_VARARGS },
 		{ "SendGemShopClosePacket",					netSendGemShopClosePacket,					METH_VARARGS },
+
+		{ "SendExtendInventoryButtonClickPacket",	netSendExtendInventoryButtonClickPacket,	METH_VARARGS },
+		{ "SendExtendInventoryUpgradePacket",		netSendExtendInventoryUpgradePacket,		METH_VARARGS },
 
 		{ NULL,										NULL,										NULL },
 	};

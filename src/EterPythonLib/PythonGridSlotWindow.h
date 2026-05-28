@@ -30,6 +30,7 @@ namespace UI
 
 			void OnRefreshSlot();
 			void OnRenderPickingSlot();
+			BOOL CheckSwappable(BYTE bySrcHeight, const std::list<TSlot*>& c_rDstSlotList);
 
 		protected:
 			DWORD m_dwxCount;
