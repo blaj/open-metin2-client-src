@@ -790,6 +790,7 @@ void CPythonNetworkStream::RegisterGameHandlers()
 	h[GC::SYNC_POSITION]          = { &CPythonNetworkStream::RecvSyncPositionPacket,       sizeof(TPacketGCC2C),                        false };
 	h[GC::OWNERSHIP]              = { &CPythonNetworkStream::RecvOwnerShipPacket,          sizeof(TPacketGCOwnership),                  false };
 	h[GC::WHISPER]                = { &CPythonNetworkStream::RecvWhisperPacket,            sizeof(TPacketGCWhisper),                    false };
+	h[GC::WHISPER_TYPING]         = { &CPythonNetworkStream::RecvWhisperTypingPacket,      sizeof(TPacketGCWhisperTyping),              false };
 	h[GC::MOVE]                   = { &CPythonNetworkStream::RecvCharacterMovePacket,      sizeof(TPacketGCMove),                       false };
 	h[GC::CHARACTER_POSITION]     = { &CPythonNetworkStream::RecvCharacterPositionPacket,  sizeof(TPacketGCPosition),                   false };
 

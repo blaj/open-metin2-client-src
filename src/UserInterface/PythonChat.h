@@ -73,6 +73,7 @@ class CPythonChat : public CSingleton<CPythonChat>, public IAbstractChat
 			WHISPER_TYPE_SENDER_BLOCKED     = 3,
 			WHISPER_TYPE_ERROR              = 4,
 			WHISPER_TYPE_GM                 = 5,
+			WHISPER_TYPE_OFFLINE            = 6,
 			WHISPER_TYPE_SYSTEM             = 0xFF
 		};
 

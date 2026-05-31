@@ -472,6 +472,23 @@ PyObject* netSendWhisperPacket(PyObject* poSelf, PyObject* poArgs)
 	return Py_BuildNone();
 }
 
+PyObject* netSendWhisperTypingPacket(PyObject* poSelf, PyObject* poArgs)
+{
+	char* szName;
+	bool bIsTyping;
+
+	if (!PyTuple_GetString(poArgs, 0, &szName))
+		return Py_BuildException();
+
+	if (!PyTuple_GetBoolean(poArgs, 1, &bIsTyping))
+		return Py_BuildException();
+
+	CPythonNetworkStream& rkNetStream = CPythonNetworkStream::Instance();
+	rkNetStream.SendWhisperTypingPacket(szName, bIsTyping);
+
+	return Py_BuildNone();
+}
+
 PyObject* netSendCharacterPositionPacket(PyObject* poSelf, PyObject* poArgs)
 {
 	int iPosition;
@@ -1000,6 +1017,45 @@ PyObject* netSendMessengerRemovePacket(PyObject* poSelf, PyObject* poArgs)
 	CPythonNetworkStream& rns=CPythonNetworkStream::Instance();
 	rns.SendMessengerRemovePacket(szKey, szName);
 	
+	return Py_BuildNone();
+}
+
+PyObject* netSendMessengerAddBlockByVIDPacket(PyObject* poSelf, PyObject* poArgs)
+{
+	int vid;
+	if (!PyTuple_GetInteger(poArgs, 0, &vid))
+		return Py_BuildException();
+
+	CPythonNetworkStream& rns = CPythonNetworkStream::Instance();
+	rns.SendMessengerAddBlockByVIDPacket(vid);
+
+	return Py_BuildNone();
+}
+
+PyObject* netSendMessengerAddBlockByNamePacket(PyObject* poSelf, PyObject* poArgs)
+{
+	char* szName;
+	if (!PyTuple_GetString(poArgs, 0, &szName))
+		return Py_BuildException();
+
+	CPythonNetworkStream& rns = CPythonNetworkStream::Instance();
+	rns.SendMessengerAddBlockByNamePacket(szName);
+
+	return Py_BuildNone();
+}
+
+PyObject* netSendMessengerBlockRemovePacket(PyObject* poSelf, PyObject* poArgs)
+{
+	char* szKey;
+	if (!PyTuple_GetString(poArgs, 0, &szKey))
+		return Py_BuildException();
+	char* szName;
+	if (!PyTuple_GetString(poArgs, 1, &szName))
+		return Py_BuildException();
+
+	CPythonNetworkStream& rns = CPythonNetworkStream::Instance();
+	rns.SendMessengerRemoveBlockPacket(szKey, szName);
+
 	return Py_BuildNone();
 }
 
@@ -1758,6 +1814,7 @@ void initnet()
 		{ "SendChatPacket",						netSendChatPacket,						METH_VARARGS },
 		{ "SendEmoticon",						netSendEmoticon,						METH_VARARGS },
 		{ "SendWhisperPacket",					netSendWhisperPacket,					METH_VARARGS },
+		{ "SendWhisperTypingPacket",			netSendWhisperTypingPacket,				METH_VARARGS },
 
 		{ "SendCharacterPositionPacket",		netSendCharacterPositionPacket,			METH_VARARGS },
 
@@ -1779,9 +1836,12 @@ void initnet()
 		{ "RegisterEmoticonString",				netRegisterEmoticonString,				METH_VARARGS },
 
 		// Messenger
-		{ "SendMessengerAddByVIDPacket",		netSendMessengerAddByVIDPacket,			METH_VARARGS },
-		{ "SendMessengerAddByNamePacket",		netSendMessengerAddByNamePacket,		METH_VARARGS },
-		{ "SendMessengerRemovePacket",			netSendMessengerRemovePacket,			METH_VARARGS },
+		{ "SendMessengerAddByVIDPacket",			netSendMessengerAddByVIDPacket,			METH_VARARGS },
+		{ "SendMessengerAddByNamePacket",			netSendMessengerAddByNamePacket,		METH_VARARGS },
+		{ "SendMessengerRemovePacket",				netSendMessengerRemovePacket,			METH_VARARGS },
+		{ "SendMessengerAddBlockByVIDPacket",		netSendMessengerAddBlockByVIDPacket,	METH_VARARGS },
+		{ "SendMessengerAddBlockByNamePacket",		netSendMessengerAddBlockByNamePacket,	METH_VARARGS },
+		{ "SendMessengerRemoveBlockPacket",			netSendMessengerBlockRemovePacket,		METH_VARARGS },
 
 		// Party
 		{ "SendPartyInvitePacket",				netSendPartyInvitePacket,				METH_VARARGS },

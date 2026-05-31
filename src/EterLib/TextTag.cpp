@@ -39,6 +39,16 @@ int GetTextTag(const wchar_t * src, int maxLen, int & tagLen, std::wstring & ext
         tagLen = 2;
         return TEXT_TAG_HYPERLINK_END;
     }
+    else if (*cur == L'E') // emoji |Epath/emo|e
+    {
+        tagLen = 2;
+        return TEXT_TAG_EMOJI_START;
+    }
+    else if (*cur == L'e') // end of emoji
+    {
+        tagLen = 2;
+        return TEXT_TAG_EMOJI_END;
+    }
 
     return TEXT_TAG_PLAIN;
 }
@@ -75,6 +85,10 @@ std::wstring GetTextTagOutputString(const wchar_t * src, int src_len)
             else if (hyperlinkStep == 2)
                 hyperlinkStep = 0;
         }
+        else if (tag == TEXT_TAG_EMOJI_START)
+            hyperlinkStep = 1;
+        else if (tag == TEXT_TAG_EMOJI_END)
+            hyperlinkStep = 0;
 
         i += len;
     }
@@ -130,6 +144,19 @@ int GetTextTagInternalPosFromRenderPos(const wchar_t * src, int src_len, int off
             else if (hyperlinkStep == 2)
                 hyperlinkStep = 0;
         }
+        else if (tag == TEXT_TAG_EMOJI_START)
+            hyperlinkStep = 1;
+        else if (tag == TEXT_TAG_EMOJI_END)
+        {
+            hyperlinkStep = 0;
+
+           internal_offset = i + len;
+
+            if (offset <= output_len)
+                return internal_offset;
+
+            ++output_len;
+        }
 
         i += len;
     }
@@ -160,6 +187,13 @@ int GetTextTagOutputLen(const wchar_t * src, int src_len)
             hyperlinkStep = 1;
         else if (tag == TEXT_TAG_HYPERLINK_END)
             hyperlinkStep = 0;
+        else if (tag == TEXT_TAG_EMOJI_START)
+            hyperlinkStep = 1;
+        else if (tag == TEXT_TAG_EMOJI_END)
+        {
+            hyperlinkStep = 0;
+            ++output_len;
+        }
 
         i += len;
     }
@@ -225,4 +259,50 @@ int FindColorTagEndPosition(const wchar_t * src, int src_len)
 		return 1;
 
 	return 0;
+}
+
+int GetAtomicTagLen(const wchar_t* src, int maxLen)
+{
+    if (maxLen < 2 || src[0] != L'|')
+        return 0;
+
+    if (src[1] == L'E')
+    {
+        for (int j = 2; j + 1 < maxLen; ++j)
+            if (src[j] == L'|' && src[j + 1] == L'e')
+                return j + 2;
+        return 0;
+    }
+
+    if (src[1] == L'H')
+    {
+        int hCount = 0;
+        for (int j = 2; j + 1 < maxLen; ++j)
+        {
+            if (src[j] == L'|' && src[j + 1] == L'h')
+            {
+                ++hCount;
+                if (hCount == 2)
+                    return j + 2;
+            }
+        }
+        return 0;
+    }
+
+    return 0;
+}
+
+int FindAtomicTagStart(const wchar_t* src, int pos, int lastpos)
+{
+    int scanStart = std::max(0, pos - 256);
+    for (int i = scanStart; i < pos; ++i)
+    {
+        if (src[i] != L'|')
+            continue;
+
+        int atomLen = GetAtomicTagLen(src + i, lastpos - i);
+        if (atomLen > 0 && i + atomLen > pos)
+            return i;
+    }
+    return -1;
 }

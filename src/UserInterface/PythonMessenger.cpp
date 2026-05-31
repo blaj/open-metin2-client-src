@@ -35,6 +35,38 @@ BOOL CPythonMessenger::IsFriendByName(const char * c_szName)
 	return IsFriendByKey(c_szName);
 }
 
+void CPythonMessenger::RemoveBlock(const char* c_szKey)
+{
+	m_BlockNameMap.erase(c_szKey);
+
+	PyCallClassMemberFunc(m_poMessengerHandler, "OnRemoveList", Py_BuildValue("(is)", MESSENGER_GROUP_INDEX_BLOCK, c_szKey));
+}
+
+void CPythonMessenger::OnBlockLogin(const char* c_szKey)
+{
+	m_BlockNameMap.insert(c_szKey);
+
+	if (m_poMessengerHandler)
+		PyCallClassMemberFunc(m_poMessengerHandler, "OnLogin", Py_BuildValue("(is)", MESSENGER_GROUP_INDEX_BLOCK, c_szKey));
+}
+
+void CPythonMessenger::OnBlockLogout(const char* c_szKey)
+{
+	m_BlockNameMap.insert(c_szKey);
+
+	if (m_poMessengerHandler)
+		PyCallClassMemberFunc(m_poMessengerHandler, "OnLogout", Py_BuildValue("(is)", MESSENGER_GROUP_INDEX_BLOCK, c_szKey));
+}
+BOOL CPythonMessenger::IsBlockByKey(const char* c_szKey)
+{
+	return (m_BlockNameMap.end() != m_BlockNameMap.find(c_szKey));
+}
+
+BOOL CPythonMessenger::IsBlockByName(const char* c_szName)
+{
+	return IsBlockByKey(c_szName);
+}
+
 void CPythonMessenger::AppendGuildMember(const char * c_szName)
 {
 	if (m_GuildMemberStateMap.end() != m_GuildMemberStateMap.find(c_szName))
@@ -125,6 +157,24 @@ PyObject * messengerIsFriendByName(PyObject* poSelf, PyObject* poArgs)
 	return Py_BuildValue("i", CPythonMessenger::Instance().IsFriendByName(szName));
 }
 
+PyObject* messengerIsBlockByName(PyObject* poSelf, PyObject* poArgs)
+{
+	char * szName;
+	if (!PyTuple_GetString(poArgs, 0, &szName))
+		return Py_BuildException();
+
+	return Py_BuildValue("i", CPythonMessenger::Instance().IsBlockByName(szName));
+}
+PyObject* messengerRemoveBlock(PyObject* poSelf, PyObject* poArgs)
+{
+	char * szKey;
+	if (!PyTuple_GetString(poArgs, 0, &szKey))
+		return Py_BuildException();
+
+	CPythonMessenger::Instance().RemoveBlock(szKey);
+	return Py_BuildNone();
+}
+
 PyObject * messengerDestroy(PyObject* poSelf, PyObject* poArgs)
 {
 	CPythonMessenger::Instance().Destroy();
@@ -153,10 +203,12 @@ void initMessenger()
 	{
 		{ "RemoveFriend",				messengerRemoveFriend,				METH_VARARGS },
 		{ "IsFriendByName",				messengerIsFriendByName,			METH_VARARGS } ,
+		{ "RemoveBlock",				messengerRemoveBlock,				METH_VARARGS },
+		{ "IsBlockByName",				messengerIsBlockByName,				METH_VARARGS },
 		{ "Destroy",					messengerDestroy,					METH_VARARGS },
 		{ "RefreshGuildMember",			messengerRefreshGuildMember,		METH_VARARGS },
 		{ "SetMessengerHandler",		messengerSetMessengerHandler,		METH_VARARGS },
-		
+
 		{ NULL,							NULL,								NULL         },
 	};
 

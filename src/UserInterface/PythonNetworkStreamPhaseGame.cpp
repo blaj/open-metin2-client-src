@@ -661,6 +661,53 @@ bool CPythonNetworkStream::SendMessengerRemovePacket(const char * c_szKey, const
 	return true;
 }
 
+bool CPythonNetworkStream::SendMessengerAddBlockByVIDPacket(DWORD vid)
+{
+	TPacketCGMessenger packet;
+	packet.header = CG::MESSENGER;
+	packet.length = sizeof(packet) + sizeof(vid);
+	packet.subheader = MessengerSub::CG::BLOCK_ADD_BY_VID;
+	if (!Send(sizeof(packet), &packet))
+		return false;
+	if (!Send(sizeof(vid), &vid))
+		return false;
+	return true;
+}
+
+bool CPythonNetworkStream::SendMessengerAddBlockByNamePacket(const char* c_szName)
+{
+	TPacketCGMessenger packet;
+	packet.header = CG::MESSENGER;
+	packet.length = sizeof(packet) + sizeof(char[CHARACTER_NAME_MAX_LEN]);
+	packet.subheader = MessengerSub::CG::BLOCK_ADD_BY_NAME;
+	if (!Send(sizeof(packet), &packet))
+		return false;
+	char szName[CHARACTER_NAME_MAX_LEN];
+	strncpy(szName, c_szName, CHARACTER_NAME_MAX_LEN - 1);
+	szName[CHARACTER_NAME_MAX_LEN - 1] = '\0'; // #720: ??? ?? ?? ?? ????? ?? ??
+
+	if (!Send(sizeof(szName), &szName))
+		return false;
+	Tracef(" SendMessengerAddBlockByNamePacket : %s\n", c_szName);
+	return true;
+}
+
+bool CPythonNetworkStream::SendMessengerRemoveBlockPacket(const char* c_szKey, const char* c_szName)
+{
+	TPacketCGMessenger packet;
+	packet.header = CG::MESSENGER;
+	packet.length = sizeof(packet) + sizeof(char[CHARACTER_NAME_MAX_LEN]);
+	packet.subheader = MessengerSub::CG::BLOCK_REMOVE;
+	if (!Send(sizeof(packet), &packet))
+		return false;
+	char szKey[CHARACTER_NAME_MAX_LEN];
+	strncpy(szKey, c_szKey, CHARACTER_NAME_MAX_LEN - 1);
+	if (!Send(sizeof(szKey), &szKey))
+		return false;
+	__RefreshTargetBoardByName(c_szName);
+	return true;
+}
+
 bool CPythonNetworkStream::SendCharacterStatePacket(const TPixelPosition& c_rkPPosDst, float fDstRot, UINT eFunc, UINT uArg)
 {
 	NANOBEGIN
@@ -1102,7 +1149,7 @@ bool CPythonNetworkStream::RecvWhisperPacket()
 	buf[whisperPacket.length - sizeof(whisperPacket)] = '\0';
 
 	static char line[256];
-	if (CPythonChat::WHISPER_TYPE_CHAT == whisperPacket.bType || CPythonChat::WHISPER_TYPE_GM == whisperPacket.bType)
+	if (CPythonChat::WHISPER_TYPE_CHAT == whisperPacket.bType || CPythonChat::WHISPER_TYPE_GM == whisperPacket.bType || CPythonChat::WHISPER_TYPE_OFFLINE == whisperPacket.bType)
 	{		
 		_snprintf(line, sizeof(line), "%s : %s", whisperPacket.szNameFrom, buf);
 		PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "OnRecvWhisper", Py_BuildValue("(iss)", (int) whisperPacket.bType, whisperPacket.szNameFrom, line));
@@ -1115,6 +1162,18 @@ bool CPythonNetworkStream::RecvWhisperPacket()
 	{
 		PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "OnRecvWhisperError", Py_BuildValue("(iss)", (int) whisperPacket.bType, whisperPacket.szNameFrom, buf));
 	}
+
+	return true;
+}
+
+bool CPythonNetworkStream::RecvWhisperTypingPacket()
+{
+	TPacketGCWhisperTyping WhisperTypingPacket;
+
+	if (!Recv(sizeof(WhisperTypingPacket), &WhisperTypingPacket))
+		return false;
+
+	PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "OnRecvWhisperTyping", Py_BuildValue("(sb)", WhisperTypingPacket.szNameFrom, WhisperTypingPacket.bIsTyping));
 
 	return true;
 }
@@ -1135,6 +1194,21 @@ bool CPythonNetworkStream::SendWhisperPacket(const char * name, const char * c_s
 		return false;
 
 	if (!Send(iTextLen, c_szChat))
+		return false;
+
+	return true;
+}
+
+bool CPythonNetworkStream::SendWhisperTypingPacket(const char* name, bool bIsTyping)
+{
+	TPacketCGWhisperTyping WhisperTypingPacket;
+	WhisperTypingPacket.header = CG::WHISPER_TYPING;
+	WhisperTypingPacket.length = sizeof(WhisperTypingPacket);
+	WhisperTypingPacket.bIsTyping = bIsTyping;
+
+	strncpy(WhisperTypingPacket.szNameTo, name, sizeof(WhisperTypingPacket.szNameTo) - 1);
+
+	if (!Send(sizeof(WhisperTypingPacket), &WhisperTypingPacket))
 		return false;
 
 	return true;
@@ -2822,6 +2896,55 @@ bool CPythonNetworkStream::RecvMessenger()
 			CPythonMessenger::Instance().RemoveFriend(char_name);
 			__RefreshTargetBoardByName(char_name);
 
+			break;
+		}
+
+		case MessengerSub::GC::BLOCK_LIST:
+		{
+			TPacketGCMessengerBlockListOnline onn;
+			while (iSize)
+			{
+				if (!Recv(sizeof(TPacketGCMessengerBlockListOffline), &onn))
+					return false;
+
+				if (!Recv(onn.length, char_name))
+					return false;
+
+				char_name[onn.length] = 0;
+
+				if (onn.connected & MESSENGER_CONNECTED_STATE_ONLINE)
+					CPythonMessenger::Instance().OnBlockLogin(char_name);
+				else
+					CPythonMessenger::Instance().OnBlockLogout(char_name);
+
+				iSize -= sizeof(TPacketGCMessengerBlockListOffline);
+				iSize -= onn.length;
+			}
+			break;
+		}
+
+		case MessengerSub::GC::BLOCK_LOGIN:
+		{
+			TPacketGCMessengerLogin pp;
+			if (!Recv(sizeof(pp), &pp))
+				return false;
+			if (!Recv(pp.length, char_name))
+				return false;
+			char_name[pp.length] = 0;
+			CPythonMessenger::Instance().OnBlockLogin(char_name);
+			__RefreshTargetBoardByName(char_name);
+			break;
+		}
+
+		case MessengerSub::GC::BLOCK_LOGOUT:
+		{
+			TPacketGCMessengerLogout logout2;
+			if (!Recv(sizeof(logout2), &logout2))
+				return false;
+			if (!Recv(logout2.length, char_name))
+				return false;
+			char_name[logout2.length] = 0;
+			CPythonMessenger::Instance().OnBlockLogout(char_name);
 			break;
 		}
 

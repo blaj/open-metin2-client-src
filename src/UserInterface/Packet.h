@@ -92,6 +92,7 @@ namespace CG
     // Chat
     constexpr uint16_t CHAT               = 0x0601;
     constexpr uint16_t WHISPER            = 0x0602;
+    constexpr uint16_t WHISPER_TYPING     = 0x0603;
 
     // Social
     constexpr uint16_t PARTY_INVITE       = 0x0701;
@@ -220,6 +221,7 @@ namespace GC
     // Chat
     constexpr uint16_t CHAT               = 0x0603;
     constexpr uint16_t WHISPER            = 0x0604;
+    constexpr uint16_t WHISPER_TYPING     = 0x0605;
 
     // Social
     constexpr uint16_t PARTY_INVITE       = 0x0710;
@@ -402,6 +404,9 @@ namespace MessengerSub {
         ADD_BY_NAME,
         REMOVE,
         INVITE_ANSWER,  // Added to match server packet_headers.h
+        BLOCK_ADD_BY_VID,
+        BLOCK_ADD_BY_NAME,
+        BLOCK_REMOVE
     }; }
     namespace GC { enum : uint8_t {
         LIST,
@@ -409,6 +414,10 @@ namespace MessengerSub {
         LOGOUT,
         INVITE,
         REMOVE_FRIEND,
+        BLOCK_LIST,
+        BLOCK_LOGIN,
+        BLOCK_LOGOUT,
+        BLOCK_INVITE
     }; }
 }
 
@@ -707,6 +716,14 @@ typedef struct command_whisper
     char        szNameTo[CHARACTER_NAME_MAX_LEN + 1];
 } TPacketCGWhisper;
 
+typedef struct command_whisper_typing
+{
+    uint16_t	header;
+    uint16_t	length;
+    char        szNameTo[CHARACTER_NAME_MAX_LEN + 1];
+    uint8_t     bIsTyping;
+} TPacketCGWhisperTyping;
+
 enum EBattleMode
 {
 	BATTLEMODE_ATTACK = 0,
@@ -940,9 +957,21 @@ typedef struct packet_messenger
 
 typedef struct packet_messenger_list_offline
 {
-    uint8_t connected; // always 0
+    uint8_t connected;
 	uint8_t length;
 } TPacketGCMessengerListOffline;
+
+typedef struct packet_messenger_block_list_offline
+{
+    uint8_t connected;
+    uint8_t length;
+} TPacketGCMessengerBlockListOffline;
+
+typedef struct packet_messenger_block_list_online
+{
+    uint8_t connected;
+    uint8_t length;
+} TPacketGCMessengerBlockListOnline;
 
 enum
 {
@@ -1515,6 +1544,14 @@ typedef struct packet_whisper   // 가변 패킷
     uint8_t        bType;
     char        szNameFrom[CHARACTER_NAME_MAX_LEN + 1];
 } TPacketGCWhisper;
+
+typedef struct packet_whisper_typing
+{
+    uint16_t	header;
+    uint16_t	length;
+    char        szNameFrom[CHARACTER_NAME_MAX_LEN + 1];
+    uint8_t     bIsTyping;
+} TPacketGCWhisperTyping;
 
 typedef struct packet_stun
 {

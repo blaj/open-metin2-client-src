@@ -5,6 +5,7 @@
 #include "TextTag.h"
 #include "EterBase/Utils.h"
 #include "EterLocale/Arabic.h"
+#include "ResourceManager.h"
 
 #include <unordered_map>
 #include <utf8.h>
@@ -84,52 +85,72 @@ void CGraphicTextInstance::__GetTextPos(DWORD index, float* x, float* y)
 	*y = sy;
 }
 
+int CGraphicTextInstance::__GetCurPosForRender() const
+{
+	int imeOutputPos = CIME::GetCurPos();
+
+	if (m_imeToVisualPos.empty())
+		return imeOutputPos;
+	if (imeOutputPos < 0)
+		return 0;
+	if (imeOutputPos >= (int)m_imeToVisualPos.size())
+		return (int)m_pCharInfoVector.size();
+
+	return m_imeToVisualPos[imeOutputPos];
+}
+
 void CGraphicTextInstance::Update()
 {
 	if (m_isUpdate)
 		return;
 
-	// Get space height first for empty text cursor rendering
-	int spaceHeight = 12; // default fallback
-	if (!m_roText.IsNull() && !m_roText->IsEmpty())
-	{
-		CGraphicFontTexture* pFontTexture = m_roText->GetFontTexturePointer();
-		if (pFontTexture)
-		{
-			CGraphicFontTexture::TCharacterInfomation* pSpaceInfo = pFontTexture->GetCharacterInfomation(L' ');
-			spaceHeight = pSpaceInfo ? pSpaceInfo->height : 12;
-		}
-	}
+	if (m_roText.IsNull())
+		return;
+	
+
+	if (m_roText->IsEmpty())
+		return;
+
+	CGraphicFontTexture* pFontTexture = m_roText->GetFontTexturePointer();
+	if (!pFontTexture)
+		return;
+
+	CGraphicFontTexture::TCharacterInfomation* pSpaceInfo = pFontTexture->GetCharacterInfomation(L' ');
+	int spaceHeight = pSpaceInfo ? pSpaceInfo->height : 12;
 
 	auto ResetState = [&, spaceHeight]()
 		{
+			if (m_emojiVector.size() != 0)
+			{
+				for (auto& rEmo : m_emojiVector)
+				{
+					if (rEmo.pInstance)
+					{
+						CGraphicImageInstance::Delete(rEmo.pInstance);
+						rEmo.pInstance = nullptr;
+					}
+				}
+
+				m_emojiVector.clear();
+			}
+
 			m_pCharInfoVector.clear();
 			m_kernVector.clear();
 			m_dwColorInfoVector.clear();
 			m_hyperlinkVector.clear();
+			m_imeToVisualPos.clear();
 			m_textWidth = 0;
 			m_textHeight = spaceHeight; // Use space height instead of 0 for cursor rendering
 			m_computedRTL = IsRTL(); // Use global RTL setting
 			m_isUpdate = true;
 		};
 
-	if (m_roText.IsNull() || m_roText->IsEmpty())
-	{
-		ResetState();
-		return;
-	}
-
-	CGraphicFontTexture* pFontTexture = m_roText->GetFontTexturePointer();
-	if (!pFontTexture)
-	{
-		ResetState();
-		return;
-	}
-
 	m_pCharInfoVector.clear();
 	m_kernVector.clear();
 	m_dwColorInfoVector.clear();
 	m_hyperlinkVector.clear();
+	m_emojiVector.clear();
+	m_imeToVisualPos.clear();
 
 	m_textWidth = 0;
 	m_textHeight = spaceHeight;
@@ -257,7 +278,7 @@ void CGraphicTextInstance::Update()
 	if (hasRTL || hasTags)
 	{
 		DWORD currentColor = dwColor;
-		int hyperlinkStep = 0; // 0=normal, 1=collecting metadata, 2=visible hyperlink
+		int hyperlinkStep = 0;
 		std::wstring hyperlinkMetadata;
 
 		static std::vector<wchar_t> s_currentSegment;
@@ -266,95 +287,107 @@ void CGraphicTextInstance::Update()
 		SHyperlink currentHyperlink;
 		currentHyperlink.sx = currentHyperlink.ex = 0;
 
-		// In chat RTL, force RTL base direction so prefixes like "[hyperlink]" don't flip the paragraph to LTR.
+		SEmoji kEmoji;
+		int emojiStep = 0;
+		std::wstring emojiMetadata;
+
 		const bool forceRTLForBidi = (m_isChatMessage && m_computedRTL);
 
-		// OPTIMIZED: Single helper function for flushing segments (eliminates 5x code duplication)
+		int imeOutputPos = 0;
+
 		auto FlushSegment = [&](DWORD segColor) -> int
-		{
-			if (s_currentSegment.empty())
-				return 0;
-
-			int totalWidth = 0;
-
-			// Apply BiDi transformation using optimized BuildVisualBidiText_Tagless
-			std::vector<wchar_t> visual = BuildVisualBidiText_Tagless(
-				s_currentSegment.data(), (int)s_currentSegment.size(), forceRTLForBidi);
-
-			wchar_t prevCh = m_pCharInfoVector.empty() ? 0 : 0; // no prev across segments
-			for (size_t j = 0; j < visual.size(); ++j)
 			{
-				int w = __DrawCharacter(pFontTexture, visual[j], segColor, prevCh);
-				totalWidth += w;
-				prevCh = visual[j];
-			}
+				if (s_currentSegment.empty())
+					return 0;
 
-			s_currentSegment.clear();
-			return totalWidth;
-		};
+				int totalWidth = 0;
 
-		// Prepend glyphs to the already-built draw list (used to place hyperlink before message in RTL chat).
+				std::vector<wchar_t> visual = BuildVisualBidiText_Tagless(
+					s_currentSegment.data(), (int)s_currentSegment.size(), forceRTLForBidi);
+
+				wchar_t prevCh = 0;
+				for (size_t j = 0; j < visual.size(); ++j)
+				{
+					int w = __DrawCharacter(pFontTexture, visual[j], segColor, prevCh);
+					totalWidth += w;
+					prevCh = visual[j];
+				}
+
+				s_currentSegment.clear();
+				return totalWidth;
+			};
+
 		auto PrependGlyphs = [&](CGraphicFontTexture* pFontTexture,
-		                         const std::vector<wchar_t>& chars,
-		                         DWORD color,
-		                         int& outWidth)
-		{
-			outWidth = 0;
-
-			static std::vector<CGraphicFontTexture::TCharacterInfomation*> s_newCharInfos;
-			static std::vector<DWORD> s_newColors;
-			static std::vector<float> s_newKerns;
-			s_newCharInfos.clear();
-			s_newColors.clear();
-			s_newKerns.clear();
-			s_newCharInfos.reserve(chars.size());
-			s_newColors.reserve(chars.size());
-			s_newKerns.reserve(chars.size());
-
-			for (size_t k = 0; k < chars.size(); ++k)
+			const std::vector<wchar_t>& chars,
+			DWORD color,
+			int& outWidth)
 			{
-				auto* pInfo = pFontTexture->GetCharacterInfomation(chars[k]);
-				if (!pInfo)
-					continue;
+				outWidth = 0;
 
-				s_newCharInfos.push_back(pInfo);
-				s_newColors.push_back(color);
-				s_newKerns.push_back(0.0f);
+				static std::vector<CGraphicFontTexture::TCharacterInfomation*> s_newCharInfos;
+				static std::vector<DWORD> s_newColors;
+				static std::vector<float> s_newKerns;
+				s_newCharInfos.clear();
+				s_newColors.clear();
+				s_newKerns.clear();
+				s_newCharInfos.reserve(chars.size());
+				s_newColors.reserve(chars.size());
+				s_newKerns.reserve(chars.size());
 
-				outWidth += pInfo->advance;
-				m_textHeight = std::max((WORD)pInfo->height, m_textHeight);
-			}
+				for (size_t k = 0; k < chars.size(); ++k)
+				{
+					auto* pInfo = pFontTexture->GetCharacterInfomation(chars[k]);
+					if (!pInfo)
+						continue;
 
-			m_pCharInfoVector.insert(m_pCharInfoVector.begin(), s_newCharInfos.begin(), s_newCharInfos.end());
-			m_dwColorInfoVector.insert(m_dwColorInfoVector.begin(), s_newColors.begin(), s_newColors.end());
-			m_kernVector.insert(m_kernVector.begin(), s_newKerns.begin(), s_newKerns.end());
+					s_newCharInfos.push_back(pInfo);
+					s_newColors.push_back(color);
+					s_newKerns.push_back(0.0f);
 
-			for (auto& link : m_hyperlinkVector)
-			{
-				link.sx += outWidth;
-				link.ex += outWidth;
-			}
+					outWidth += pInfo->advance;
+					m_textHeight = std::max((WORD)pInfo->height, m_textHeight);
+				}
 
-			m_textWidth += outWidth;
-		};
+				m_pCharInfoVector.insert(m_pCharInfoVector.begin(), s_newCharInfos.begin(), s_newCharInfos.end());
+				m_dwColorInfoVector.insert(m_dwColorInfoVector.begin(), s_newColors.begin(), s_newColors.end());
+				m_kernVector.insert(m_kernVector.begin(), s_newKerns.begin(), s_newKerns.end());
 
-		// Parse text with tags
+				for (auto& link : m_hyperlinkVector)
+				{
+					link.sx += outWidth;
+					link.ex += outWidth;
+				}
+
+				m_textWidth += outWidth;
+			};
+
 		for (int i = 0; i < wTextLen;)
 		{
 			int tagLen = 0;
 			std::wstring tagExtra;
 			int tagType = GetTextTag(&wTextBuf[i], wTextLen - i, tagLen, tagExtra);
 
+			if (tagLen <= 0)
+			{
+				if (hyperlinkStep == 0)
+				{
+					s_currentSegment.push_back(wTextBuf[i]);
+					++imeOutputPos;
+					m_imeToVisualPos.push_back(
+						(int)m_pCharInfoVector.size() + (int)s_currentSegment.size());
+				}
+				++i;
+				continue;
+			}
+
 			if (tagType == TEXT_TAG_COLOR)
 			{
-				// Flush current segment before changing color
 				currentHyperlink.ex += FlushSegment(currentColor);
 				currentColor = htoi(tagExtra.c_str(), 8);
 				i += tagLen;
 			}
 			else if (tagType == TEXT_TAG_RESTORE_COLOR)
 			{
-				// Flush segment before restoring color
 				currentHyperlink.ex += FlushSegment(currentColor);
 				currentColor = dwColor;
 				i += tagLen;
@@ -369,84 +402,57 @@ void CGraphicTextInstance::Update()
 			{
 				if (hyperlinkStep == 1)
 				{
-					// End of metadata, start visible section
-					// Flush any pending non-hyperlink segment first
 					currentHyperlink.ex += FlushSegment(currentColor);
-
 					hyperlinkStep = 2;
 					currentHyperlink.text = hyperlinkMetadata;
-					currentHyperlink.sx = currentHyperlink.ex; // Start hyperlink at current cursor position
+					currentHyperlink.sx = currentHyperlink.ex;
 				}
 				else if (hyperlinkStep == 2)
 				{
-					// End of visible section - render hyperlink text with proper Arabic handling
-					// In RTL chat: we want the hyperlink chunk to appear BEFORE the message, even if logically appended.
 					if (!s_currentSegment.empty())
 					{
-						// OPTIMIZED: Use thread-local buffer for visible rendering
 						static std::vector<wchar_t> s_visibleToRender;
 						s_visibleToRender.clear();
 
-						// Find bracket positions: [ ... ]
-						int openBracket = -1, closeBracket = -1;
+						int openBracket = -1;
+						int closeBracket = -1;
 						for (size_t idx = 0; idx < s_currentSegment.size(); ++idx)
 						{
-							if (s_currentSegment[idx] == L'[' && openBracket == -1)
-								openBracket = (int)idx;
-							else if (s_currentSegment[idx] == L']' && closeBracket == -1)
-								closeBracket = (int)idx;
+							if (s_currentSegment[idx] == L'[' && openBracket == -1) openBracket = (int)idx;
+							if (s_currentSegment[idx] == L']' && closeBracket == -1) closeBracket = (int)idx;
 						}
 
 						if (openBracket >= 0 && closeBracket > openBracket)
 						{
-							// Keep '['
 							s_visibleToRender.push_back(L'[');
-
-							// Extract inside content and apply BiDi
 							static std::vector<wchar_t> s_content;
 							s_content.assign(
 								s_currentSegment.begin() + openBracket + 1,
 								s_currentSegment.begin() + closeBracket);
-
-							// FIX: Use false to let BiDi auto-detect direction from content
-							// This ensures English items like [Sword+9] stay LTR
-							// while Arabic items like [درع فولاذي+9] are properly RTL
 							std::vector<wchar_t> visual = BuildVisualBidiText_Tagless(
 								s_content.data(), (int)s_content.size(), false);
-
 							s_visibleToRender.insert(s_visibleToRender.end(), visual.begin(), visual.end());
-
-							// Keep ']'
 							s_visibleToRender.push_back(L']');
 						}
 						else
 						{
-							// No brackets: apply BiDi to whole segment
-							// FIX: Use false to let BiDi auto-detect direction from content
 							std::vector<wchar_t> visual = BuildVisualBidiText_Tagless(
 								s_currentSegment.data(), (int)s_currentSegment.size(), false);
-
 							s_visibleToRender.insert(s_visibleToRender.end(), visual.begin(), visual.end());
 						}
 
-						// Ensure a space AFTER the hyperlink chunk (so it becomes "[hyperlink] اختبار...")
 						s_visibleToRender.push_back(L' ');
 
-						// Key behavior:
-						// In RTL chat, place hyperlink BEFORE the message by prepending glyphs.
 						if (m_isChatMessage && m_computedRTL)
 						{
 							int addedWidth = 0;
 							PrependGlyphs(pFontTexture, s_visibleToRender, currentColor, addedWidth);
-
-							// Record the hyperlink range at the beginning (0..addedWidth)
 							currentHyperlink.sx = 0;
 							currentHyperlink.ex = addedWidth;
 							m_hyperlinkVector.push_back(currentHyperlink);
 						}
 						else
 						{
-							// LTR or non-chat: keep original "append" behavior
 							currentHyperlink.sx = currentHyperlink.ex;
 							wchar_t prevCh = 0;
 							for (size_t j = 0; j < s_visibleToRender.size(); ++j)
@@ -464,25 +470,86 @@ void CGraphicTextInstance::Update()
 				}
 				i += tagLen;
 			}
-			else // TEXT_TAG_PLAIN or TEXT_TAG_TAG
+			else if (tagType == TEXT_TAG_EMOJI_START)
+			{
+				emojiStep = 1;
+				emojiMetadata = L"";
+				i += tagLen;
+			}
+			else if (tagType == TEXT_TAG_EMOJI_END)
+			{
+				currentHyperlink.ex += FlushSegment(currentColor);
+
+				char retBuf[1024];
+				int retLen = WideCharToMultiByte(
+					CP_UTF8, WC_ERR_INVALID_CHARS,
+					emojiMetadata.c_str(), (int)emojiMetadata.length(),
+					retBuf, sizeof(retBuf) - 1, NULL, NULL);
+				if (retLen <= 0)
+					retLen = WideCharToMultiByte(CP_UTF8, 0,
+						emojiMetadata.c_str(), (int)emojiMetadata.length(),
+						retBuf, sizeof(retBuf) - 1, NULL, NULL);
+				retBuf[retLen > 0 ? retLen : 0] = '\0';
+
+				char szPath[255];
+				snprintf(szPath, sizeof(szPath), "d:/ymir work/ui/game/emoji/%s.tga", retBuf);
+
+				if (CResourceManager::Instance().IsFileExist(szPath))
+				{
+					CGraphicImage* pImage = (CGraphicImage*)CResourceManager::Instance()
+						.GetResourcePointer(szPath);
+
+					kEmoji.x = (short)m_textWidth;
+					kEmoji.pInstance = CGraphicImageInstance::New();
+					kEmoji.pInstance->SetImagePointer(pImage);
+					m_emojiVector.push_back(kEmoji);
+					memset(&kEmoji, 0, sizeof(SEmoji));
+
+					if (pSpaceInfo && pSpaceInfo->advance > 0)
+					{
+						int emojiW = pImage->GetWidth();
+						int spaceAdv = pSpaceInfo->advance;
+						int numSpaces = emojiW / spaceAdv;
+						int remainder = emojiW % spaceAdv;
+						if (remainder > spaceAdv / 2)
+							++numSpaces;
+
+						for (int s = 0; s < numSpaces; ++s)
+							__DrawCharacter(pFontTexture, L' ', dwColor, L' ');
+					}
+				}
+
+				m_imeToVisualPos.push_back((int)m_pCharInfoVector.size());
+				++imeOutputPos;
+
+				emojiStep = 0;
+				emojiMetadata = L"";
+				i += tagLen;
+			}
+			else
 			{
 				if (hyperlinkStep == 1)
 				{
-					// Collecting hyperlink metadata (hidden)
 					hyperlinkMetadata.push_back(wTextBuf[i]);
+				}
+				else if (emojiStep == 1)
+				{
+					emojiMetadata.push_back(wTextBuf[i]);
 				}
 				else
 				{
-					// Add to current segment
-					// Will be BiDi-processed for normal text, or rendered directly for hyperlinks
 					s_currentSegment.push_back(wTextBuf[i]);
+					++imeOutputPos;
+					m_imeToVisualPos.push_back(
+						(int)m_pCharInfoVector.size() + (int)s_currentSegment.size());
 				}
 				i += tagLen;
 			}
 		}
 
-		// Flush any remaining segment using optimized helper
 		currentHyperlink.ex += FlushSegment(currentColor);
+
+		m_imeToVisualPos.push_back((int)m_pCharInfoVector.size());
 
 		pFontTexture->UpdateTexture();
 		m_isUpdate = true;
@@ -978,28 +1045,31 @@ void CGraphicTextInstance::Render(RECT * pClipRect)
 
 	if (m_isCursor)
 	{
-		// Draw Cursor
 		float sx, sy, ex, ey;
 		TDiffuse diffuse;
 
-		int curpos = CIME::GetCurPos();
-		int compend = curpos + CIME::GetCompLen();
+		int visualCurpos = __GetCurPosForRender();
+		int imeCompEnd = CIME::GetCurPos() + CIME::GetCompLen();
+		int visualCompend = visualCurpos;
 
-		// Convert logical cursor position to visual position (handles tags)
-		int visualCurpos = curpos;
-		int visualCompend = compend;
-		if (!m_logicalToVisualPos.empty())
+		if (CIME::GetCompLen() > 0)
 		{
-			if (curpos >= 0 && curpos < (int)m_logicalToVisualPos.size())
-				visualCurpos = m_logicalToVisualPos[curpos];
-			if (compend >= 0 && compend < (int)m_logicalToVisualPos.size())
-				visualCompend = m_logicalToVisualPos[compend];
+			if (!m_imeToVisualPos.empty())
+			{
+				if (imeCompEnd >= (int)m_imeToVisualPos.size())
+					visualCompend = (int)m_pCharInfoVector.size();
+				else
+					visualCompend = m_imeToVisualPos[imeCompEnd];
+			}
+			else
+			{
+				visualCompend = imeCompEnd;
+			}
 		}
 
 		__GetTextPos(visualCurpos, &sx, &sy);
 
-		// If Composition
-		if(visualCurpos<visualCompend)
+		if (visualCurpos < visualCompend)
 		{
 			diffuse = 0x7fffffff;
 			__GetTextPos(visualCompend, &ex, &sy);
@@ -1010,8 +1080,6 @@ void CGraphicTextInstance::Render(RECT * pClipRect)
 			ex = sx + 2;
 		}
 
-		// FOR_ARABIC_ALIGN
-		// Use the computed direction for this text instance, not the global UI direction
 		if (m_computedRTL)
 		{
 			sx += m_v3Position.x - m_textWidth;
@@ -1025,33 +1093,27 @@ void CGraphicTextInstance::Render(RECT * pClipRect)
 			ex += m_v3Position.x;
 		}
 
-		// Apply vertical alignment adjustment BEFORE calculating ey
 		switch (m_vAlign)
 		{
-			case VERTICAL_ALIGN_BOTTOM:
-				sy -= m_textHeight;
-				break;
-
-			case VERTICAL_ALIGN_CENTER:
-				sy -= float(m_textHeight) / 2.0f;
-				break;
+		case VERTICAL_ALIGN_BOTTOM:
+			sy -= m_textHeight;
+			break;
+		case VERTICAL_ALIGN_CENTER:
+			sy -= float(m_textHeight) / 2.0f;
+			break;
 		}
 
-		// NOW calculate ey after sy has been adjusted
 		ey = sy + m_textHeight;
 
 		TPDTVertex vertices[4];
-		vertices[0].diffuse = diffuse;
-		vertices[1].diffuse = diffuse;
-		vertices[2].diffuse = diffuse;
-		vertices[3].diffuse = diffuse;
+		vertices[0].diffuse = vertices[1].diffuse =
+			vertices[2].diffuse = vertices[3].diffuse = diffuse;
 		vertices[0].position = TPosition(sx, sy, 0.0f);
 		vertices[1].position = TPosition(ex, sy, 0.0f);
 		vertices[2].position = TPosition(sx, ey, 0.0f);
 		vertices[3].position = TPosition(ex, ey, 0.0f);
 
 		STATEMANAGER.SetTexture(0, NULL);
-
 		CGraphicBase::SetDefaultIndexBuffer(CGraphicBase::DEFAULT_IB_FILL_RECT);
 		if (CGraphicBase::SetPDTStream(vertices, 4))
 			STATEMANAGER.DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 4, 0, 2);
@@ -1061,24 +1123,31 @@ void CGraphicTextInstance::Render(RECT * pClipRect)
 
 		if (ulbegin < ulend)
 		{
-			__GetTextPos(curpos+ulbegin, &sx, &sy);
-			__GetTextPos(curpos+ulend, &ex, &sy);
+			int imePos = CIME::GetCurPos();
+			int ulBeginVis = (imePos + ulbegin < (int)m_imeToVisualPos.size())
+				? m_imeToVisualPos[imePos + ulbegin]
+				: (int)m_pCharInfoVector.size();
+			int ulEndVis = (imePos + ulend < (int)m_imeToVisualPos.size())
+				? m_imeToVisualPos[imePos + ulend]
+				: (int)m_pCharInfoVector.size();
+
+			__GetTextPos(ulBeginVis, &sx, &sy);
+			__GetTextPos(ulEndVis, &ex, &sy);
 
 			sx += m_v3Position.x;
 			sy += m_v3Position.y + m_textHeight;
 			ex += m_v3Position.x;
 			ey = sy + 2;
 
-			vertices[0].diffuse = 0xFFFF0000;
-			vertices[1].diffuse = 0xFFFF0000;
-			vertices[2].diffuse = 0xFFFF0000;
-			vertices[3].diffuse = 0xFFFF0000;
+			vertices[0].diffuse = vertices[1].diffuse =
+				vertices[2].diffuse = vertices[3].diffuse = 0xFFFF0000;
 			vertices[0].position = TPosition(sx, sy, 0.0f);
 			vertices[1].position = TPosition(ex, sy, 0.0f);
 			vertices[2].position = TPosition(sx, ey, 0.0f);
 			vertices[3].position = TPosition(ex, ey, 0.0f);
 
-			STATEMANAGER.DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, 4, 2, c_FillRectIndices, D3DFMT_INDEX16, vertices, sizeof(TPDTVertex));
+			STATEMANAGER.DrawIndexedPrimitiveUP(D3DPT_TRIANGLELIST, 0, 4, 2,
+				c_FillRectIndices, D3DFMT_INDEX16, vertices, sizeof(TPDTVertex));
 		}
 	}
 
@@ -1111,6 +1180,32 @@ void CGraphicTextInstance::Render(RECT * pClipRect)
 					break;
 				}
 			}
+		}
+	}
+
+	if (m_emojiVector.size() != 0)
+	{
+		STATEMANAGER.SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+		STATEMANAGER.SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+		STATEMANAGER.SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE);
+		STATEMANAGER.SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
+		STATEMANAGER.SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
+		STATEMANAGER.SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);
+		STATEMANAGER.SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);
+		STATEMANAGER.SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE);
+
+		for (auto& rEmo : m_emojiVector)
+		{
+			if (!rEmo.pInstance)
+				continue;
+
+			float emoX = fStanX + (float)rEmo.x;
+			float emoH = (float)rEmo.pInstance->GetHeight();
+
+			float emoY = fStanY + ((float)m_textHeight - emoH) * 0.5f;
+
+			rEmo.pInstance->SetPosition(emoX, emoY);
+			rEmo.pInstance->Render();
 		}
 	}
 }
@@ -1434,6 +1529,21 @@ void CGraphicTextInstance::Destroy()
 	m_hyperlinkVector.clear();
 	m_logicalToVisualPos.clear();
 	m_visualToLogicalPos.clear();
+	m_imeToVisualPos.clear();
+
+	if (m_emojiVector.size() != 0)
+	{
+		for (auto& rEmo : m_emojiVector)
+		{
+			if (rEmo.pInstance)
+			{
+				CGraphicImageInstance::Delete(rEmo.pInstance);
+				rEmo.pInstance = nullptr;
+			}
+		}
+
+		m_emojiVector.clear();
+	}
 
 	__Initialize();
 }

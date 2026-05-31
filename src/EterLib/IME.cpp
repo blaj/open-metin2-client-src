@@ -970,64 +970,61 @@ void CIME::SetSupportLevel( DWORD dwImeLevel )
 /*---------------------------------------------------------------------------*/ /* Protected */ 
 void CIME::IncCurPos()
 {
-	if (ms_curpos < ms_lastpos)
+	if (ms_curpos >= ms_lastpos)
+		return;
+
+	int atomLen = GetAtomicTagLen(m_wText + ms_curpos, ms_lastpos - ms_curpos);
+	if (atomLen > 0)
 	{
-		// Skip over tags (color tags, hyperlink tags, etc.)
+		ms_curpos += atomLen;
+		return;
+	}
+
+	int tagLen = 0;
+	std::wstring tagExtra;
+	int tag = GetTextTag(&m_wText[ms_curpos], ms_lastpos - ms_curpos, tagLen, tagExtra);
+
+	if (tag != TEXT_TAG_PLAIN && tagLen > 0)
+		ms_curpos += tagLen;
+	else
+		++ms_curpos;
+}
+
+void CIME::DecCurPos()
+{
+	if (ms_curpos <= 0)
+		return;
+
+	--ms_curpos;
+
+	int tagStart = FindAtomicTagStart(m_wText, ms_curpos, ms_lastpos);
+	if (tagStart >= 0)
+	{
+		ms_curpos = tagStart;
+		return;
+	}
+
+	while (ms_curpos > 0)
+	{
 		int tagLen = 0;
 		std::wstring tagExtra;
 		int tag = GetTextTag(&m_wText[ms_curpos], ms_lastpos - ms_curpos, tagLen, tagExtra);
 
 		if (tag != TEXT_TAG_PLAIN && tagLen > 0)
-		{
-			// We're at the start of a tag - skip the entire tag
-			ms_curpos += tagLen;
-		}
-		else
-		{
-			// Normal character - move forward by 1
-			++ms_curpos;
-		}
-	}
-}
-
-void CIME::DecCurPos()
-{
-	if (ms_curpos > 0)
-	{
-		// Move back one position
-		--ms_curpos;
-
-		// If we landed in the middle of a tag, skip backward to the tag start
-		// Keep checking backward for tag starts until we find the beginning
-		while (ms_curpos > 0)
-		{
-			int tagLen = 0;
-			std::wstring tagExtra;
-
-			// Check if current position is a tag start
-			int tag = GetTextTag(&m_wText[ms_curpos], ms_lastpos - ms_curpos, tagLen, tagExtra);
-
-			if (tag != TEXT_TAG_PLAIN && tagLen > 0)
-			{
-				// We're at a tag start - this is good, stop here
-				break;
-			}
-
-			// Check if the character BEFORE us starts a tag that extends over our position
-			if (ms_curpos > 0)
-			{
-				int prevTag = GetTextTag(&m_wText[ms_curpos - 1], ms_lastpos - (ms_curpos - 1), tagLen, tagExtra);
-				if (prevTag != TEXT_TAG_PLAIN && tagLen > 1)
-				{
-					// Previous position starts a multi-char tag - move to it
-					--ms_curpos;
-					continue;
-				}
-			}
-
-			// Not in a tag, we're done
 			break;
+
+		if (ms_curpos > 0)
+		{
+			int prevTagLen = 0;
+			int prevTag = GetTextTag(&m_wText[ms_curpos - 1],
+				ms_lastpos - (ms_curpos - 1), prevTagLen, tagExtra);
+			if (prevTag != TEXT_TAG_PLAIN && prevTagLen > 1)
+			{
+				--ms_curpos;
+				continue;
+			}
 		}
+		break;
 	}
 }
 
@@ -1053,21 +1050,30 @@ void CIME::SetCurPos(int offset)
 
 void CIME::DelCurPos()
 {
-	// If there is a selection, delete it first
 	if (ms_selbegin != ms_selend)
 	{
 		DeleteSelection();
 		return;
 	}
 
-	if (ms_curpos < ms_lastpos)
+	if (ms_curpos >= ms_lastpos)
+		return;
+
+	int atomLen = GetAtomicTagLen(m_wText + ms_curpos, ms_lastpos - ms_curpos);
+	if (atomLen > 0)
 	{
-		int eraseCount = FindColorTagEndPosition(m_wText + ms_curpos, ms_lastpos - ms_curpos) + 1;
-		size_t remainingChars = ms_lastpos - ms_curpos - eraseCount + 1; // +1 for null terminator
-		wmemmove(m_wText + ms_curpos, m_wText + ms_curpos + eraseCount, remainingChars); // wcscpy > wmemmove to handle overlapping memory
-		ms_lastpos -= eraseCount;
+		size_t remainingChars = ms_lastpos - ms_curpos - atomLen + 1;
+		wmemmove(m_wText + ms_curpos, m_wText + ms_curpos + atomLen, remainingChars);
+		ms_lastpos -= atomLen;
 		ms_curpos = std::min(ms_lastpos, ms_curpos);
+		return;
 	}
+
+	int eraseCount = FindColorTagEndPosition(m_wText + ms_curpos, ms_lastpos - ms_curpos) + 1;
+	size_t remainingChars = ms_lastpos - ms_curpos - eraseCount + 1;
+	wmemmove(m_wText + ms_curpos, m_wText + ms_curpos + eraseCount, remainingChars);
+	ms_lastpos -= eraseCount;
+	ms_curpos = std::min(ms_lastpos, ms_curpos);
 }
 
 void CIME::PasteString(const char * str)

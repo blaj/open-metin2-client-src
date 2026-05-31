@@ -613,8 +613,20 @@ BOOL CPythonChat::IsIgnoreCharacter(const char * c_szName)
 
 CWhisper * CPythonChat::CreateWhisper(const char * c_szName)
 {
-	CWhisper * pWhisper = CWhisper::New();
-	m_WhisperMap.insert(TWhisperMap::value_type(c_szName, pWhisper));
+	auto itor = m_WhisperMap.find(c_szName);
+
+	CWhisper* pWhisper;
+
+	if (itor == m_WhisperMap.end())
+	{
+		pWhisper = CWhisper::New();
+		m_WhisperMap.emplace(c_szName, pWhisper);
+	}
+	else
+	{
+		pWhisper = itor->second;
+	}
+
 	return pWhisper;
 }
 
@@ -828,6 +840,9 @@ void CWhisper::AppendChat(int iType, const char * c_szChat)
 			break;
 		case CPythonChat::WHISPER_TYPE_GM:
 			pChatLine->Instance.SetColor(D3DXCOLOR(1.0f, 0.632f, 0.0f, 1.0f));
+			break;
+		case CPythonChat::WHISPER_TYPE_OFFLINE:
+			pChatLine->Instance.SetColor(0xffb9f2ff);
 			break;
 		case CPythonChat::WHISPER_TYPE_CHAT:
 		default:

@@ -384,6 +384,7 @@ static const char* GetHeaderName(uint16_t header)
 		{ CG::WHISPER,            "CG_WHISPER" },
 		{ GC::CHAT,               "GC_CHAT" },
 		{ GC::WHISPER,            "GC_WHISPER" },
+		{ GC::WHISPER_TYPING,     "GC_WHISPER_TYPING" },
 		// Social
 		{ CG::PARTY_INVITE,       "CG_PARTY_INVITE" },
 		{ CG::PARTY_INVITE_ANSWER, "CG_PARTY_INVITE_ANSWER" },

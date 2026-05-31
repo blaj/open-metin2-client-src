@@ -3,6 +3,7 @@
 
 #include "Pool.h"
 #include "GrpText.h"
+#include "GrpImageInstance.h"
 
 class CGraphicTextInstance
 {
@@ -97,6 +98,7 @@ class CGraphicTextInstance
 		void __Initialize();
 		int  __DrawCharacter(CGraphicFontTexture * pFontTexture, wchar_t text, DWORD dwColor, wchar_t prevChar = 0);
 		void __GetTextPos(DWORD index, float* x, float* y);
+		int __GetCurPosForRender() const;
 
 	protected:
 		struct SHyperlink
@@ -106,6 +108,17 @@ class CGraphicTextInstance
 			std::wstring text;
 
 			SHyperlink() : sx(0), ex(0) { }
+		};
+
+		struct SEmoji
+		{
+			short x;
+			CGraphicImageInstance* pInstance;
+
+			SEmoji() : x(0)
+			{
+				pInstance = NULL;
+			}
 		};
 
 	protected:
@@ -148,9 +161,11 @@ class CGraphicTextInstance
 		std::vector<float> m_kernVector;
 		std::vector<DWORD> m_dwColorInfoVector;
 		std::vector<SHyperlink> m_hyperlinkVector;
+		std::vector<SEmoji> m_emojiVector;
 		std::vector<int> m_logicalToVisualPos; // Maps logical cursor pos (UTF-16 with tags) to visual pos (rendered chars)
 		std::vector<int> m_visualToLogicalPos; // Reverse mapping: visual pos -> logical pos
 		ETextDirection m_direction = ETextDirection::Auto; // Will be overwritten by __Initialize()
+		std::vector<int> m_imeToVisualPos;
 
 	public:
 		static void CreateSystem(UINT uCapacity);
