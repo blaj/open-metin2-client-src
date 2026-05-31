@@ -182,5 +182,35 @@ BOOL CRaceData::LoadRaceData(const char * c_szFileName)
 		TextFileLoader.SetParentNode();
 	}
 
+	if (TextFileLoader.SetChildNode("facedata"))
+	{
+		std::string strPathName;
+		DWORD dwFaceDataCount = 0;
+		if (TextFileLoader.GetTokenString("pathname", &strPathName) &&
+			TextFileLoader.GetTokenDoubleWord("facedatacount", &dwFaceDataCount))
+
+			for (DWORD i = 0; i < dwFaceDataCount; ++i)
+			{
+				if (!TextFileLoader.SetChildNode("facedata", i))
+					continue;
+
+				DWORD dwShapeIndex;
+				if (!TextFileLoader.GetTokenDoubleWord("faceindex", &dwShapeIndex))
+					continue;
+
+				std::string strModel;
+				std::string strSourceSkin;
+				std::string strTargetSkin;
+				if (TextFileLoader.GetTokenString("model", &strModel) &&
+					TextFileLoader.GetTokenString("sourceskin", &strSourceSkin) &&
+					TextFileLoader.GetTokenString("targetskin", &strTargetSkin))
+					SetFaceSkin(dwShapeIndex, 0, (strPathName + strModel).c_str(), (strPathName + strSourceSkin).c_str(), (strPathName + strTargetSkin).c_str());
+
+				TextFileLoader.SetParentNode();
+			}
+
+		TextFileLoader.SetParentNode();
+	}
+
 	return TRUE;
 }

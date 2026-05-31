@@ -84,7 +84,7 @@ bool CPythonNetworkStream::SendDestroyCharacterPacket(BYTE index, const char * s
 	return true;
 }
 
-bool CPythonNetworkStream::SendCreateCharacterPacket(BYTE index, const char *name, BYTE job, BYTE shape, BYTE byCON, BYTE byINT, BYTE bySTR, BYTE byDEX)
+bool CPythonNetworkStream::SendCreateCharacterPacket(BYTE index, const char *name, BYTE job, BYTE shape, WORD hair, WORD face)
 {
 	TPacketCGCreateCharacter createCharacterPacket;
 
@@ -94,10 +94,8 @@ bool CPythonNetworkStream::SendCreateCharacterPacket(BYTE index, const char *nam
 	strncpy(createCharacterPacket.name, name, CHARACTER_NAME_MAX_LEN);
 	createCharacterPacket.job = job;
 	createCharacterPacket.shape = shape;
-	createCharacterPacket.CON = byCON;
-	createCharacterPacket.INT = byINT;
-	createCharacterPacket.STR = bySTR;
-	createCharacterPacket.DEX = byDEX;
+	createCharacterPacket.hair = hair;
+	createCharacterPacket.face = face;
 
 	if (!Send(sizeof(TPacketCGCreateCharacter), &createCharacterPacket))
 	{

@@ -154,7 +154,38 @@ void CActorInstance::SetHair(DWORD eHair)
 	}
 }
 
+void CActorInstance::SetPart(BYTE ePart, DWORD eIndex)
+{
+	m_adwPartItemID[ePart] = eIndex;
 
+	CRaceData* pRaceData;
+
+	if (!CRaceManager::Instance().GetRaceDataPointer(m_eRace, &pRaceData))
+		return;
+
+	CRaceData::SFaceShape* pkFace = pRaceData->FindFaceShape(eIndex);
+	if (pkFace)
+	{
+		if (!pkFace->m_stModelFileName.empty())
+		{
+			CGraphicThing* pkPartThing = (CGraphicThing*)CResourceManager::Instance().GetResourcePointer(pkFace->m_stModelFileName.c_str());
+			RegisterModelThing(ePart, pkPartThing);
+			SetModelInstance(ePart, ePart, 0, CRaceData::PART_MAIN);
+		}
+
+		const std::vector<CRaceData::SSkin>& c_rkVct_kSkin = pkFace->m_kVct_kSkin;
+		std::vector<CRaceData::SSkin>::const_iterator i;
+		for (i = c_rkVct_kSkin.begin(); i != c_rkVct_kSkin.end(); ++i)
+		{
+			const CRaceData::SSkin& c_rkSkinItem = *i;
+
+			CResource* pkRes = CResourceManager::Instance().GetResourcePointer(c_rkSkinItem.m_stDstFileName.c_str());
+
+			if (pkRes)
+				SetMaterialImagePointer(ePart, c_rkSkinItem.m_stSrcFileName.c_str(), static_cast<CGraphicImage*>(pkRes));
+		}
+	}
+}
 
 void CActorInstance::SetShape(DWORD eShape, float fSpecular)
 {

@@ -131,6 +131,7 @@ bool CPythonNetworkStream::RecvCharacterAppendPacket()
 	kNetActorData.m_dwArmor=0;/*chrAddPacket.awPart[CHR_EQUIPPART_ARMOR]*/;
 	kNetActorData.m_dwWeapon=0;/*chrAddPacket.awPart[CHR_EQUIPPART_WEAPON]*/;
 	kNetActorData.m_dwHair=0;/*chrAddPacket.awPart[CHR_EQUIPPART_HAIR]*/;
+	kNetActorData.m_dwFace=0;
 	kNetActorData.m_dwShoulderSash=0;
 	kNetActorData.m_dwMountVnum=0;/*chrAddPacket.dwMountVnum*/;	
 
@@ -190,6 +191,7 @@ bool CPythonNetworkStream::RecvCharacterAdditionalInfo()
 		kNetActorData.m_dwArmor=chrInfoPacket.awPart[CHR_EQUIPPART_ARMOR];
 		kNetActorData.m_dwWeapon=chrInfoPacket.awPart[CHR_EQUIPPART_WEAPON];
 		kNetActorData.m_dwHair=chrInfoPacket.awPart[CHR_EQUIPPART_HAIR];
+		kNetActorData.m_dwFace=chrInfoPacket.awPart[CHR_EQUIPPART_FACE];
 		kNetActorData.m_dwShoulderSash=chrInfoPacket.awPart[CHR_EQUIPPART_SHOULDER_SASH];
 		kNetActorData.m_dwMountVnum=chrInfoPacket.dwMountVnum;
 
@@ -224,6 +226,7 @@ bool CPythonNetworkStream::RecvCharacterAppendPacketNew()
 	kNetActorData.m_dwArmor=chrAddPacket.awPart[CHR_EQUIPPART_ARMOR];
 	kNetActorData.m_dwWeapon=chrAddPacket.awPart[CHR_EQUIPPART_WEAPON];
 	kNetActorData.m_dwHair=chrAddPacket.awPart[CHR_EQUIPPART_HAIR];
+	kNetActorData.m_dwFace=chrAddPacket.awPart[CHR_EQUIPPART_FACE];
 	kNetActorData.m_dwShoulderSash=chrAddPacket.awPart[CHR_EQUIPPART_SHOULDER_SASH];
 	kNetActorData.m_dwStateFlags=chrAddPacket.bStateFlag;
 	kNetActorData.m_dwVID=chrAddPacket.dwVID;
@@ -253,6 +256,7 @@ bool CPythonNetworkStream::RecvCharacterUpdatePacket()
 	kNetUpdateActorData.m_dwArmor=chrUpdatePacket.awPart[CHR_EQUIPPART_ARMOR];
 	kNetUpdateActorData.m_dwWeapon=chrUpdatePacket.awPart[CHR_EQUIPPART_WEAPON];
 	kNetUpdateActorData.m_dwHair=chrUpdatePacket.awPart[CHR_EQUIPPART_HAIR];
+	kNetUpdateActorData.m_dwFace=chrUpdatePacket.awPart[CHR_EQUIPPART_FACE];
 	kNetUpdateActorData.m_dwShoulderSash=chrUpdatePacket.awPart[CHR_EQUIPPART_SHOULDER_SASH];
 	kNetUpdateActorData.m_dwVID=chrUpdatePacket.dwVID;	
 	kNetUpdateActorData.m_kAffectFlags.CopyData(0, sizeof(chrUpdatePacket.dwAffectFlag[0]), &chrUpdatePacket.dwAffectFlag[0]);
@@ -279,6 +283,7 @@ bool CPythonNetworkStream::RecvCharacterUpdatePacketNew()
 	kNetUpdateActorData.m_dwArmor=chrUpdatePacket.awPart[CHR_EQUIPPART_ARMOR];
 	kNetUpdateActorData.m_dwWeapon=chrUpdatePacket.awPart[CHR_EQUIPPART_WEAPON];
 	kNetUpdateActorData.m_dwHair=chrUpdatePacket.awPart[CHR_EQUIPPART_HAIR];
+	kNetUpdateActorData.m_dwFace=chrUpdatePacket.awPart[CHR_EQUIPPART_FACE];
 	kNetUpdateActorData.m_dwShoulderSash=chrUpdatePacket.awPart[CHR_EQUIPPART_SHOULDER_SASH];
 	kNetUpdateActorData.m_dwVID=chrUpdatePacket.dwVID;
 	kNetUpdateActorData.m_kAffectFlags.CopyData(0, sizeof(chrUpdatePacket.dwAffectFlag[0]), &chrUpdatePacket.dwAffectFlag[0]);
@@ -353,6 +358,7 @@ void CPythonNetworkStream::__RecvCharacterUpdatePacket(SNetworkUpdateActorData *
 		
 		m_akSimplePlayerInfo[m_dwSelectedCharacterIndex].wHairPart = pkNetUpdateActorData->m_dwHair;
 		m_akSimplePlayerInfo[m_dwSelectedCharacterIndex].wMainPart = pkNetUpdateActorData->m_dwArmor;
+		m_akSimplePlayerInfo[m_dwSelectedCharacterIndex].wFacePart = pkNetUpdateActorData->m_dwFace;
 	}
 	else
 	{

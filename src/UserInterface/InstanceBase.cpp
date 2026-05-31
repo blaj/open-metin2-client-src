@@ -758,6 +758,7 @@ bool CInstanceBase::Create(const SCreateData& c_rkCreateData)
 	if (IsPC())
 	{
 		SetHair(c_rkCreateData.m_dwHair);
+		SetFace(c_rkCreateData.m_dwFace);
 		SetShoulderSash(c_rkCreateData.m_dwShoulderSash);
 		SetWeapon(c_rkCreateData.m_dwWeapon);
 	}
@@ -2689,6 +2690,27 @@ void CInstanceBase::SetArmor(DWORD dwArmor)
 	SetShape(dwArmor);
 }
 
+void CInstanceBase::SetFace(DWORD eFace)
+{
+	if (!IsPC())
+		return;
+
+	m_awPart[CRaceData::PART_FACE] = eFace;
+	m_GraphicThingInstance.SetPart(CRaceData::PART_FACE, eFace);
+}
+
+void CInstanceBase::ChangeFace(DWORD eFace)
+{
+	if (IsPC() == false)
+		return;
+
+	if (GetPart(CRaceData::PART_FACE) == eFace)
+		return;
+
+	SetFace(eFace);
+	RefreshState(CRaceMotionData::NAME_WAIT, true);
+}
+
 void CInstanceBase::SetShoulderSash(DWORD dwShoulderSash)
 {
 	if (!IsPC())
@@ -2931,6 +2953,7 @@ bool CInstanceBase::ChangeArmor(DWORD dwArmor)
 	DWORD dwVID = GetVirtualID();
 	DWORD dwRace = GetRace();
 	DWORD eHair = GetPart(CRaceData::PART_HAIR);
+	DWORD eFace = GetPart(CRaceData::PART_FACE);
 	DWORD dwShoulderSash = GetPart(CRaceData::PART_SHOULDER_SASH);
 	DWORD eWeapon = GetPart(CRaceData::PART_WEAPON);
 	float fRot = GetRotation();
@@ -2952,6 +2975,7 @@ bool CInstanceBase::ChangeArmor(DWORD dwArmor)
 
 	SetArmor(dwArmor);
 	SetHair(eHair);
+	SetFace(eFace);
 	SetShoulderSash(dwShoulderSash);
 	SetWeapon(eWeapon);
 

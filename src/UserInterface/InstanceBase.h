@@ -27,6 +27,7 @@ class CInstanceBase
 			DWORD	m_dwArmor;
 			DWORD	m_dwWeapon;
 			DWORD	m_dwHair;
+			DWORD	m_dwFace;
 			DWORD	m_dwShoulderSash;
 			DWORD	m_dwMountVnum;
 			
@@ -505,6 +506,8 @@ class CInstanceBase
 		void					SetArmor(DWORD dwArmor);
 		void					SetShape(DWORD eShape, float fSpecular=0.0f);
 		void					SetHair(DWORD eHair);
+		void					SetFace(DWORD eFace);
+		void					ChangeFace(DWORD eFace);
 		void					SetShoulderSash(DWORD dwShoulderSash);
 		void					ChangeShoulderSash(DWORD dwShoulderSash);
 		bool					SetWeapon(DWORD eWeapon);

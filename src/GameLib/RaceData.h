@@ -24,6 +24,7 @@ class CRaceData
 			PART_WEAPON_LEFT,
 			PART_HAIR,
 			PART_SHOULDER_SASH,
+			PART_FACE,
 			
 			PART_MAX_NUM,
 		};
@@ -119,7 +120,39 @@ class CRaceData
 			std::vector<SSkin> m_kVct_kSkin;
 		};
 
+		struct SFaceSkin
+		{
+			int m_ePart;
+			std::string m_stSrcFileName;
+			std::string m_stDstFileName;
+
+			SFaceSkin()
+			{
+				m_ePart = 0;
+			}
+			SFaceSkin(const SFaceSkin& c_rkSkin)
+			{
+				Copy(c_rkSkin);
+			}
+			void operator=(const SFaceSkin& c_rkSkin)
+			{
+				Copy(c_rkSkin);
+			}
+			void Copy(const SFaceSkin& c_rkSkin)
+			{
+				m_ePart = c_rkSkin.m_ePart;
+				m_stSrcFileName = c_rkSkin.m_stSrcFileName;
+				m_stDstFileName = c_rkSkin.m_stDstFileName;
+			}
+		};
+
 		struct SShape
+		{
+			std::string m_stModelFileName;
+			std::vector<SSkin> m_kVct_kSkin;
+		};
+
+		struct SFaceShape
 		{
 			std::string m_stModelFileName;
 			std::vector<SSkin> m_kVct_kSkin;
@@ -193,6 +226,7 @@ class CRaceData
 		void AppendShapeSkin(UINT eShape, UINT ePart, const char* c_szSrcFileName, const char* c_szDstFileName);
 
 		void SetHairSkin(UINT eHair, UINT ePart, const char* c_szModelFileName, const char* c_szSrcFileName, const char* c_szDstFileName);
+		void SetFaceSkin(UINT eHair, UINT ePart, const char* c_szModelFileName, const char* c_szSrcFileName, const char* c_szDstFileName);
 
 		/////
 
@@ -202,6 +236,7 @@ class CRaceData
 
 		SHair* FindHair(UINT eHair);
 		SShape* FindShape(UINT eShape);
+		SFaceShape* FindFaceShape(UINT eFace);
 
 	protected:
 		void __Initialize();
@@ -231,6 +266,7 @@ class CRaceData
 	
 		std::map<DWORD, SHair> m_kMap_dwHairKey_kHair;
 		std::map<DWORD, SShape> m_kMap_dwShapeKey_kShape;
+		std::map<DWORD, SFaceShape> m_kMap_dwFaceKey_kFace;
 
 		NRaceData::TAttachingDataVector m_AttachingDataVector;		
 

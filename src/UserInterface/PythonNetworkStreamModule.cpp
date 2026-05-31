@@ -545,24 +545,19 @@ PyObject* netSendCreateCharacterPacket(PyObject* poSelf, PyObject* poArgs)
 	if (!PyTuple_GetInteger(poArgs, 3, &shape))
 		return Py_BuildException();
 
-	int stat1;
-	if (!PyTuple_GetInteger(poArgs, 4, &stat1))
+	int hair;
+	if (!PyTuple_GetInteger(poArgs, 4, &hair))
 		return Py_BuildException();
-	int stat2;
-	if (!PyTuple_GetInteger(poArgs, 5, &stat2))
-		return Py_BuildException();
-	int stat3;
-	if (!PyTuple_GetInteger(poArgs, 6, &stat3))
-		return Py_BuildException();
-	int stat4;
-	if (!PyTuple_GetInteger(poArgs, 7, &stat4))
+
+	int face;
+	if (!PyTuple_GetInteger(poArgs, 5, &face))
 		return Py_BuildException();
 
 	if (index<0 && index>3)
 		return Py_BuildException();
 
 	CPythonNetworkStream& rkNetStream=CPythonNetworkStream::Instance();
-	rkNetStream.SendCreateCharacterPacket((BYTE) index, name, (BYTE) job, (BYTE) shape, stat1, stat2, stat3, stat4);
+	rkNetStream.SendCreateCharacterPacket((BYTE) index, name, (BYTE) job, (BYTE) shape, hair, face);
 	return Py_BuildNone();
 }
 
@@ -1951,6 +1946,7 @@ void initnet()
 	PyModule_AddIntConstant(poModule, "ACCOUNT_CHARACTER_SLOT_GUILD_NAME", CPythonNetworkStream::ACCOUNT_CHARACTER_SLOT_GUILD_NAME);
 	PyModule_AddIntConstant(poModule, "ACCOUNT_CHARACTER_SLOT_CHANGE_NAME_FLAG", CPythonNetworkStream::ACCOUNT_CHARACTER_SLOT_CHANGE_NAME_FLAG);
 	PyModule_AddIntConstant(poModule, "ACCOUNT_CHARACTER_SLOT_HAIR", CPythonNetworkStream::ACCOUNT_CHARACTER_SLOT_HAIR);
+	PyModule_AddIntConstant(poModule, "ACCOUNT_CHARACTER_SLOT_FACE", CPythonNetworkStream::ACCOUNT_CHARACTER_SLOT_FACE);
 	PyModule_AddIntConstant(poModule, "ACCOUNT_CHARACTER_SLOT_SHOULDER_SASH", CPythonNetworkStream::ACCOUNT_CHARACTER_SLOT_SHOULDER_SASH);
 
 	PyModule_AddIntConstant(poModule, "SERVER_COMMAND_LOG_OUT",	CPythonNetworkStream::SERVER_COMMAND_LOG_OUT);

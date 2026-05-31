@@ -77,6 +77,7 @@ void SNetworkActorData::__copy__(const SNetworkActorData& src)
 	m_dwArmor = src.m_dwArmor;
 	m_dwWeapon = src.m_dwWeapon;
 	m_dwHair = src.m_dwHair;
+	m_dwFace = src.m_dwFace;
 	m_dwShoulderSash = src.m_dwShoulderSash;
 
 	m_dwOwnerVID = src.m_dwOwnerVID;
@@ -105,6 +106,7 @@ SNetworkActorData::SNetworkActorData()
 	m_dwArmor=0;
 	m_dwWeapon=0;	
 	m_dwHair=0;
+	m_dwFace=0;
 	m_dwShoulderSash=0;
 	m_dwEmpireID=0;
 
@@ -358,6 +360,7 @@ CInstanceBase* CNetworkActorManager::__AppendCharacterManagerActor(SNetworkActor
 	kCreateData.m_dwArmor=rkNetActorData.m_dwArmor;
 	kCreateData.m_dwWeapon=rkNetActorData.m_dwWeapon;
 	kCreateData.m_dwHair=rkNetActorData.m_dwHair;
+	kCreateData.m_dwFace=rkNetActorData.m_dwFace;
 	kCreateData.m_dwShoulderSash=rkNetActorData.m_dwShoulderSash;
 	kCreateData.m_isMain=__IsMainActorVID(dwVID);
 
@@ -476,6 +479,7 @@ void CNetworkActorManager::UpdateActor(const SNetworkUpdateActorData& c_rkNetUpd
 		pkInstFind->ChangeArmor(c_rkNetUpdateActorData.m_dwArmor);		
 		pkInstFind->ChangeWeapon(c_rkNetUpdateActorData.m_dwWeapon);
 		pkInstFind->ChangeHair(c_rkNetUpdateActorData.m_dwHair);
+		pkInstFind->ChangeFace(c_rkNetUpdateActorData.m_dwFace);
 		pkInstFind->ChangeShoulderSash(c_rkNetUpdateActorData.m_dwShoulderSash);
 		pkInstFind->ChangeGuild(c_rkNetUpdateActorData.m_dwGuildID);
 		pkInstFind->SetAffectFlagContainer(c_rkNetUpdateActorData.m_kAffectFlags);
@@ -506,6 +510,7 @@ void CNetworkActorManager::UpdateActor(const SNetworkUpdateActorData& c_rkNetUpd
 	rkNetActorData.m_dwArmor=c_rkNetUpdateActorData.m_dwArmor;
 	rkNetActorData.m_dwWeapon=c_rkNetUpdateActorData.m_dwWeapon;
 	rkNetActorData.m_dwHair=c_rkNetUpdateActorData.m_dwHair;
+	rkNetActorData.m_dwFace=c_rkNetUpdateActorData.m_dwFace;
 	rkNetActorData.m_dwShoulderSash=c_rkNetUpdateActorData.m_dwShoulderSash;
 	rkNetActorData.m_sAlignment=c_rkNetUpdateActorData.m_sAlignment;
 	rkNetActorData.m_byPKMode=c_rkNetUpdateActorData.m_byPKMode;

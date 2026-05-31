@@ -50,11 +50,33 @@ void CRaceData::SetHairSkin(UINT eHair, UINT ePart, const char * c_szModelFileNa
 	m_kMap_dwHairKey_kHair[eHair].m_stModelFileName = c_szModelFileName;
 }
 
+void CRaceData::SetFaceSkin(UINT eFace, UINT ePart, const char* c_szModelFileName, const char* c_szSrcFileName, const char* c_szDstFileName)
+{
+	SSkin kSkin;
+	kSkin.m_ePart = ePart;
+	kSkin.m_stSrcFileName = c_szSrcFileName;
+	kSkin.m_stDstFileName = c_szDstFileName;
+
+	CFileNameHelper::ChangeDosPath(kSkin.m_stSrcFileName);
+	m_kMap_dwFaceKey_kFace[eFace].m_kVct_kSkin.push_back(kSkin);
+	m_kMap_dwFaceKey_kFace[eFace].m_stModelFileName = c_szModelFileName;
+}
+
 CRaceData::SShape* CRaceData::FindShape(UINT eShape)
 {
 	std::map<DWORD, SShape>::iterator f=m_kMap_dwShapeKey_kShape.find(eShape);
 	if (m_kMap_dwShapeKey_kShape.end()==f)
 		return NULL;
+
+	return &f->second;
+}
+
+CRaceData::SFaceShape* CRaceData::FindFaceShape(UINT eFace)
+{
+	std::map<DWORD, SFaceShape>::iterator f = m_kMap_dwFaceKey_kFace.find(eFace);
+	if (m_kMap_dwFaceKey_kFace.end() == f) {
+		return NULL;
+	}
 
 	return &f->second;
 }
@@ -542,6 +564,7 @@ void CRaceData::Destroy()
 {
 	m_kMap_dwHairKey_kHair.clear();
 	m_kMap_dwShapeKey_kShape.clear();
+	m_kMap_dwFaceKey_kFace.clear();
 
 	m_strBaseModelFileName = "";
 	m_strTreeFileName = "";

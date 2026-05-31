@@ -237,6 +237,10 @@ UINT CPythonNetworkStream::GetAccountCharacterSlotDatau(UINT iSlot, UINT eType)
 			break;
 		case ACCOUNT_CHARACTER_SLOT_HAIR:
 			return rkSimplePlayerInfo.wHairPart;
+			break;
+		case ACCOUNT_CHARACTER_SLOT_FACE:
+			return rkSimplePlayerInfo.wFacePart;
+			break;
 		case ACCOUNT_CHARACTER_SLOT_SHOULDER_SASH:
 			return rkSimplePlayerInfo.wShoulderSashPart;
 			break;

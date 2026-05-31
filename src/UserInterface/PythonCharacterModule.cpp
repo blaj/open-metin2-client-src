@@ -84,6 +84,7 @@ PyObject * chrCreateInstance(PyObject* poSelf, PyObject* poArgs)
 		kCreateData.m_dwArmor=8;
 		kCreateData.m_dwWeapon=0;
 		kCreateData.m_dwHair=0;
+		kCreateData.m_dwFace=0;
 		kCreateData.m_dwShoulderSash=0;
 		kCreateData.m_isMain=false;
 
@@ -364,6 +365,21 @@ PyObject * chrChangeHair(PyObject* poSelf, PyObject* poArgs)
 	if (!pkInst)
 		return Py_BuildNone();
 	pkInst->ChangeHair(iHair);
+	return Py_BuildNone();
+}
+
+PyObject* chrSetFace(PyObject* poSelf, PyObject* poArgs)
+{
+	int iForm;
+	if (!PyTuple_GetInteger(poArgs, 0, &iForm))
+		return Py_BuildException();
+
+	CInstanceBase* pkInst = CPythonCharacterManager::Instance().GetSelectedInstancePtr();
+	if (!pkInst)
+		return Py_BuildNone();
+
+	pkInst->SetFace(iForm);
+
 	return Py_BuildNone();
 }
 
@@ -1282,6 +1298,7 @@ void initchr()
 		{ "SetRace",					chrSetRace,							METH_VARARGS },
 		{ "SetHair",					chrSetHair,							METH_VARARGS },
 		{ "ChangeHair",					chrChangeHair,						METH_VARARGS },
+		{ "SetFace",					chrSetFace,							METH_VARARGS },
 		{ "SetVirtualID",				chrSetVirtualID,					METH_VARARGS },
 		{ "SetNameString",				chrSetNameString,					METH_VARARGS },
 		{ "SetInstanceType",			chrSetInstanceType,					METH_VARARGS },

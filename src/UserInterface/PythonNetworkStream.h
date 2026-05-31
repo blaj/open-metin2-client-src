@@ -69,6 +69,7 @@ class CPythonNetworkStream : public CNetworkStream, public CSingleton<CPythonNet
 			ACCOUNT_CHARACTER_SLOT_GUILD_NAME,
 			ACCOUNT_CHARACTER_SLOT_CHANGE_NAME_FLAG,
 			ACCOUNT_CHARACTER_SLOT_HAIR,
+			ACCOUNT_CHARACTER_SLOT_FACE,
 			ACCOUNT_CHARACTER_SLOT_SHOULDER_SASH,
 		};
 
@@ -326,7 +327,7 @@ class CPythonNetworkStream : public CNetworkStream, public CSingleton<CPythonNet
 		bool SendSelectEmpirePacket(DWORD dwEmpireID);
 		bool SendSelectCharacterPacket(BYTE account_Index);
 		bool SendChangeNamePacket(BYTE index, const char *name);
-		bool SendCreateCharacterPacket(BYTE index, const char *name, BYTE job, BYTE shape, BYTE byStat1, BYTE byStat2, BYTE byStat3, BYTE byStat4);
+		bool SendCreateCharacterPacket(BYTE index, const char *name, BYTE job, BYTE shape, WORD hair, WORD face);
 		bool SendDestroyCharacterPacket(BYTE index, const char * szPrivateCode);
 
 		// Main Game Phase

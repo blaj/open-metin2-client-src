@@ -244,6 +244,7 @@ class CActorInstance : public IActorInstance, public IFlyTargetableObject
 
 		bool SetRace(DWORD eRace);
 		void SetHair(DWORD eHair);
+		void SetPart(BYTE ePart, DWORD eIndex);
 		void AttachShoulderSash(CItemData* pItemData, float fSpecular = 0.0f);
 		void SetVirtualID(DWORD dwVID);
 

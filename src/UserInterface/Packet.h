@@ -1264,44 +1264,43 @@ typedef struct packet_header_dynamic_size
 
 typedef struct SSimplePlayerInformation
 {
-    uint32_t               dwID;
-    char                szName[CHARACTER_NAME_MAX_LEN + 1];
-    uint8_t                byJob;
-    uint8_t                byLevel;
-    uint32_t               dwPlayMinutes;
-    uint8_t                byST, byHT, byDX, byIQ;
-//	uint16_t				wParts[CRaceData::PART_MAX_NUM];
+    uint32_t                dwID;
+    char                    szName[CHARACTER_NAME_MAX_LEN + 1];
+    uint8_t                 byJob;
+    uint8_t                 byLevel;
+    uint32_t                dwPlayMinutes;
+    uint8_t                 byST, byHT, byDX, byIQ;
     uint16_t                wMainPart;
-    uint8_t                bChangeName;
+    uint8_t                 bChangeName;
 	uint16_t				wHairPart;
+    uint16_t                wFacePart;
     uint16_t            	wShoulderSashPart;
-    uint8_t                bDummy[4];
-	int32_t				x, y;
+	int32_t				    x, y;
 	uint32_t				lAddr;
 	uint16_t				wPort;
-	uint8_t				bySkillGroup;
+	uint8_t				    bySkillGroup;
 } TSimplePlayerInformation;
 
 typedef struct packet_login_success3
 {
-	uint16_t	header;
-	uint16_t	length;
+	uint16_t	                header;
+	uint16_t	                length;
 	TSimplePlayerInformation	akSimplePlayerInformation[PLAYER_PER_ACCOUNT3];
-    uint32_t						guild_id[PLAYER_PER_ACCOUNT3];
+    uint32_t					guild_id[PLAYER_PER_ACCOUNT3];
     char						guild_name[PLAYER_PER_ACCOUNT3][GUILD_NAME_MAX_LEN+1];
-	uint32_t handle;
-	uint32_t random_key;
+	uint32_t                    handle;
+	uint32_t                    random_key;
 } TPacketGCLoginSuccess3;
 
 typedef struct packet_login_success4
 {
-	uint16_t	header;
-	uint16_t	length;
+	uint16_t	                header;
+	uint16_t	                length;
 	TSimplePlayerInformation	akSimplePlayerInformation[PLAYER_PER_ACCOUNT4];
-    uint32_t						guild_id[PLAYER_PER_ACCOUNT4];
+    uint32_t					guild_id[PLAYER_PER_ACCOUNT4];
     char						guild_name[PLAYER_PER_ACCOUNT4][GUILD_NAME_MAX_LEN+1];
-	uint32_t handle;
-	uint32_t random_key;
+	uint32_t                    handle;
+	uint32_t                    random_key;
 } TPacketGCLoginSuccess4;
 
 
@@ -1317,14 +1316,12 @@ typedef struct command_player_create
 {
 	uint16_t	header;
 	uint16_t	length;
-	uint8_t        index;
+	uint8_t     index;
 	char        name[CHARACTER_NAME_MAX_LEN + 1];
-	uint16_t        job;
+	uint8_t     job;
 	uint8_t		shape;
-	uint8_t		CON;
-	uint8_t		INT;
-	uint8_t		STR;
-	uint8_t		DEX;
+    uint16_t    hair;
+    uint16_t    face;
 } TPacketCGCreateCharacter;
 
 typedef struct command_player_create_success
@@ -1383,6 +1380,7 @@ enum ECharacterEquipmentPart
 	CHR_EQUIPPART_WEAPON,
 	CHR_EQUIPPART_HEAD,
 	CHR_EQUIPPART_HAIR,
+    CHR_EQUIPPART_FACE,
     CHR_EQUIPPART_SHOULDER_SASH,
 
 	CHR_EQUIPPART_NUM,		
