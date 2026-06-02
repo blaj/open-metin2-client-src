@@ -755,9 +755,21 @@ bool LoadLocaleData(const char* localePath)
 		Tracenf("LoadLocaleData - LoadItemDesc(%s) Error", szItemDesc);
 	}
 
-	if (!rkNPCMgr.LoadNonPlayerData(szMobProto))
+	/*if (!rkNPCMgr.LoadNonPlayerData(szMobProto))
 	{
 		TraceError("LoadLocaleData - LoadMobProto(%s) Error", szMobProto);
+		return false;
+	}*/
+
+	if (!rkNPCMgr.LoadNonPlayerDataFromApi("localhost", "/api/definitions/monsters"))
+	{
+		TraceError("LoadMobProtoFromApi: error while loading.");
+		return false;
+	}
+
+	if (!rkNPCMgr.LoadDropDataFromApi("localhost", "api/definitions/monster-drops"))
+	{
+		TraceError("LoadDropDataFromApi: error while loading.");
 		return false;
 	}
 

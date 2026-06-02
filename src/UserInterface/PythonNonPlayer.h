@@ -114,8 +114,15 @@ class CPythonNonPlayer : public CSingleton<CPythonNonPlayer>
 		} TMobTable;
 #pragma pack(pop)
 
+		typedef struct SMonsterDrop
+		{
+			DWORD	dwItemVnum;
+			WORD	wCount;
+		} TMonsterDrop;
+
 		typedef std::list<TMobTable *> TMobTableList;
 		typedef std::map<DWORD, TMobTable *> TNonPlayerDataMap;
+		typedef std::map<DWORD, std::vector<TMonsterDrop>> TMonsterDropMap;
 
 	public:
 		CPythonNonPlayer(void);
@@ -125,6 +132,9 @@ class CPythonNonPlayer : public CSingleton<CPythonNonPlayer>
 		void Destroy();
 
 		bool				LoadNonPlayerData(const char * c_szFileName);
+		bool				LoadNonPlayerDataFromApi(const char* c_szApiUrl, const char* c_szPath);
+		bool				LoadDropDataFromApi(const char* c_szApiUrl, const char* c_szPath);
+		const std::vector<TMonsterDrop>* GetDrops(DWORD dwVnum) const;
 
 		const TMobTable *	GetTable(DWORD dwVnum);
 		bool				GetName(DWORD dwVnum, const char ** c_pszName);
@@ -133,10 +143,34 @@ class CPythonNonPlayer : public CSingleton<CPythonNonPlayer>
 		BYTE				GetEventTypeByVID(DWORD dwVID);
 		DWORD				GetMonsterColor(DWORD dwVnum);
 		const char*			GetMonsterName(DWORD dwVnum);
+		DWORD				GetMonsterMaxHP(DWORD dwVnum);
+		DWORD				GetMonsterRaceFlag(DWORD dwVnum);
+		DWORD				GetMonsterLevel(DWORD dwVnum);
+		DWORD				GetMonsterDamage1(DWORD dwVnum);
+		DWORD				GetMonsterDamage2(DWORD dwVnum);
+		DWORD				GetMonsterExp(DWORD dwVnum);
+		float				GetMonsterDamageMultiply(DWORD dwVnum);
+		DWORD				GetMonsterST(DWORD dwVnum);
+		DWORD				GetMonsterDX(DWORD dwVnum);
+		bool				IsMonsterStone(DWORD dwVnum);
+		DWORD				GetMonsterResist(DWORD dwVnum, BYTE bResistNum);
+		BYTE				GetMonsterRegenCycle(DWORD dwVnum);
+		BYTE				GetMonsterRegenPercent(DWORD dwVnum);
+		DWORD				GetMonsterGoldMin(DWORD dwVnum);
+		DWORD				GetMonsterGoldMax(DWORD dwVnum);
 
 		// Function for outer
 		void				GetMatchableMobList(int iLevel, int iInterval, TMobTableList * pMobTableList);
 
 	protected:
 		TNonPlayerDataMap	m_NonPlayerDataMap;
+		TMonsterDropMap		m_MonsterDropMap;
+
+	private:
+		bool HttpGet(const wchar_t* host, const wchar_t* path, std::vector<uint8_t>& outResponse);
+		bool SaveDropCache(const char* path, const std::vector<uint8_t>& bytes);
+		bool LoadDropCache(const char* path);
+		bool ParseDropData(const std::vector<uint8_t>& data);
+		bool LoadMobProtoCache(const char* path);
+		bool ParseMobProto(const std::vector<uint8_t>& data);
 };
