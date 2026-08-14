@@ -1,63 +1,58 @@
-﻿/build/
+﻿### CLion / JetBrains ###
+.idea/
 
-# =======================================================
-# FULLY CASE-INSENSITIVE BACKUP EXCLUSIONS
-# Matches all files and folders ending in:
-# _BK, _BAK, .BK, .BAK (and all case permutations)
-# =======================================================
+### CLion CMake builds ###
+cmake-build-*/
 
-# -------------------------------------------------------
-# 1. EXCLUSIONS ENDING IN .BK / _BK
-# -------------------------------------------------------
+### Visual Studio builds ###
+build/
+.vs/
 
-# Files/Folders ending in _BK (e.g., File_Bk, Folder_bK)
-*_BK
-*_Bk
-*_bK
-*_bk
+### Compilation output ###
+bin/
 
-# Files ending in .BK (e.g., File.BK, File.bK)
-*.BK
-*.Bk
-*.bK
-*.bk
+### Tools ###
+tools/cmake/
+tools/ninja/
 
-# Files ending in "double extension" .X.BK (e.g., File.txt.Bk)
-*.*.BK
-*.*.Bk
-*.*.bK
-*.*.bk
+### vcpkg ###
+vcpkg_installed/
 
-# -------------------------------------------------------
-# 2. EXCLUSIONS ENDING IN .BAK / _BAK
-# -------------------------------------------------------
+### CMake artifacts ###
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+Makefile
+*.ninja
+.ninja_log
+.ninja_deps
+compile_commands.json
 
-# Files/Folders ending in _BAK (e.g., File_BAK, Folder_bak)
-*_BAK
-*_BAk
-*_BaK
-*_Bak
-*_bAK
-*_bAk
-*_baK
-*_bak
+### MSVC ###
+*.obj
+*.ilk
+*.idb
+*.tlog
+*.iobj
+*.ipdb
+*.pch
 
-# Files ending in .BAK (e.g., File.BAK, File.bak)
-*.BAK
-*.BAk
-*.BaK
-*.Bak
-*.bAK
-*.bAk
-*.baK
-*.bak
+### Visual Studio
+*.user
+*.suo
+*.sdf
+*.opensdf
+*.VC.db
+*.VC.VC.opendb
 
-# Files ending in "double extension" .X.BAK (e.g., File.txt.Bak)
-*.*.BAK
-*.*.BAk
-*.*.BaK
-*.*.Bak
-*.*.bAK
-*.*.bAk
-*.*.baK
-*.*.bak
+### Python
+*.pyc
+__pycache__/
+
+### System
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.swp
+*~
