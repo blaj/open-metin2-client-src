@@ -310,6 +310,7 @@ bool CPythonApplication::Process()
 
 	m_kGuildMarkDownloader.Process();
 	m_kAccountConnector.Process();
+	m_kHttpClient.Process();
 
 #ifdef __PERFORMANCE_CHECK__		
 	DWORD dwUpdateTime3=ELTimer_GetMSec();

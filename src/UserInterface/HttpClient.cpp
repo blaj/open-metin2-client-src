@@ -1,5 +1,32 @@
 ﻿#include "HttpClient.h"
 
+#include "EterBase/Debug.h"
+
+#ifdef _DEBUG
+static int __DebugCallback(CURL *pHandle, curl_infotype eType, char *pData, size_t nSize, void *pUserPtr) {
+  const char *szPrefix;
+  switch (eType) {
+    case CURLINFO_TEXT:       szPrefix = "* "; break;
+    case CURLINFO_HEADER_OUT: szPrefix = "> "; break;
+    case CURLINFO_HEADER_IN:  szPrefix = "< "; break;
+    default: return 0;
+  }
+
+  std::string strLine(pData, nSize);
+  while (!strLine.empty() && (strLine.back() == '\n' || strLine.back() == '\r')) {
+    strLine.pop_back();
+  }
+
+  if (strLine.rfind("Authorization:", 0) == 0) {
+    strLine = "Authorization: <hidden>";
+  }
+
+	Tracen((szPrefix + strLine).c_str());
+
+  return 0;
+}
+#endif
+
 static size_t __WriteCallback(char *ptr, size_t size, size_t nmemb, void *userdata) {
   static_cast<std::string *>(userdata)->append(ptr, size * nmemb);
   return size * nmemb;
@@ -38,6 +65,14 @@ void CHttpClient::__StartRequest(
   curl_easy_setopt(req.pEasyHandle, CURLOPT_WRITEDATA, &req.strResponseBuffer);
   curl_easy_setopt(req.pEasyHandle, CURLOPT_TIMEOUT_MS, 8000L);
   curl_easy_setopt(req.pEasyHandle, CURLOPT_PRIVATE, &req);
+
+#ifdef DEBUG
+  curl_easy_setopt(req.pEasyHandle, CURLOPT_SSL_VERIFYPEER, 0L);
+  curl_easy_setopt(req.pEasyHandle, CURLOPT_SSL_VERIFYHOST, 0L);
+
+  curl_easy_setopt(req.pEasyHandle, CURLOPT_VERBOSE, 1L);
+  curl_easy_setopt(req.pEasyHandle, CURLOPT_DEBUGFUNCTION, __DebugCallback);
+#endif
 
   if (pstrBody) {
     curl_easy_setopt(req.pEasyHandle, CURLOPT_COPYPOSTFIELDS, pstrBody->c_str());

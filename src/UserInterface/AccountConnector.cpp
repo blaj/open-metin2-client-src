@@ -52,7 +52,7 @@ bool CAccountConnector::Login() {
 	std::string strBody = "{\"username\":\"" + m_strID + "\",\"password\":\"" + m_strPassword + "\"}";
 	ClearLoginInfo();
 
-	CHttpClient::Instance().Post("https://wasz-auth-service/api/auth/login", strBody, "",
+	CHttpClient::Instance().Post("https://localhost:8080/api/auth/login", strBody, "",
 				[this](bool bSuccess, long lStatus, const std::string& strResponseBody)
 				{
 						__OnLoginResponse(bSuccess, lStatus, strResponseBody);

@@ -45,6 +45,8 @@
 
 #include <qedit.h>
 
+#include "HttpClient.h"
+
 class CPythonApplication : public CMSApplication, public CInputKeyboard, public IAbstractApplication
 {
 	public:
@@ -350,6 +352,7 @@ class CPythonApplication : public CMSApplication, public CInputKeyboard, public 
 		CGuildMarkDownloader		m_kGuildMarkDownloader;
 		CGuildMarkUploader			m_kGuildMarkUploader;
 		CAccountConnector			m_kAccountConnector;
+		CHttpClient						m_kHttpClient;
 
 		CGraphicDevice				m_grpDevice;
 		CNetworkDevice				m_netDevice;

@@ -11,6 +11,9 @@ using HttpCallback = std::function<void(bool bSuccess, long lStatusCode, const s
 
 class CHttpClient : public CSingleton<CHttpClient> {
 public:
+  CHttpClient();
+  ~CHttpClient();
+
   void Get(const std::string &strUrl, const std::string &strBearerToken, HttpCallback callback);
 
   void Post(
@@ -31,9 +34,6 @@ private:
     std::string strResponseBuffer;
     HttpCallback callback;
   };
-
-  CHttpClient();
-  ~CHttpClient();
 
   void __StartRequest(
     const std::string &strUrl,
