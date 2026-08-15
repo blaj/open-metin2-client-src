@@ -2437,6 +2437,8 @@ bool CPythonNetworkStream::RecvGameMastersNamesPacket()
 
 		PyCallClassMemberFunc(m_apoPhaseWnd[PHASE_WINDOW_GAME], "RegisterGameMasterName", Py_BuildValue("(s)", szName));
 	}
+
+	return true;
 }
 
 bool CPythonNetworkStream::SendShoulderSashClosePacket()

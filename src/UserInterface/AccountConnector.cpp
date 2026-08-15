@@ -2,6 +2,8 @@
 #include "AccountConnector.h"
 #include "Packet.h"
 #include "PythonNetworkStream.h"
+#include "HttpClient.h"
+#include "rapidjson/document.h"
 
 void CAccountConnector::SetHandler(PyObject* poHandler)
 {
@@ -44,6 +46,19 @@ void CAccountConnector::Process()
 		__OfflineState_Set();
 		Disconnect();
 	}
+}
+
+bool CAccountConnector::Login() {
+	std::string strBody = "{\"username\":\"" + m_strID + "\",\"password\":\"" + m_strPassword + "\"}";
+	ClearLoginInfo();
+
+	CHttpClient::Instance().Post("https://wasz-auth-service/api/auth/login", strBody, "",
+				[this](bool bSuccess, long lStatus, const std::string& strResponseBody)
+				{
+						__OnLoginResponse(bSuccess, lStatus, strResponseBody);
+				});
+
+	return true;
 }
 
 bool CAccountConnector::__StateProcess()
@@ -203,6 +218,48 @@ bool CAccountConnector::__AnalyzePacket(UINT uHeader, UINT uPacketSize, bool (CA
 		return true;
 
 	return (this->*pfnDispatchPacket)();
+}
+
+void CAccountConnector::__OnLoginResponse(bool bSuccess, long lStatus, const std::string &strResponseBody) {
+	if (!bSuccess) {
+		OnConnectFailure();
+		return;
+	}
+
+	if (lStatus == 200) {
+		rapidjson::Document doc;
+		if (doc.Parse(strResponseBody.c_str()).HasParseError() ||
+		    !doc.IsObject() || !doc.HasMember("sessionToken") || !doc["sessionToken"].IsString()) {
+			Tracen("CAccountConnector::__OnLoginResponse - malformed 200 response body");
+
+			if (m_poHandler) {
+				PyCallClassMemberFunc(m_poHandler, "OnLoginFailure", Py_BuildValue("(s)", "NOTAVAIL"));
+			}
+
+			return;
+		}
+
+		// CPythonNetworkStream::Instance().SetSessionToken(doc["sessionToken"].GetString());
+
+		if (m_poHandler) {
+			PyCallClassMemberFunc(m_poHandler, "OnLoginSuccess", Py_BuildValue("()"));
+		}
+		return;
+	}
+
+	if (m_poHandler) {
+		PyCallClassMemberFunc(m_poHandler, "OnLoginFailure",
+												 Py_BuildValue("(s)", __MapHttpStatusToLegacyCode(lStatus).c_str()));
+	}
+}
+
+std::string CAccountConnector::__MapHttpStatusToLegacyCode(long lStatus) {
+	switch (lStatus) {
+		case 401:
+			return "WRONGPWD";
+		default:
+			return "HTTP_" + std::to_string(lStatus);
+	}
 }
 
 void CAccountConnector::__OfflineState_Set()

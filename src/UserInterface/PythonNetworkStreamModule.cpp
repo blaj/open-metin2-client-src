@@ -336,6 +336,12 @@ PyObject* netConnectToAccountServer(PyObject* poSelf, PyObject* poArgs)
 	return Py_BuildNone();
 }
 
+PyObject* netLogin(PyObject* poSelf, PyObject* poArgs) {
+	CAccountConnector &rkAccountConnector = CAccountConnector::Instance();
+	rkAccountConnector.Login();
+	return Py_BuildNone();
+}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 PyObject* netSetLoginInfo(PyObject* poSelf, PyObject* poArgs)
@@ -1783,6 +1789,7 @@ void initnet()
 		{ "ExitApplication",					netExitApplication,						METH_VARARGS },
 		{ "ConnectTCP",							netConnectTCP,							METH_VARARGS },
 		{ "ConnectToAccountServer",				netConnectToAccountServer,				METH_VARARGS },
+		{ "Login", netLogin, METH_VARARGS },
 
 		{ "SendLoginPacket",					netSendLoginPacket,						METH_VARARGS },
 		{ "SendSelectEmpirePacket",				netSendSelectEmpirePacket,				METH_VARARGS },

@@ -25,6 +25,8 @@ class CAccountConnector : public CNetworkStream, public CSingleton<CAccountConne
 		void Disconnect();
 		void Process();
 
+		bool Login();
+
 	protected:
 		void OnConnectFailure();
 		void OnConnectSuccess();
@@ -53,6 +55,9 @@ class CAccountConnector : public CNetworkStream, public CSingleton<CAccountConne
 		bool __AuthState_RecvKeyCompleteBase()   { return RecvKeyComplete(); }
 
 		bool __AnalyzePacket(UINT uHeader, UINT uPacketSize, bool (CAccountConnector::*pfnDispatchPacket)());
+
+		void __OnLoginResponse(bool bSuccess, long lStatus, const std::string &strResponseBody);
+		std::string __MapHttpStatusToLegacyCode(long lStatus);
 
 	protected:
 		UINT m_eState;
