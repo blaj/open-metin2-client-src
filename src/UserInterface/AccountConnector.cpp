@@ -239,7 +239,7 @@ void CAccountConnector::__OnLoginResponse(bool bSuccess, long lStatus, const std
 			return;
 		}
 
-		// CPythonNetworkStream::Instance().SetSessionToken(doc["sessionToken"].GetString());
+		CPythonNetworkStream::Instance().SetSessionToken(doc["sessionToken"].GetString());
 
 		if (m_poHandler) {
 			PyCallClassMemberFunc(m_poHandler, "OnLoginSuccess", Py_BuildValue("()"));
@@ -253,7 +253,7 @@ void CAccountConnector::__OnLoginResponse(bool bSuccess, long lStatus, const std
 	}
 }
 
-std::string CAccountConnector::__MapHttpStatusToLegacyCode(long lStatus) {
+std::string CAccountConnector::__MapHttpStatusToLegacyCode(const long lStatus) {
 	switch (lStatus) {
 		case 401:
 			return "WRONGPWD";

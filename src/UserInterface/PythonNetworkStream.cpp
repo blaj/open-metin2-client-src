@@ -315,7 +315,7 @@ void CPythonNetworkStream::SetLoginInfo(const char* c_szID, const char* c_szPass
 	m_stPassword=c_szPassword;
 }
 
-void CPythonNetworkStream::ClearLoginInfo( void )
+void CPythonNetworkStream::ClearLoginInfo()
 {
 	m_stPassword = "";
 }
@@ -323,6 +323,10 @@ void CPythonNetworkStream::ClearLoginInfo( void )
 void CPythonNetworkStream::SetLoginKey(DWORD dwLoginKey)
 {
 	m_dwLoginKey = dwLoginKey;
+}
+
+void CPythonNetworkStream::SetSessionToken(const std::string &strSessionToken) {
+	m_strSessionToken = strSessionToken;
 }
 
 // Table-driven packet dispatch — replaces CheckPacket() + per-phase switch statements.

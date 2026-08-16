@@ -140,7 +140,8 @@ class CPythonNetworkStream : public CNetworkStream, public CSingleton<CPythonNet
 
 		void SetLoginInfo(const char* c_szID, const char* c_szPassword);
 		void SetLoginKey(DWORD dwLoginKey);
-		void ClearLoginInfo( void );
+		void SetSessionToken(const std::string &strSessionToken);
+		void ClearLoginInfo();
 
 		void SetHandler(PyObject* poHandler);
 		void SetPhaseWindow(UINT ePhaseWnd, PyObject* poPhaseWnd);
@@ -721,6 +722,7 @@ class CPythonNetworkStream : public CNetworkStream, public CSingleton<CPythonNet
 		std::string	m_strLastCommand;
 		std::string	m_strPhase;
 		DWORD m_dwLoginKey;
+		std::string m_strSessionToken;
 		BOOL m_isWaitLoginKey;
 
 		std::string m_stMarkIP;

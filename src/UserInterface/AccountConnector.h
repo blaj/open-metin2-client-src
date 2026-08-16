@@ -57,7 +57,7 @@ class CAccountConnector : public CNetworkStream, public CSingleton<CAccountConne
 		bool __AnalyzePacket(UINT uHeader, UINT uPacketSize, bool (CAccountConnector::*pfnDispatchPacket)());
 
 		void __OnLoginResponse(bool bSuccess, long lStatus, const std::string &strResponseBody);
-		std::string __MapHttpStatusToLegacyCode(long lStatus);
+		static std::string __MapHttpStatusToLegacyCode(long lStatus);
 
 	protected:
 		UINT m_eState;
